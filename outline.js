@@ -2357,6 +2357,10 @@ class Outline {
     const detailText = textSpan ? textSpan.textContent : '';
     const parentLi = li.parentNode.closest('li');
     const parentUl = li.parentNode;
+    
+    // Find the next element to focus on before removing the current one
+    const nextElement = this.findNextFocusableElement(li);
+    
     li.remove();
     if (parentUl && parentUl.tagName === 'UL') {
       // If parent LI exists, update child count and possibly remove empty ul
@@ -2369,7 +2373,45 @@ class Outline {
         }
       }
     }
+    
+    // Set focus on the next available element
+    if (nextElement) {
+      nextElement.focus();
+    }
+    
     this.emit('outline:remove', { id, text: detailText });
+  }
+
+  findNextFocusableElement(li) {
+    // Get all siblings of the current element
+    const siblings = this.getSiblings(li);
+    const currentIndex = siblings.indexOf(li);
+    
+    // Try to find the next sibling
+    if (currentIndex < siblings.length - 1) {
+      return siblings[currentIndex + 1];
+    }
+    
+    // If no next sibling, try the previous sibling
+    if (currentIndex > 0) {
+      return siblings[currentIndex - 1];
+    }
+    
+    // If no siblings, try to find the parent
+    const parentLi = li.parentNode.closest('li');
+    if (parentLi) {
+      return parentLi;
+    }
+    
+    // If no parent, try to find any available element in the list
+    const allItems = this.getItems();
+    if (allItems.length > 1) {
+      // Find the first item that's not the one being removed
+      return allItems.find(item => item !== li);
+    }
+    
+    // No other elements available
+    return null;
   }
 
   toggleTag(li, tag, isChecked) {

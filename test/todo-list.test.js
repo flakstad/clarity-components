@@ -1496,4 +1496,101 @@ describe('Outline Web Component', () => {
       expect(shadowHoverButtons.style.display).not.toBe('none');
     });
   });
+
+  describe('Focus Management After Removal', () => {
+    test('should remove item and maintain focus on next available element', () => {
+      todoList.addItem('First todo');
+      todoList.addItem('Second todo');
+      todoList.addItem('Third todo');
+      
+      const firstTodo = getTodoByText(outlineList, 'First todo');
+      const secondTodo = getTodoByText(outlineList, 'Second todo');
+      
+      // Focus on first todo
+      firstTodo.focus();
+      
+      // Remove first todo
+      todoList.removeItem(firstTodo);
+      
+      // Verify that the first todo was removed
+      const remainingTodos = getAllTodos(outlineList);
+      expect(remainingTodos.length).toBe(2);
+      expect(remainingTodos.find(todo => 
+        todo.querySelector('.outline-text').textContent === 'First todo'
+      )).toBeUndefined();
+      
+      // Verify that the second todo still exists
+      expect(remainingTodos.find(todo => 
+        todo.querySelector('.outline-text').textContent === 'Second todo'
+      )).toBeDefined();
+    });
+
+    test('should remove last item and maintain focus on previous sibling', () => {
+      todoList.addItem('First todo');
+      todoList.addItem('Second todo');
+      todoList.addItem('Third todo');
+      
+      const secondTodo = getTodoByText(outlineList, 'Second todo');
+      const thirdTodo = getTodoByText(outlineList, 'Third todo');
+      
+      // Focus on third todo
+      thirdTodo.focus();
+      
+      // Remove third todo
+      todoList.removeItem(thirdTodo);
+      
+      // Verify that the third todo was removed
+      const remainingTodos = getAllTodos(outlineList);
+      expect(remainingTodos.length).toBe(2);
+      expect(remainingTodos.find(todo => 
+        todo.querySelector('.outline-text').textContent === 'Third todo'
+      )).toBeUndefined();
+      
+      // Verify that the second todo still exists
+      expect(remainingTodos.find(todo => 
+        todo.querySelector('.outline-text').textContent === 'Second todo'
+      )).toBeDefined();
+    });
+
+    test('should remove only child and maintain focus on parent', () => {
+      todoList.addItem('Parent todo');
+      const parentTodo = getTodoByText(outlineList, 'Parent todo');
+      
+      todoList.addItem('Child todo', parentTodo);
+      const childTodo = getTodoByText(outlineList, 'Child todo');
+      
+      // Focus on child todo
+      childTodo.focus();
+      
+      // Remove child todo
+      todoList.removeItem(childTodo);
+      
+      // Verify that the child todo was removed
+      const remainingTodos = getAllTodos(outlineList);
+      expect(remainingTodos.length).toBe(1);
+      expect(remainingTodos.find(todo => 
+        todo.querySelector('.outline-text').textContent === 'Child todo'
+      )).toBeUndefined();
+      
+      // Verify that the parent todo still exists
+      expect(remainingTodos.find(todo => 
+        todo.querySelector('.outline-text').textContent === 'Parent todo'
+      )).toBeDefined();
+    });
+
+    test('should handle removal of last remaining item', () => {
+      todoList.addItem('Only todo');
+      const onlyTodo = getTodoByText(outlineList, 'Only todo');
+      
+      // Focus on the only todo
+      onlyTodo.focus();
+      
+      // Remove the only todo
+      todoList.removeItem(onlyTodo);
+      
+      // Verify that the only todo was removed
+      const remainingTodos = getAllTodos(outlineList);
+      expect(remainingTodos.length).toBe(0);
+    });
+  });
 });
