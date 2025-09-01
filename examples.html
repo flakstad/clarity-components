@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Outline Component Examples</title>
+  <style>
+    /* Demo page styling */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    
+    /* Page theme variables */
+    :root {
+      /* Default dark theme for page */
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2d2d2d;
+      --bg-tertiary: #333333;
+      --text-primary: #f8f8f2;
+      --text-secondary: #ddd;
+      --text-muted: #888;
+      --border: #555;
+      --hover: rgba(255, 255, 255, 0.05);
+      
+      /* Web component theme variables */
+      --clarity-outline-bg-primary: #1e1e1e;
+      --clarity-outline-bg-secondary: #2d2d2d;
+      --clarity-outline-bg-tertiary: #333333;
+      --clarity-outline-text-primary: #f8f8f2;
+      --clarity-outline-text-secondary: #ddd;
+      --clarity-outline-text-muted: #888;
+      --clarity-outline-border: #555;
+      --clarity-outline-border-focus: #f92672;
+      --clarity-outline-hover: rgba(255, 255, 255, 0.05);
+      --clarity-outline-focus: rgba(255, 255, 255, 0.1);
+      --clarity-outline-input-bg: #2d2d2d;
+      --clarity-outline-input-border: #555;
+      --clarity-outline-popup-bg: #2d2d2d;
+      --clarity-outline-popup-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Light theme */
+    @media (prefers-color-scheme: light) {
+      :root {
+        /* Light theme for page */
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8f9fa;
+        --bg-tertiary: #e9ecef;
+        --text-primary: #212529;
+        --text-secondary: #6c757d;
+        --text-muted: #adb5bd;
+        --border: #dee2e6;
+        --hover: rgba(0, 0, 0, 0.05);
+        
+        /* Light theme for web components */
+        --clarity-outline-bg-primary: #ffffff;
+        --clarity-outline-bg-secondary: #f8f9fa;
+        --clarity-outline-bg-tertiary: #e9ecef;
+        --clarity-outline-text-primary: #212529;
+        --clarity-outline-text-secondary: #6c757d;
+        --clarity-outline-text-muted: #adb5bd;
+        --clarity-outline-border: #dee2e6;
+        --clarity-outline-border-focus: #007bff;
+        --clarity-outline-hover: rgba(0, 0, 0, 0.05);
+        --clarity-outline-focus: rgba(0, 0, 0, 0.1);
+        --clarity-outline-input-bg: #ffffff;
+        --clarity-outline-input-border: #ced4da;
+        --clarity-outline-popup-bg: #ffffff;
+        --clarity-outline-popup-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+    
+    .demo-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .demo-section {
+      margin-bottom: 4rem;
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-secondary);
+    }
+    
+    .demo-section h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+      color: var(--text-primary);
+    }
+    
+    .demo-section h3 {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+    }
+    
+    .code-block {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      overflow-x: auto;
+      color: var(--text-primary);
+    }
+    
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.5rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    
+    .theme-toggle:hover {
+      background: var(--hover);
+    }
+    
+    /* Custom theme examples */
+    .custom-theme {
+      --clarity-outline-bg-primary: #2c3e50;
+      --clarity-outline-bg-secondary: #34495e;
+      --clarity-outline-bg-tertiary: #3a4a5c;
+      --clarity-outline-text-primary: #ecf0f1;
+      --clarity-outline-text-secondary: #bdc3c7;
+      --clarity-outline-text-muted: #95a5a6;
+      --clarity-outline-border: #4a5a6c;
+      --clarity-outline-hover: rgba(236, 240, 241, 0.1);
+      --clarity-outline-color-todo: #e74c3c;
+      --clarity-outline-color-done: #27ae60;
+      --clarity-outline-color-priority: #f39c12;
+      --clarity-outline-color-onhold: #e67e22;
+    }
+    
+    .minimal-theme {
+      --clarity-outline-bg-primary: #ffffff;
+      --clarity-outline-bg-secondary: #f8f9fa;
+      --clarity-outline-bg-tertiary: #e9ecef;
+      --clarity-outline-text-primary: #212529;
+      --clarity-outline-text-secondary: #6c757d;
+      --clarity-outline-text-muted: #adb5bd;
+      --clarity-outline-border: #dee2e6;
+      --clarity-outline-hover: rgba(0, 0, 0, 0.05);
+      --clarity-outline-color-todo: #dc3545;
+      --clarity-outline-color-done: #28a745;
+      --clarity-outline-color-priority: #fd7e14;
+      --clarity-outline-color-onhold: #ffc107;
+    }
+    
+    .dark-theme {
+      --clarity-outline-bg-primary: #1a1a1a;
+      --clarity-outline-bg-secondary: #2d2d2d;
+      --clarity-outline-bg-tertiary: #404040;
+      --clarity-outline-text-primary: #ffffff;
+      --clarity-outline-text-secondary: #cccccc;
+      --clarity-outline-text-muted: #999999;
+      --clarity-outline-border: #555555;
+      --clarity-outline-hover: rgba(255, 255, 255, 0.1);
+      --clarity-outline-color-todo: #ff6b6b;
+      --clarity-outline-color-done: #4ecdc4;
+      --clarity-outline-color-priority: #ffa726;
+      --clarity-outline-color-onhold: #ffcc02;
+    }
+  </style>
+</head>
+<body>
+
+<div class="theme-toggle" onclick="toggleTheme()">
+  🌓 Toggle Theme
+</div>
+
+<div class="demo-container">
+  <h1>Outline Component Examples</h1>
+  
+  <div class="demo-section">
+    <h2>1. Empty Outline</h2>
+    <p>A basic outline component with no initial data. You can add items by clicking the "Add todo" button.</p>
+    
+    <clarity-outline 
+      id="empty-outline"
+      options='{
+        "assignees": ["alice", "bob", "charlie"],
+        "tags": ["urgent", "bug", "feature", "docs"],
+        "statusLabels": [
+          {"label": "TODO", "isEndState": false},
+          {"label": "IN PROGRESS", "isEndState": false},
+          {"label": "DONE", "isEndState": true}
+        ]
+      }'>
+    </clarity-outline>
+  </div>
+
+  <div class="demo-section">
+    <h2>2. Sample Data Example</h2>
+    <p>The original example with sample todo items demonstrating various features.</p>
+    
+    <clarity-outline 
+      id="sample-outline"
+      data-items='[
+        {
+          "id": "1",
+          "text": "Buy groceries",
+          "status": "TODO"
+        },
+        {
+          "id": "2",
+          "text": "Do the thing that must be done",
+          "status": "TODO",
+          "priority": true
+        },
+        {
+          "id": "3",
+          "text": "Review pull request",
+          "status": "DONE",
+          "tags": ["urgent", "review"]
+        },
+        {
+          "id": "4",
+          "text": "Setup development environment",
+          "status": "IN PROGRESS",
+          "assign": "bob"
+        },
+        {
+          "id": "5",
+          "text": "Write documentation",
+          "status": "TODO",
+          "schedule": "Jan 5",
+          "tags": ["docs", "feature"]
+        },
+        {
+          "id": "6",
+          "text": "Project Planning",
+          "status": "none",
+          "noLabel": true,
+          "children": [
+            {
+              "id": "7",
+              "text": "Define requirements",
+              "status": "TODO",
+              "schedule": "Jan 2"
+            },
+            {
+              "id": "8",
+              "text": "Create wireframes",
+              "status": "TODO",
+              "assign": "diana",
+              "tags": ["design", "ui"]
+            }
+          ]
+        },
+        {
+          "id": "9",
+          "text": "Fix critical bug",
+          "status": "TODO",
+          "priority": true,
+          "onHold": true,
+          "tags": ["urgent", "bug"]
+        },
+        {
+          "id": "10",
+          "text": "Cancelled feature",
+          "status": "CANCELLED",
+          "assign": "diana",
+          "tags": ["feature", "cancelled"]
+        }
+      ]'
+      options='{
+        "assignees": ["alice", "bob", "charlie", "diana", "eve", "frank"],
+        "tags": ["urgent", "bug", "feature", "docs", "review", "ui", "backend", "testing"],
+        "statusLabels": [
+          {"label": "TODO", "isEndState": false},
+          {"label": "IN PROGRESS", "isEndState": false},
+          {"label": "DONE", "isEndState": true},
+          {"label": "CANCELLED", "isEndState": true}
+        ]
+      }'>
+    </clarity-outline>
+  </div>
+
+  <div class="demo-section custom-theme">
+    <h2>3. Custom Theme - Blue</h2>
+    <p>Example with a custom blue theme applied to the section.</p>
+    
+    <clarity-outline 
+      id="custom-outline"
+      data-items='[
+        {
+          "id": "1",
+          "text": "Custom themed todo",
+          "status": "TODO",
+          "priority": true
+        },
+        {
+          "id": "2",
+          "text": "Another item",
+          "status": "IN PROGRESS",
+          "tags": ["feature"]
+        }
+      ]'
+      options='{
+        "assignees": ["alice", "bob"],
+        "tags": ["urgent", "feature"],
+        "statusLabels": [
+          {"label": "TODO", "isEndState": false},
+          {"label": "IN PROGRESS", "isEndState": false},
+          {"label": "DONE", "isEndState": true}
+        ]
+      }'>
+    </clarity-outline>
+  </div>
+
+  <div class="demo-section minimal-theme">
+    <h2>4. Minimal Theme</h2>
+    <p>A clean, minimal theme with subtle colors.</p>
+    
+    <clarity-outline 
+      id="minimal-outline"
+      data-items='[
+        {
+          "id": "1",
+          "text": "Minimal design todo",
+          "status": "TODO"
+        },
+        {
+          "id": "2",
+          "text": "Clean and simple",
+          "status": "DONE"
+        }
+      ]'
+      options='{
+        "assignees": ["alice"],
+        "tags": ["simple"],
+        "statusLabels": [
+          {"label": "TODO", "isEndState": false},
+          {"label": "DONE", "isEndState": true}
+        ]
+      }'>
+    </clarity-outline>
+  </div>
+
+  <div class="demo-section dark-theme">
+    <h2>5. Dark Theme</h2>
+    <p>A dark theme with high contrast colors.</p>
+    
+    <clarity-outline 
+      id="dark-outline"
+      data-items='[
+        {
+          "id": "1",
+          "text": "Dark mode todo",
+          "status": "TODO",
+          "priority": true
+        },
+        {
+          "id": "2",
+          "text": "High contrast item",
+          "status": "IN PROGRESS",
+          "tags": ["urgent"]
+        }
+      ]'
+      options='{
+        "assignees": ["alice", "bob"],
+        "tags": ["urgent", "feature"],
+        "statusLabels": [
+          {"label": "TODO", "isEndState": false},
+          {"label": "IN PROGRESS", "isEndState": false},
+          {"label": "DONE", "isEndState": true}
+        ]
+      }'>
+    </clarity-outline>
+  </div>
+
+  <div class="demo-section">
+    <h2>6. Custom Styling Example</h2>
+    <p>Example with custom CSS variables for spacing and styling.</p>
+    
+    <clarity-outline 
+      id="custom-styled-outline"
+      data-items='[
+        {
+          "id": "1",
+          "text": "Custom styled item",
+          "status": "TODO"
+        }
+      ]'
+      options='{
+        "assignees": ["alice"],
+        "tags": ["custom"],
+        "statusLabels": [
+          {"label": "TODO", "isEndState": false},
+          {"label": "DONE", "isEndState": true}
+        ]
+      }'
+      style="
+        --clarity-outline-spacing: 0.5rem;
+        --clarity-outline-padding: 0.75rem;
+        --clarity-outline-border-radius: 4px;
+        --clarity-outline-font-size: 16px;
+        --clarity-outline-line-height: 1.6;
+        --clarity-outline-transition-duration: 0.2s;
+        --clarity-outline-nested-indent: 1rem;
+        --clarity-outline-nested-border-width: 2px;
+        --clarity-outline-nested-border-style: solid;
+      ">
+    </clarity-outline>
+  </div>
+
+  <div class="demo-section">
+    <h2>7. Feature Options Examples</h2>
+    <p>Examples demonstrating the new feature options functionality.</p>
+    
+    <h3>Default Features (All Enabled)</h3>
+    <p>All features are enabled by default: priority, on hold, due date, assign, and tags.</p>
+    <div class="code-block">
+&lt;clarity-outline 
+  data-items='[{"id":"1","text":"Buy groceries","status":"TODO"},{"id":"2","text":"Write documentation","status":"TODO"},{"id":"3","text":"Review pull requests","status":"TODO"}]'&gt;
+&lt;/clarity-outline&gt;
+    </div>
+    <clarity-outline 
+      data-items='[{"id":"1","text":"Buy groceries","status":"TODO"},{"id":"2","text":"Write documentation","status":"TODO"},{"id":"3","text":"Review pull requests","status":"TODO"}]'>
+    </clarity-outline>
+
+    <h3>Minimal Features (Only Status, Edit, Open)</h3>
+    <p>Only the non-customizable features are enabled: status, edit, and open. All other features are disabled.</p>
+    <div class="code-block">
+&lt;clarity-outline 
+  data-features='{"priority": false, "onHold": false, "dueDate": false, "assign": false, "tags": false}'
+  data-items='[{"id":"1","text":"Simple task 1","status":"TODO"},{"id":"2","text":"Simple task 2","status":"TODO"},{"id":"3","text":"Simple task 3","status":"TODO"}]'&gt;
+&lt;/clarity-outline&gt;
+    </div>
+    <clarity-outline 
+      data-features='{"priority": false, "onHold": false, "dueDate": false, "assign": false, "tags": false}'
+      data-items='[{"id":"1","text":"Simple task 1","status":"TODO"},{"id":"2","text":"Simple task 2","status":"TODO"},{"id":"3","text":"Simple task 3","status":"TODO"}]'>
+    </clarity-outline>
+
+    <h3>Custom Feature Selection</h3>
+    <p>Only priority and tags are enabled. On hold, due date, and assign are disabled.</p>
+    <div class="code-block">
+&lt;clarity-outline 
+  data-features='{"priority": true, "onHold": false, "dueDate": false, "assign": false, "tags": true}'
+  data-items='[{"id":"1","text":"High priority task","status":"TODO"},{"id":"2","text":"Bug fix","status":"TODO"},{"id":"3","text":"Feature implementation","status":"TODO"}]'&gt;
+&lt;/clarity-outline&gt;
+    </div>
+    <clarity-outline 
+      data-features='{"priority": true, "onHold": false, "dueDate": false, "assign": false, "tags": true}'
+      data-items='[{"id":"1","text":"High priority task","status":"TODO"},{"id":"2","text":"Bug fix","status":"TODO"},{"id":"3","text":"Feature implementation","status":"TODO"}]'>
+    </clarity-outline>
+
+    <h3>Task Management Features Only</h3>
+    <p>Only task management features are enabled: priority, due date, and assign. Tags and on hold are disabled.</p>
+    <div class="code-block">
+&lt;clarity-outline 
+  data-features='{"priority": true, "onHold": false, "dueDate": true, "assign": true, "tags": false}'
+  data-items='[{"id":"1","text":"Project planning","status":"TODO"},{"id":"2","text":"Team meeting","status":"TODO"},{"id":"3","text":"Code review","status":"TODO"}]'&gt;
+&lt;/clarity-outline&gt;
+    </div>
+    <clarity-outline 
+      data-features='{"priority": true, "onHold": false, "dueDate": true, "assign": true, "tags": false}'
+      data-items='[{"id":"1","text":"Project planning","status":"TODO"},{"id":"2","text":"Team meeting","status":"TODO"},{"id":"3","text":"Code review","status":"TODO"}]'>
+    </clarity-outline>
+  </div>
+</div>
+
+<script src="outline.js"></script>
+<script>
+  // Theme toggle functionality
+  let currentTheme = 'auto';
+  
+  function toggleTheme() {
+    const themes = ['auto', 'light', 'dark'];
+    const currentIndex = themes.indexOf(currentTheme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    currentTheme = themes[nextIndex];
+    
+    console.log('Switching to theme:', currentTheme);
+    
+    const root = document.documentElement;
+    
+    if (currentTheme === 'auto') {
+      // Remove any forced theme and let CSS media queries handle it
+      root.removeAttribute('data-theme');
+      // Remove all custom properties to let CSS handle them
+      const properties = [
+        // Page theme properties
+        '--bg-primary', '--bg-secondary', '--bg-tertiary', '--text-primary', '--text-secondary', '--text-muted', '--border', '--hover',
+        // Web component properties
+        '--clarity-outline-bg-primary', '--clarity-outline-bg-secondary', '--clarity-outline-bg-tertiary',
+        '--clarity-outline-text-primary', '--clarity-outline-text-secondary', '--clarity-outline-text-muted',
+        '--clarity-outline-border', '--clarity-outline-border-focus', '--clarity-outline-hover', '--clarity-outline-focus',
+        '--clarity-outline-input-bg', '--clarity-outline-input-border', '--clarity-outline-popup-bg', '--clarity-outline-popup-shadow'
+      ];
+      properties.forEach(prop => root.style.removeProperty(prop));
+    } else if (currentTheme === 'light') {
+      // Force light theme
+      root.setAttribute('data-theme', 'light');
+      // Page theme
+      root.style.setProperty('--bg-primary', '#ffffff');
+      root.style.setProperty('--bg-secondary', '#f8f9fa');
+      root.style.setProperty('--bg-tertiary', '#e9ecef');
+      root.style.setProperty('--text-primary', '#212529');
+      root.style.setProperty('--text-secondary', '#6c757d');
+      root.style.setProperty('--text-muted', '#adb5bd');
+      root.style.setProperty('--border', '#dee2e6');
+      root.style.setProperty('--hover', 'rgba(0, 0, 0, 0.05)');
+      // Web component theme
+      root.style.setProperty('--clarity-outline-bg-primary', '#ffffff');
+      root.style.setProperty('--clarity-outline-bg-secondary', '#f8f9fa');
+      root.style.setProperty('--clarity-outline-bg-tertiary', '#e9ecef');
+      root.style.setProperty('--clarity-outline-text-primary', '#212529');
+      root.style.setProperty('--clarity-outline-text-secondary', '#6c757d');
+      root.style.setProperty('--clarity-outline-text-muted', '#adb5bd');
+      root.style.setProperty('--clarity-outline-border', '#dee2e6');
+      root.style.setProperty('--clarity-outline-border-focus', '#007bff');
+      root.style.setProperty('--clarity-outline-hover', 'rgba(0, 0, 0, 0.05)');
+      root.style.setProperty('--clarity-outline-focus', 'rgba(0, 0, 0, 0.1)');
+      root.style.setProperty('--clarity-outline-input-bg', '#ffffff');
+      root.style.setProperty('--clarity-outline-input-border', '#ced4da');
+      root.style.setProperty('--clarity-outline-popup-bg', '#ffffff');
+      root.style.setProperty('--clarity-outline-popup-shadow', '0 4px 12px rgba(0, 0, 0, 0.15)');
+      
+      console.log('Set light theme properties. Current bg-primary:', getComputedStyle(root).getPropertyValue('--clarity-outline-bg-primary'));
+    } else if (currentTheme === 'dark') {
+      // Force dark theme
+      root.setAttribute('data-theme', 'dark');
+      // Page theme
+      root.style.setProperty('--bg-primary', '#1e1e1e');
+      root.style.setProperty('--bg-secondary', '#2d2d2d');
+      root.style.setProperty('--bg-tertiary', '#333333');
+      root.style.setProperty('--text-primary', '#f8f8f2');
+      root.style.setProperty('--text-secondary', '#ddd');
+      root.style.setProperty('--text-muted', '#888');
+      root.style.setProperty('--border', '#555');
+      root.style.setProperty('--hover', 'rgba(255, 255, 255, 0.05)');
+      // Web component theme
+      root.style.setProperty('--clarity-outline-bg-primary', '#1e1e1e');
+      root.style.setProperty('--clarity-outline-bg-secondary', '#2d2d2d');
+      root.style.setProperty('--clarity-outline-bg-tertiary', '#333333');
+      root.style.setProperty('--clarity-outline-text-primary', '#f8f8f2');
+      root.style.setProperty('--clarity-outline-text-secondary', '#ddd');
+      root.style.setProperty('--clarity-outline-text-muted', '#888');
+      root.style.setProperty('--clarity-outline-border', '#555');
+      root.style.setProperty('--clarity-outline-border-focus', '#f92672');
+      root.style.setProperty('--clarity-outline-hover', 'rgba(255, 255, 255, 0.05)');
+      root.style.setProperty('--clarity-outline-focus', 'rgba(255, 255, 255, 0.1)');
+      root.style.setProperty('--clarity-outline-input-bg', '#2d2d2d');
+      root.style.setProperty('--clarity-outline-input-border', '#555');
+      root.style.setProperty('--clarity-outline-popup-bg', '#2d2d2d');
+      root.style.setProperty('--clarity-outline-popup-shadow', '0 4px 12px rgba(0, 0, 0, 0.3)');
+    }
+    
+    // Update button text
+    const button = document.querySelector('.theme-toggle');
+    const icons = ['🌓', '☀️', '🌙'];
+    button.innerHTML = `${icons[nextIndex]} ${currentTheme.charAt(0).toUpperCase() + currentTheme.slice(1)} Theme`;
+  }
+
+  // Initialize all outline components
+  const outlines = document.querySelectorAll('clarity-outline');
+  
+  outlines.forEach(outline => {
+    // Log events for debugging
+    const events = [
+      'outline:add', 'outline:toggle', 'outline:move', 'outline:indent', 'outline:outdent',
+      'outline:collapse', 'outline:expand', 'outline:edit:start', 'outline:edit:save',
+      'outline:edit:cancel', 'outline:due', 'outline:assign', 'outline:tags',
+      'outline:priority', 'outline:onhold', 'outline:navigate'
+    ];
+    
+    events.forEach(eventName => {
+      outline.addEventListener(eventName, e => {
+        console.log(`${outline.id}: ${eventName}`, e.detail);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
