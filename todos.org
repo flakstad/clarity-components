@@ -193,14 +193,37 @@ CLOSED: [2025-09-01 Mon 15:20]
 Potensielt lavthengende: etter sletting av punkt (r), mister jeg fokus. Hadde foretrukket å fokusere neste punkt — da kan jeg raskt slette flere
 * DONE remove all demo/mock data from within component
 CLOSED: [2025-09-01 Mon 15:25]
-* TODO testing use with datastar
-Setup backend with in-memory state.
-** TODO handle new html reinit todolist script
-** TODO comm with server listening for events
+* TODO navigate up and down with ctrl + n/p & j/k
 * TODO make usable mobile - flex hover actions
 * TODO status popup does not render current status
 * TODO adjust color used in action popups - light blue selected does not match with theme
 * TODO drag and drop?
+* TODO notes popup must be bigger, or allow expansion when writing notes
+* TODO testing use with datastar
+Setup backend with in-memory state.
+** TODO handle new html reinit todolist script
+** TODO comm with server listening for events
+* TODO double check that I'm happy with outline item data format
+..will at some point forever by locked to this structure
 * TODO emit full json in events, option?
+* TODO split up options props into separate props
+* TODO make all props by data-*, allowing datastar signal use
 * TODO make all the features optional, including status, edit and open
+* TODO still a bug with counter for nested parent without status label
+indenting an item under an item that is already a parent and which does not have a status label, does not add the counter
 * TODO attempt again to fix issue with hover items showing on parents when hovering child
+* TODO using clarity outline instead of this org file
+* TODO supporting both scheduled and deadline timestamps?
+"Due on" is deadline. Need to support "Schedule on" as well for events/meetings or "plan to begin work on".
+
+Key shortcut "s" already used for "status". Could use "t" for that instead (+ Space)?
+* TODO supporting repeating tasks, schedules that reoccur
+Would need slightly different visuals when you complete a task - it will go back
+to being in "TODO" state, but you will have completed it as well. Org simply
+logs this in text that you completed it, and resets the item. Could do something
+similar.
+* TODO archiving an item, instead of permanently removing?
+Useful for ongoing lists, local storage. Likely not that useful for the
+project-oriented use case I envision in Clarity. But how do you get it back? Out
+of scope for the component. It would basically be the exact same as "remove",
+but emit a different event, allowing different persistence functionality.
