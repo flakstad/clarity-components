@@ -191,6 +191,8 @@ worst.
 * DONE losing focus after interaction
 CLOSED: [2025-09-01 Mon 15:20]
 Potensielt lavthengende: etter sletting av punkt (r), mister jeg fokus. Hadde foretrukket å fokusere neste punkt — da kan jeg raskt slette flere
+* DONE remove all demo/mock data from within component
+CLOSED: [2025-09-01 Mon 15:25]
 * TODO testing use with datastar
 Setup backend with in-memory state.
 ** TODO handle new html reinit todolist script

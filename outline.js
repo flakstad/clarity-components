@@ -2,13 +2,12 @@ class Outline {
   constructor(el, options = {}) {
     this.el = el;
     this.options = {
-      assignees: options.assignees || ['alice', 'bob', 'charlie', 'diana', 'eve'],
-      tags: options.tags || ['urgent', 'bug', 'feature', 'docs', 'review'],
+      assignees: options.assignees || [],
+      tags: options.tags || [],
       statusLabels: options.statusLabels || [
         { label: 'TODO', isEndState: false },
         { label: 'DONE', isEndState: true }
       ],
-      // Feature options - which features should be enabled
       features: {
         priority: options.features?.priority !== false, // default: true
         onHold: options.features?.onHold !== false, // default: true
@@ -1114,42 +1113,6 @@ class Outline {
     // Use the same logic as setScheduleDate but with current date
     const now = new Date();
     this.setScheduleDate(li, now);
-  }
-
-  assignItem(li) {
-    const assignSpan = li.querySelector(".outline-assign");
-
-    // For demo purposes, cycle through some example assignees
-    const assignees = ["alice", "bob", "charlie", "diana"];
-    const currentAssignee = assignSpan ? assignSpan.textContent.trim() : "";
-    const currentIndex = assignees.indexOf(currentAssignee);
-    const nextIndex = (currentIndex + 1) % assignees.length;
-    const nextAssignee = assignees[nextIndex];
-
-    this.setAssignee(li, nextAssignee);
-  }
-
-  tagItem(li) {
-    const tagsSpan = li.querySelector(".outline-tags");
-
-    // For demo purposes, cycle through some example tag combinations
-    const tagSets = [
-      ["urgent"],
-      ["urgent", "bug"],
-      ["feature"],
-      ["feature", "ui"],
-      ["docs"],
-      []  // no tags
-    ];
-
-    const currentTags = tagsSpan ? tagsSpan.textContent.trim() : "";
-    const currentIndex = tagSets.findIndex(tags =>
-      tags.length === 0 ? currentTags === "" : currentTags === ` ${tags.join(" ")}`
-    );
-    const nextIndex = (currentIndex + 1) % tagSets.length;
-    const nextTags = tagSets[nextIndex];
-
-    this.setTags(li, nextTags);
   }
 
   addHoverButtons(li) {
