@@ -3160,6 +3160,16 @@ class OutlineElement extends HTMLElement {
         text-align: left;
         border-radius: var(--clarity-outline-border-radius);
         transition: all var(--clarity-outline-transition-duration) ease;
+        max-width: 100%;
+        overflow: hidden;
+      }
+
+      /* Mobile-friendly add button */
+      @media (max-width: 768px) {
+        .outline-add-button {
+          padding: 0.4rem 0 0.4rem 0.4rem;
+          font-size: 0.85em;
+        }
       }
 
       .outline-add-button:hover {
@@ -3177,6 +3187,8 @@ class OutlineElement extends HTMLElement {
         margin-block-end: 0;
         font-family: var(--clarity-outline-font-family);
         font-size: var(--clarity-outline-font-size);
+        max-width: 100%;
+        overflow-x: hidden;
 
         /* Nested list styling */
         ul {
@@ -3184,9 +3196,17 @@ class OutlineElement extends HTMLElement {
           padding-left: var(--clarity-outline-nested-indent);
           border-left: var(--clarity-outline-nested-border-width) var(--clarity-outline-nested-border-style) var(--clarity-outline-border);
           list-style: none;
+          width: 100%;
 
           li:first-child {
             margin-top: var(--clarity-outline-spacing);
+          }
+        }
+
+        /* Mobile-friendly nested list adjustments */
+        @media (max-width: 768px) {
+          ul {
+            padding-left: calc(var(--clarity-outline-nested-indent) * 0.75);
           }
         }
 
@@ -3197,6 +3217,10 @@ class OutlineElement extends HTMLElement {
           padding: var(--clarity-outline-spacing) var(--clarity-outline-padding);
           position: relative;
           transition: background-color var(--clarity-outline-transition-duration) ease;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 0.25rem;
 
           &:not(:has(> ul li:hover)):hover {
             background: var(--clarity-outline-hover);
@@ -3288,6 +3312,16 @@ class OutlineElement extends HTMLElement {
           padding: var(--clarity-outline-input-padding);
           border-radius: var(--clarity-outline-input-border-radius);
           outline: none;
+          min-width: 0;
+          max-width: 100%;
+        }
+
+        /* Mobile-friendly edit input */
+        @media (max-width: 768px) {
+          .outline-edit-input {
+            font-size: 16px; /* Prevents zoom on iOS */
+            padding: 0.3rem 0.5rem;
+          }
         }
 
         .outline-edit-input:focus {
@@ -3308,11 +3342,24 @@ class OutlineElement extends HTMLElement {
           margin-left: 0.5rem;
           gap: 0.5rem;
           align-items: center;
+          flex-wrap: wrap;
+          max-width: calc(100vw - 2rem);
+          overflow: hidden;
         }
 
         /* Consistent spacing for hover buttons after child-count */
         .child-count + .outline-hover-buttons {
           margin-left: 0.5rem;
+        }
+
+        /* Mobile-friendly button container */
+        @media (max-width: 768px) {
+          .outline-hover-buttons {
+            margin-left: 0.25rem;
+            gap: 0.25rem;
+            max-width: calc(100vw - 1rem);
+            justify-content: flex-start;
+          }
         }
 
         /* Note: Button visibility is now handled entirely by JavaScript */
@@ -3328,6 +3375,16 @@ class OutlineElement extends HTMLElement {
           white-space: nowrap;
           font-family: inherit;
           outline: none;
+          min-width: 0;
+          flex-shrink: 1;
+        }
+
+        /* Mobile-friendly button adjustments */
+        @media (max-width: 768px) {
+          .hover-button {
+            font-size: 0.75em;
+            padding: 0.1rem 0.2rem;
+          }
         }
 
         .hover-button:hover {

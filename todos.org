@@ -193,11 +193,18 @@ CLOSED: [2025-09-01 Mon 15:20]
 Potensielt lavthengende: etter sletting av punkt (r), mister jeg fokus. Hadde foretrukket å fokusere neste punkt — da kan jeg raskt slette flere
 * DONE remove all demo/mock data from within component
 CLOSED: [2025-09-01 Mon 15:25]
+* DONE make usable mobile - flex hover actions
+CLOSED: [2025-09-02 Tue 14:55]
 * TODO navigate up and down with ctrl + n/p & j/k
-* TODO make usable mobile - flex hover actions
 * TODO status popup does not render current status
 * TODO adjust color used in action popups - light blue selected does not match with theme
 * TODO drag and drop?
+* TODO allow custom key bindings for movement of focus and items
+Pass in override key bindings.
+First for movement only, i.e. moving focus, moving items
+* TODO shift + up/down to toggle priority
+* TODO alt + tab might be application switch in some Linux distros - problem
+Don't want to override Tab.
 * TODO notes popup must be bigger, or allow expansion when writing notes
 * TODO testing use with datastar
 Setup backend with in-memory state.
