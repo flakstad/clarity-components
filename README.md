@@ -44,7 +44,7 @@ No CSS file needed.
   "status": "string",       // Optional: Status label (TODO, DONE, etc.)
   "completed": boolean,     // Optional: Alternative to status for completion
   "priority": boolean,      // Optional: Mark as priority
-  "onHold": boolean,        // Optional: Mark as on hold
+          "blocked": boolean,        // Optional: Mark as blocked
   "schedule": "string",     // Optional: Due date (e.g., "Jan 5")
   "assign": "string",       // Optional: Assigned user
   "tags": ["string"],       // Optional: Array of tags
@@ -66,7 +66,7 @@ No CSS file needed.
   ],
   features: {                                       // Enable/disable features
     priority: true,
-    onHold: true,
+    blocked: true,
     dueDate: true,
     assign: true,
     tags: true,
@@ -78,7 +78,14 @@ No CSS file needed.
 
 ## Keyboard Shortcuts
 
+### Navigation
 - **Arrow Keys**: Navigate between items
+- **Ctrl+N/P**: Navigate down/up (Emacs style)
+- **J/K**: Navigate down/up (Vi style)
+- **H/L**: Navigate left/right (Vi style)
+- **Tab**: Navigate between items (browser default)
+
+### Actions
 - **Enter**: Navigate to detail view
 - **Alt+Enter**: Create sibling outline item
 - **E**: Enter edit mode
@@ -90,7 +97,7 @@ No CSS file needed.
 - **N**: Add notes
 - **R**: Remove item
 - **P**: Toggle priority
-- **H**: Toggle on hold
+- **B**: Toggle blocked
 - **Shift+Arrow**: Cycle through statuses
 - **Alt+Arrow**: Reorder items
 - **Alt+Tab**: Toggle collapse/expand
@@ -107,7 +114,7 @@ element.addEventListener("outline:toggle", (e) => {
 });
 ```
 
-Available events: `outline:add`, `outline:toggle`, `outline:move`, `outline:edit:save`, `outline:due`, `outline:assign`, `outline:tags`, `outline:priority`, `outline:onhold`, `outline:navigate`, `outline:notes`, `outline:remove`
+Available events: `outline:add`, `outline:toggle`, `outline:move`, `outline:edit:save`, `outline:due`, `outline:assign`, `outline:tags`, `outline:priority`, `outline:blocked`, `outline:navigate`, `outline:notes`, `outline:remove`
 
 ## JavaScript API
 

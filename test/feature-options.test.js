@@ -63,7 +63,7 @@ describe('Feature Options', () => {
     
     const buttonTypes = Array.from(buttons).map(btn => btn.getAttribute('data-type'));
     expect(buttonTypes).toContain('priority');
-    expect(buttonTypes).toContain('onhold');
+    expect(buttonTypes).toContain('blocked');
     expect(buttonTypes).toContain('schedule');
     expect(buttonTypes).toContain('assign');
     expect(buttonTypes).toContain('tags');
@@ -76,7 +76,7 @@ describe('Feature Options', () => {
     container.innerHTML = `
       <clarity-outline 
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
-        data-features='{"priority": false, "onHold": false, "dueDate": false, "assign": false, "tags": false}'
+        data-features='{"priority": false, "blocked": false, "dueDate": false, "assign": false, "tags": false}'
         options='{"assignees": ["alice"], "tags": ["urgent"]}'>
       </clarity-outline>
     `;
@@ -99,7 +99,7 @@ describe('Feature Options', () => {
     
     // These should be absent (disabled)
     expect(buttonTypes).not.toContain('priority');
-    expect(buttonTypes).not.toContain('onhold');
+    expect(buttonTypes).not.toContain('blocked');
     expect(buttonTypes).not.toContain('schedule');
     expect(buttonTypes).not.toContain('assign');
     expect(buttonTypes).not.toContain('tags');
@@ -109,7 +109,7 @@ describe('Feature Options', () => {
     container.innerHTML = `
       <clarity-outline 
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
-        data-features='{"priority": true, "onHold": false, "dueDate": true, "assign": false, "tags": true}'
+        data-features='{"priority": true, "blocked": false, "dueDate": true, "assign": false, "tags": true}'
         options='{"assignees": ["alice"], "tags": ["urgent"]}'>
       </clarity-outline>
     `;
@@ -133,7 +133,7 @@ describe('Feature Options', () => {
     expect(buttonTypes).toContain('open');
     
     // These should be absent
-    expect(buttonTypes).not.toContain('onhold');
+    expect(buttonTypes).not.toContain('blocked');
     expect(buttonTypes).not.toContain('assign');
   });
 
@@ -141,7 +141,7 @@ describe('Feature Options', () => {
     container.innerHTML = `
       <clarity-outline 
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
-        data-features='{"priority": true, "onHold": false, "dueDate": true, "assign": false, "tags": true}'
+        data-features='{"priority": true, "blocked": false, "dueDate": true, "assign": false, "tags": true}'
         options='{"assignees": ["alice"], "tags": ["urgent"]}'>
       </clarity-outline>
     `;
@@ -158,7 +158,7 @@ describe('Feature Options', () => {
 
     // Test that enabled feature shortcuts work
     const priorityEvent = new KeyboardEvent('keydown', { key: 'p', bubbles: true });
-    const onHoldEvent = new KeyboardEvent('keydown', { key: 'h', bubbles: true });
+    const blockedEvent = new KeyboardEvent('keydown', { key: 'b', bubbles: true });
     const dueDateEvent = new KeyboardEvent('keydown', { key: 'd', bubbles: true });
     const tagsEvent = new KeyboardEvent('keydown', { key: 't', bubbles: true });
 
@@ -167,10 +167,10 @@ describe('Feature Options', () => {
     li.dispatchEvent(priorityEvent);
     expect(prioritySpy).toHaveBeenCalled();
 
-    // On hold should not work (disabled)
-    const onHoldSpy = jest.spyOn(outlineList.todoListInstance, 'toggleOnHold');
-    li.dispatchEvent(onHoldEvent);
-    expect(onHoldSpy).not.toHaveBeenCalled();
+    // Blocked should not work (disabled)
+    const blockedSpy = jest.spyOn(outlineList.todoListInstance, 'toggleBlocked');
+    li.dispatchEvent(blockedEvent);
+    expect(blockedSpy).not.toHaveBeenCalled();
 
     // Due date should work (enabled)
     const dueDateSpy = jest.spyOn(outlineList.todoListInstance, 'showSchedulePopup');
@@ -187,7 +187,7 @@ describe('Feature Options', () => {
     container.innerHTML = `
       <clarity-outline 
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
-        options='{"features": {"priority": true, "onHold": false, "dueDate": true, "assign": false, "tags": true}, "assignees": ["alice"], "tags": ["urgent"]}'>
+        options='{"features": {"priority": true, "blocked": false, "dueDate": true, "assign": false, "tags": true}, "assignees": ["alice"], "tags": ["urgent"]}'>
       </clarity-outline>
     `;
 
@@ -210,7 +210,7 @@ describe('Feature Options', () => {
     expect(buttonTypes).toContain('open');
     
     // These should be absent
-    expect(buttonTypes).not.toContain('onhold');
+    expect(buttonTypes).not.toContain('blocked');
     expect(buttonTypes).not.toContain('assign');
   });
 
@@ -234,7 +234,7 @@ describe('Feature Options', () => {
     const buttonTypes = Array.from(buttons).map(btn => btn.getAttribute('data-type'));
     
     expect(buttonTypes).toContain('priority');
-    expect(buttonTypes).toContain('onhold');
+    expect(buttonTypes).toContain('blocked');
     expect(buttonTypes).toContain('schedule');
     expect(buttonTypes).toContain('assign');
     expect(buttonTypes).toContain('tags');

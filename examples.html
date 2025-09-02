@@ -143,7 +143,7 @@
       --clarity-outline-color-todo: #e74c3c;
       --clarity-outline-color-done: #27ae60;
       --clarity-outline-color-priority: #f39c12;
-      --clarity-outline-color-onhold: #e67e22;
+              --clarity-outline-color-blocked: #e67e22;
     }
     
     .minimal-theme {
@@ -158,7 +158,7 @@
       --clarity-outline-color-todo: #dc3545;
       --clarity-outline-color-done: #28a745;
       --clarity-outline-color-priority: #fd7e14;
-      --clarity-outline-color-onhold: #ffc107;
+              --clarity-outline-color-blocked: #ffc107;
     }
     
     .dark-theme {
@@ -173,7 +173,7 @@
       --clarity-outline-color-todo: #ff6b6b;
       --clarity-outline-color-done: #4ecdc4;
       --clarity-outline-color-priority: #ffa726;
-      --clarity-outline-color-onhold: #ffcc02;
+              --clarity-outline-color-blocked: #ffcc02;
     }
   </style>
 </head>
@@ -267,7 +267,7 @@
           "text": "Fix critical bug",
           "status": "TODO",
           "priority": true,
-          "onHold": true,
+          "blocked": true,
           "tags": ["urgent", "bug"]
         },
         {
@@ -424,7 +424,7 @@
     <p>Examples demonstrating the new feature options functionality.</p>
     
     <h3>Default Features (All Enabled)</h3>
-    <p>All features are enabled by default: priority, on hold, due date, assign, and tags.</p>
+            <p>All features are enabled by default: priority, blocked, due date, assign, and tags.</p>
     <div class="code-block">
 &lt;clarity-outline 
   data-items='[{"id":"1","text":"Buy groceries","status":"TODO"},{"id":"2","text":"Write documentation","status":"TODO"},{"id":"3","text":"Review pull requests","status":"TODO"}]'&gt;
@@ -438,39 +438,106 @@
     <p>Only the non-customizable features are enabled: status, edit, and open. All other features are disabled.</p>
     <div class="code-block">
 &lt;clarity-outline 
-  data-features='{"priority": false, "onHold": false, "dueDate": false, "assign": false, "tags": false}'
+        data-features='{"priority": false, "blocked": false, "dueDate": false, "assign": false, "tags": false}'
   data-items='[{"id":"1","text":"Simple task 1","status":"TODO"},{"id":"2","text":"Simple task 2","status":"TODO"},{"id":"3","text":"Simple task 3","status":"TODO"}]'&gt;
 &lt;/clarity-outline&gt;
     </div>
     <clarity-outline 
-      data-features='{"priority": false, "onHold": false, "dueDate": false, "assign": false, "tags": false}'
+      data-features='{"priority": false, "blocked": false, "dueDate": false, "assign": false, "tags": false}'
       data-items='[{"id":"1","text":"Simple task 1","status":"TODO"},{"id":"2","text":"Simple task 2","status":"TODO"},{"id":"3","text":"Simple task 3","status":"TODO"}]'>
     </clarity-outline>
 
     <h3>Custom Feature Selection</h3>
-    <p>Only priority and tags are enabled. On hold, due date, and assign are disabled.</p>
+            <p>Only priority and tags are enabled. Blocked, due date, and assign are disabled.</p>
     <div class="code-block">
 &lt;clarity-outline 
-  data-features='{"priority": true, "onHold": false, "dueDate": false, "assign": false, "tags": true}'
+        data-features='{"priority": true, "blocked": false, "dueDate": false, "assign": false, "tags": true}'
   data-items='[{"id":"1","text":"High priority task","status":"TODO"},{"id":"2","text":"Bug fix","status":"TODO"},{"id":"3","text":"Feature implementation","status":"TODO"}]'&gt;
 &lt;/clarity-outline&gt;
     </div>
     <clarity-outline 
-      data-features='{"priority": true, "onHold": false, "dueDate": false, "assign": false, "tags": true}'
+      data-features='{"priority": true, "blocked": false, "dueDate": false, "assign": false, "tags": true}'
       data-items='[{"id":"1","text":"High priority task","status":"TODO"},{"id":"2","text":"Bug fix","status":"TODO"},{"id":"3","text":"Feature implementation","status":"TODO"}]'>
     </clarity-outline>
 
     <h3>Task Management Features Only</h3>
-    <p>Only task management features are enabled: priority, due date, and assign. Tags and on hold are disabled.</p>
+            <p>Only task management features are enabled: priority, due date, and assign. Tags and blocked are disabled.</p>
     <div class="code-block">
 &lt;clarity-outline 
-  data-features='{"priority": true, "onHold": false, "dueDate": true, "assign": true, "tags": false}'
+        data-features='{"priority": true, "blocked": false, "dueDate": true, "assign": true, "tags": false}'
   data-items='[{"id":"1","text":"Project planning","status":"TODO"},{"id":"2","text":"Team meeting","status":"TODO"},{"id":"3","text":"Code review","status":"TODO"}]'&gt;
 &lt;/clarity-outline&gt;
     </div>
     <clarity-outline 
-      data-features='{"priority": true, "onHold": false, "dueDate": true, "assign": true, "tags": false}'
+      data-features='{"priority": true, "blocked": false, "dueDate": true, "assign": true, "tags": false}'
       data-items='[{"id":"1","text":"Project planning","status":"TODO"},{"id":"2","text":"Team meeting","status":"TODO"},{"id":"3","text":"Code review","status":"TODO"}]'>
+    </clarity-outline>
+  </div>
+
+  <div class="demo-section">
+    <h2>8. Keyboard Navigation</h2>
+    <p>Try navigating through the items using different keyboard shortcuts:</p>
+    
+    <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+      <h4 style="margin-top: 0;">Navigation Shortcuts:</h4>
+      <ul style="margin: 0; padding-left: 1.5rem;">
+        <li><strong>Arrow Keys</strong>: Navigate between items</li>
+        <li><strong>Ctrl+N/P</strong>: Navigate down/up (Emacs style)</li>
+        <li><strong>J/K</strong>: Navigate down/up (Vi style)</li>
+        <li><strong>H/L</strong>: Navigate left/right (Vi style)</li>
+        <li><strong>Tab</strong>: Navigate between items (browser default)</li>
+      </ul>
+      <h4 style="margin-top: 1rem; margin-bottom: 0.5rem;">Action Shortcuts:</h4>
+      <ul style="margin: 0; padding-left: 1.5rem;">
+        <li><strong>E</strong>: Edit item</li>
+        <li><strong>Enter</strong>: Open detail view</li>
+        <li><strong>S</strong>: Change status</li>
+        <li><strong>P</strong>: Toggle priority</li>
+        <li><strong>B</strong>: Toggle blocked</li>
+        <li><strong>D</strong>: Set due date</li>
+        <li><strong>A</strong>: Assign to user</li>
+        <li><strong>T</strong>: Toggle tags</li>
+        <li><strong>N</strong>: Add notes</li>
+        <li><strong>R</strong>: Remove item</li>
+      </ul>
+    </div>
+    
+    <clarity-outline 
+      id="keyboard-nav-outline"
+      data-items='[
+        {
+          "id": "1",
+          "text": "First item - try Ctrl+N or J to move down",
+          "status": "TODO"
+        },
+        {
+          "id": "2",
+          "text": "Second item - try Ctrl+P or K to move up",
+          "status": "IN PROGRESS",
+          "priority": true
+        },
+        {
+          "id": "3",
+          "text": "Third item - use any navigation method",
+          "status": "DONE",
+          "tags": ["demo"]
+        },
+        {
+          "id": "4",
+          "text": "Fourth item - experiment with shortcuts",
+          "status": "TODO",
+          "assign": "alice"
+        }
+      ]'
+      options='{
+        "assignees": ["alice", "bob"],
+        "tags": ["demo", "feature"],
+        "statusLabels": [
+          {"label": "TODO", "isEndState": false},
+          {"label": "IN PROGRESS", "isEndState": false},
+          {"label": "DONE", "isEndState": true}
+        ]
+      }'>
     </clarity-outline>
   </div>
 </div>
@@ -577,7 +644,7 @@
       'outline:add', 'outline:toggle', 'outline:move', 'outline:indent', 'outline:outdent',
       'outline:collapse', 'outline:expand', 'outline:edit:start', 'outline:edit:save',
       'outline:edit:cancel', 'outline:due', 'outline:assign', 'outline:tags',
-      'outline:priority', 'outline:onhold', 'outline:navigate'
+              'outline:priority', 'outline:blocked', 'outline:navigate'
     ];
     
     events.forEach(eventName => {

@@ -195,7 +195,18 @@ Potensielt lavthengende: etter sletting av punkt (r), mister jeg fokus. Hadde fo
 CLOSED: [2025-09-01 Mon 15:25]
 * DONE make usable mobile - flex hover actions
 CLOSED: [2025-09-02 Tue 14:55]
-* TODO navigate up and down with ctrl + n/p & j/k
+* DONE change "on hold" to "blocked" and key "b"
+CLOSED: [2025-09-02 Tue 15:31]
+..freeing up "h" for vi style navigation
+* TODO navigate with emacs and vi default bindings
+ctrl + npfb
+hjkl
+* TODO move item with emacs and vi default bindings
+alt + npfb
+alt + hjkl
+* TODO toggle expand/collapse hierarchy
+Check with AI if alt + tab is a default on some linux distros.
+Have it suggest alternatives, with alt + something.., e.g. alt + h (hierarchy/hide)
 * TODO status popup does not render current status
 * TODO adjust color used in action popups - light blue selected does not match with theme
 * TODO drag and drop?

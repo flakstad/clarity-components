@@ -10,7 +10,7 @@ class Outline {
       ],
       features: {
         priority: options.features?.priority !== false, // default: true
-        onHold: options.features?.onHold !== false, // default: true
+        blocked: options.features?.blocked !== false, // default: true
         dueDate: options.features?.dueDate !== false, // default: true
         assign: options.features?.assign !== false, // default: true
         tags: options.features?.tags !== false, // default: true
@@ -216,10 +216,10 @@ class Outline {
         return;
       }
 
-      // Toggle on hold with 'h' key (only if enabled)
-      if(e.key==="h" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.onHold) {
+      // Toggle blocked with 'b' key (only if enabled)
+      if(e.key==="b" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.blocked) {
         e.preventDefault();
-        this.toggleOnHold(li);
+        this.toggleBlocked(li);
         return;
       }
 
@@ -316,7 +316,7 @@ class Outline {
         return;
       }
 
-      // Navigate
+      // Navigate with arrow keys
       if(e.key==="ArrowDown") {
         e.preventDefault();
         if(idx < siblings.length - 1) {
@@ -335,6 +335,73 @@ class Outline {
           // first child, move focus to parent li if exists
           const parentLi = li.parentNode.closest("li");
           if(parentLi) parentLi.focus();
+        }
+      }
+
+      // Navigate with emacs bindings (Ctrl+N/P)
+      if(e.key==="n" && e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        if(idx < siblings.length - 1) {
+          siblings[idx+1].focus();
+        } else {
+          // last child, move to next available item by traversing up the hierarchy
+          this.navigateToNextItem(li);
+        }
+      }
+
+      if(e.key==="p" && e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        if(idx > 0) {
+          siblings[idx-1].focus();
+        } else {
+          // first child, move focus to parent li if exists
+          const parentLi = li.parentNode.closest("li");
+          if(parentLi) parentLi.focus();
+        }
+      }
+
+      // Navigate with vi bindings (J/K for up/down, H/L for left/right)
+      if(e.key==="j" && !e.altKey && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        if(idx < siblings.length - 1) {
+          siblings[idx+1].focus();
+        } else {
+          // last child, move to next available item by traversing up the hierarchy
+          this.navigateToNextItem(li);
+        }
+      }
+
+      if(e.key==="k" && !e.altKey && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        if(idx > 0) {
+          siblings[idx-1].focus();
+        } else {
+          // first child, move focus to parent li if exists
+          const parentLi = li.parentNode.closest("li");
+          if(parentLi) parentLi.focus();
+        }
+      }
+
+      // Vi-style left/right navigation
+      if(e.key==="h" && !e.altKey && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        const parentLi = li.parentNode.closest("li");
+        if (parentLi) {
+          parentLi.focus();
+        }
+      }
+
+      if(e.key==="l" && !e.altKey && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        const sublist = li.querySelector("ul");
+        if (sublist && sublist.children.length > 0) {
+          // If collapsed, expand first-level children only
+          if (li.classList.contains("collapsed")) {
+            this.expandItem(li); // only expands direct children
+          }
+
+          const firstChild = sublist.querySelector("li");
+          if (firstChild) firstChild.focus();
         }
       }
 
@@ -1135,18 +1202,18 @@ class Outline {
       buttonsContainer.appendChild(priorityBtn);
     }
 
-    // On hold button (only if enabled)
-    if (this.options.features.onHold) {
-      const onHoldBtn = document.createElement("button");
-      onHoldBtn.className = "hover-button onhold-button";
-      onHoldBtn.setAttribute("data-type", "onhold");
-      onHoldBtn.tabIndex = -1; // Remove from tab navigation
-      onHoldBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this.toggleOnHold(li);
-      });
-      buttonsContainer.appendChild(onHoldBtn);
-    }
+          // Blocked button (only if enabled)
+      if (this.options.features.blocked) {
+        const blockedBtn = document.createElement("button");
+        blockedBtn.className = "hover-button blocked-button";
+        blockedBtn.setAttribute("data-type", "blocked");
+        blockedBtn.tabIndex = -1; // Remove from tab navigation
+        blockedBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.toggleBlocked(li);
+        });
+        buttonsContainer.appendChild(blockedBtn);
+      }
 
     // Schedule button (only if enabled)
     if (this.options.features.dueDate) {
@@ -1255,7 +1322,7 @@ class Outline {
       '.edit-button',
       '.remove-button',
       '.priority-button',
-      '.onhold-button',
+      '.blocked-button',
       '.schedule-button',
       '.assign-button',
       '.tags-button',
@@ -1373,7 +1440,7 @@ class Outline {
 
   updateHoverButtons(li) {
     const priorityBtn = li.querySelector(".priority-button");
-    const onHoldBtn = li.querySelector(".onhold-button");
+    const blockedBtn = li.querySelector(".blocked-button");
     const scheduleBtn = li.querySelector(".schedule-button");
     const assignBtn = li.querySelector(".assign-button");
     const tagsBtn = li.querySelector(".tags-button");
@@ -1401,16 +1468,16 @@ class Outline {
       }
     }
 
-    // Update on hold button (if enabled)
-    if (onHoldBtn) {
-      const isOnHold = li.classList.contains("on-hold");
-      if (isOnHold) {
-        onHoldBtn.textContent = "on hold";
-        onHoldBtn.classList.add("has-data");
+    // Update blocked button (if enabled)
+    if (blockedBtn) {
+      const isBlocked = li.classList.contains("blocked");
+      if (isBlocked) {
+        blockedBtn.textContent = "blocked";
+        blockedBtn.classList.add("has-data");
         hasAnyData = true;
       } else {
-        onHoldBtn.innerHTML = "on <u>h</u>old";
-        onHoldBtn.classList.remove("has-data");
+        blockedBtn.innerHTML = "blo<u>c</u>ked";
+        blockedBtn.classList.remove("has-data");
       }
     }
 
@@ -1514,7 +1581,7 @@ class Outline {
       edit: 2,
       remove: 3,
       priority: 4,
-      onhold: 5,
+      blocked: 5,
       schedule: 6,
       assign: 7,
       tags: 8,
@@ -2650,39 +2717,39 @@ class Outline {
     });
   }
 
-  toggleOnHold(li) {
+  toggleBlocked(li) {
     const textSpan = li.querySelector(".outline-text");
     if (!textSpan) return;
 
-    // Check if already on hold
-    const isOnHold = li.classList.contains("on-hold");
+    // Check if already blocked
+    const isBlocked = li.classList.contains("blocked");
 
-    if (isOnHold) {
-      // Remove on hold
-      li.classList.remove("on-hold");
-      const onHoldSpan = li.querySelector(".outline-onhold");
-      if (onHoldSpan) {
-        onHoldSpan.remove();
+    if (isBlocked) {
+      // Remove blocked
+      li.classList.remove("blocked");
+      const blockedSpan = li.querySelector(".outline-blocked");
+      if (blockedSpan) {
+        blockedSpan.remove();
       }
     } else {
-      // Add on hold
-      li.classList.add("on-hold");
+      // Add blocked
+      li.classList.add("blocked");
 
-      // Create hidden on hold span (like other metadata)
-      let onHoldSpan = li.querySelector(".outline-onhold");
-      if (!onHoldSpan) {
-        onHoldSpan = document.createElement("span");
-        onHoldSpan.className = "outline-onhold";
-        onHoldSpan.style.display = "none"; // Hide the span, show in button
+      // Create hidden blocked span (like other metadata)
+      let blockedSpan = li.querySelector(".outline-blocked");
+      if (!blockedSpan) {
+        blockedSpan = document.createElement("span");
+        blockedSpan.className = "outline-blocked";
+        blockedSpan.style.display = "none"; // Hide the span, show in button
         // Insert after buttons container if it exists, otherwise after text
         const buttonsContainer = li.querySelector(".outline-hover-buttons");
         if (buttonsContainer) {
-          buttonsContainer.after(onHoldSpan);
+          buttonsContainer.after(blockedSpan);
         } else {
-          textSpan.after(onHoldSpan);
+          textSpan.after(blockedSpan);
         }
       }
-      onHoldSpan.textContent = " on hold";
+      blockedSpan.textContent = " blocked";
     }
 
     // Update the hover button to show the data
@@ -2691,10 +2758,10 @@ class Outline {
     // Restore focus to the todo item
     li.focus();
 
-    this.emit("outline:onhold", {
+    this.emit("outline:blocked", {
       id: li.dataset.id,
       text: textSpan.textContent,
-      onHold: !isOnHold
+      blocked: !isBlocked
     });
   }
 
@@ -2869,10 +2936,10 @@ class OutlineElement extends HTMLElement {
       todo.priority = true;
     }
 
-    const onhold = li.querySelector('.outline-onhold');
-    if (onhold) {
-      todo.onHold = true;
-    }
+          const blocked = li.querySelector('.outline-blocked');
+      if (blocked) {
+        todo.blocked = true;
+      }
 
     // Handle nested todos
     const sublist = li.querySelector('ul');
@@ -2919,8 +2986,8 @@ class OutlineElement extends HTMLElement {
     if (todo.priority) {
       li.classList.add('priority');
     }
-    if (todo.onHold) {
-      li.classList.add('on-hold');
+    if (todo.blocked) {
+      li.classList.add('blocked');
     }
     if (todo.children && todo.children.length > 0) {
       li.classList.add('has-children');
@@ -2988,12 +3055,12 @@ class OutlineElement extends HTMLElement {
       li.appendChild(prioritySpan);
     }
 
-    if (todo.onHold) {
-      const onholdSpan = document.createElement('span');
-      onholdSpan.className = 'outline-onhold';
-      onholdSpan.style.display = 'none';
-      onholdSpan.textContent = ' on hold';
-      li.appendChild(onholdSpan);
+    if (todo.blocked) {
+      const blockedSpan = document.createElement('span');
+      blockedSpan.className = 'outline-blocked';
+      blockedSpan.style.display = 'none';
+      blockedSpan.textContent = ' blocked';
+      li.appendChild(blockedSpan);
     }
 
     // Handle nested todos
@@ -3109,7 +3176,7 @@ class OutlineElement extends HTMLElement {
           --clarity-outline-color-todo: #d16d7a;
           --clarity-outline-color-done: #6c757d;
           --clarity-outline-color-priority: #5f9fb0;
-          --clarity-outline-color-onhold: #f39c12;
+          --clarity-outline-color-blocked: #f39c12;
 
           /* Theme variables - inherit from parent or use defaults */
           --clarity-outline-bg-primary: var(--clarity-outline-bg-primary, #1e1e1e);
@@ -3405,19 +3472,19 @@ class OutlineElement extends HTMLElement {
           font-weight: bold;
         }
 
-        .hover-button.onhold-button.has-data {
-          color: var(--clarity-outline-color-onhold);
+        .hover-button.blocked-button.has-data {
+          color: var(--clarity-outline-color-blocked);
           font-weight: bold;
         }
 
-        /* Priority and on-hold indicators */
+        /* Priority and blocked indicators */
         .priority-indicator {
           color: var(--color-priority);
           margin-left: 0.3rem;
         }
 
-        .onhold-indicator {
-          color: var(--color-onhold);
+                  .blocked-indicator {
+          color: var(--color-blocked);
           margin-left: 0.3rem;
         }
 
@@ -3562,7 +3629,7 @@ class OutlineElement extends HTMLElement {
       'outline:add', 'outline:toggle', 'outline:move', 'outline:indent', 'outline:outdent',
       'outline:collapse', 'outline:expand', 'outline:edit:start', 'outline:edit:save',
       'outline:edit:cancel', 'outline:due', 'outline:assign', 'outline:tags',
-      'outline:priority', 'outline:onhold', 'outline:navigate', 'outline:select',
+              'outline:priority', 'outline:blocked', 'outline:navigate', 'outline:select',
       'outline:notes', 'outline:remove'
     ];
 

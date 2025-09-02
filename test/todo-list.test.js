@@ -1193,6 +1193,108 @@ describe('Outline Web Component', () => {
       expect(parentTodo.classList.contains('collapsed')).toBe(false);
       expect(childTodo).toBeDefined();
     });
+
+    test('should navigate with emacs bindings (Ctrl+N/P)', async () => {
+      todoList.addItem('First todo');
+      todoList.addItem('Second todo');
+      
+      const firstTodo = getTodoByText(outlineList, 'First todo');
+      const secondTodo = getTodoByText(outlineList, 'Second todo');
+      
+      firstTodo.focus();
+      
+      // Ctrl+N should move down
+      firstTodo.dispatchEvent(new KeyboardEvent('keydown', { 
+        key: 'n', 
+        ctrlKey: true,
+        bubbles: true 
+      }));
+      
+      // Ctrl+P should move up
+      secondTodo.dispatchEvent(new KeyboardEvent('keydown', { 
+        key: 'p', 
+        ctrlKey: true,
+        bubbles: true 
+      }));
+      
+      expect(firstTodo).toBeDefined();
+      expect(secondTodo).toBeDefined();
+    });
+
+    test('should navigate with vi bindings (J/K for up/down, H/L for left/right)', async () => {
+      todoList.addItem('First todo');
+      todoList.addItem('Second todo');
+      
+      const firstTodo = getTodoByText(outlineList, 'First todo');
+      const secondTodo = getTodoByText(outlineList, 'Second todo');
+      
+      firstTodo.focus();
+      
+      // J should move down
+      firstTodo.dispatchEvent(new KeyboardEvent('keydown', { 
+        key: 'j', 
+        bubbles: true 
+      }));
+      
+      // K should move up
+      secondTodo.dispatchEvent(new KeyboardEvent('keydown', { 
+        key: 'k', 
+        bubbles: true 
+      }));
+      
+      expect(firstTodo).toBeDefined();
+      expect(secondTodo).toBeDefined();
+    });
+
+    test('should navigate with vi bindings (H/L for left/right)', async () => {
+      todoList.addItem('Parent todo');
+      const parentTodo = getTodoByText(outlineList, 'Parent todo');
+      
+      todoList.addItem('Child todo', parentTodo);
+      const childTodo = getTodoByText(outlineList, 'Child todo');
+      
+      childTodo.focus();
+      
+      // H should move to parent (left)
+      childTodo.dispatchEvent(new KeyboardEvent('keydown', { 
+        key: 'h', 
+        bubbles: true 
+      }));
+      
+      // L should move to first child (right)
+      parentTodo.focus();
+      parentTodo.dispatchEvent(new KeyboardEvent('keydown', { 
+        key: 'l', 
+        bubbles: true 
+      }));
+      
+      expect(parentTodo).toBeDefined();
+      expect(childTodo).toBeDefined();
+    });
+
+    test('should still support Alt+L for expand (no conflict with vi L)', async () => {
+      todoList.addItem('Parent todo');
+      const parentTodo = getTodoByText(outlineList, 'Parent todo');
+      
+      todoList.addItem('Child todo', parentTodo);
+      const childTodo = getTodoByText(outlineList, 'Child todo');
+      
+      // Collapse the parent first
+      todoList.collapseItem(parentTodo);
+      expect(parentTodo.classList.contains('collapsed')).toBe(true);
+      
+      // Alt+L should still expand
+      parentTodo.focus();
+      parentTodo.dispatchEvent(new KeyboardEvent('keydown', { 
+        key: 'L', 
+        altKey: true,
+        bubbles: true 
+      }));
+      
+      // Should expand
+      expect(parentTodo.classList.contains('collapsed')).toBe(false);
+      expect(childTodo).toBeDefined();
+    });
   });
 
   describe('Status Label Cycling', () => {
@@ -1272,20 +1374,20 @@ describe('Outline Web Component', () => {
       expect(todo.querySelector('.priority-indicator')).toBeNull();
     });
 
-    test('should toggle on-hold with "h" key', async () => {
+    test('should toggle blocked with "b" key', async () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
       todo.focus();
-      todo.dispatchEvent(createKeyEvent('h'));
+      todo.dispatchEvent(createKeyEvent('b'));
       
-      // Should have on-hold indicator
-      const onholdIndicator = todo.querySelector('.onhold-indicator');
-      expect(onholdIndicator).toBeDefined();
+      // Should have blocked indicator
+      const blockedIndicator = todo.querySelector('.blocked-indicator');
+      expect(blockedIndicator).toBeDefined();
       
       // Toggle again to remove
-      todo.dispatchEvent(createKeyEvent('h'));
-      expect(todo.querySelector('.onhold-indicator')).toBeNull();
+      todo.dispatchEvent(createKeyEvent('b'));
+      expect(todo.querySelector('.blocked-indicator')).toBeNull();
     });
 
     test('should open due date popup with "d" key', async () => {
