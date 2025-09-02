@@ -338,7 +338,7 @@ class Outline {
         }
       }
 
-      // Navigate with emacs bindings (Ctrl+N/P)
+      // Navigate with emacs bindings (Ctrl+N/P/F/B)
       if(e.key==="n" && e.ctrlKey && !e.altKey && !e.metaKey) {
         e.preventDefault();
         if(idx < siblings.length - 1) {
@@ -357,6 +357,28 @@ class Outline {
           // first child, move focus to parent li if exists
           const parentLi = li.parentNode.closest("li");
           if(parentLi) parentLi.focus();
+        }
+      }
+
+      // Emacs Ctrl+F (forward) and Ctrl+B (backward) for horizontal navigation
+      if(e.key==="f" && e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        const sublist = li.querySelector("ul");
+        if (sublist && sublist.children.length > 0) {
+          // If collapsed, expand first-level children only
+          if (li.classList.contains("collapsed")) {
+            this.expandItem(li); // only expands direct children
+          }
+          const firstChild = sublist.querySelector("li");
+          if (firstChild) firstChild.focus();
+        }
+      }
+
+      if(e.key==="b" && e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        const parentLi = li.parentNode.closest("li");
+        if (parentLi) {
+          parentLi.focus();
         }
       }
 
@@ -455,6 +477,50 @@ class Outline {
         // Collapse / Expand
         if(e.key.toUpperCase()==="H"){ e.preventDefault(); this.collapseItem(li); }
         if(e.key.toUpperCase()==="L"){ e.preventDefault(); this.expandItem(li); }
+
+        // Emacs-style Alt+N/P/F/B for moving items
+        if(e.key==="n" && idx<siblings.length-1){
+          e.preventDefault();
+          li.parentNode.insertBefore(li, siblings[idx+1]);
+          li.focus();
+          this.emit("outline:move",{id:li.dataset.id,from:idx,to:idx+1});
+        }
+        if(e.key==="p" && idx>0){
+          e.preventDefault();
+          li.parentNode.insertBefore(li, siblings[idx-1]);
+          li.focus();
+          this.emit("outline:move",{id:li.dataset.id,from:idx,to:idx-1});
+        }
+        if(e.key==="f"){
+          e.preventDefault();
+          this.indentItem(li);
+        }
+        if(e.key==="b"){
+          e.preventDefault();
+          this.outdentItem(li);
+        }
+
+        // Vi-style Alt+H/J/K/L for moving items
+        if(e.key==="j" && idx<siblings.length-1){
+          e.preventDefault();
+          li.parentNode.insertBefore(li, siblings[idx+1]);
+          li.focus();
+          this.emit("outline:move",{id:li.dataset.id,from:idx,to:idx+1});
+        }
+        if(e.key==="k" && idx>0){
+          e.preventDefault();
+          li.parentNode.insertBefore(li, siblings[idx-1]);
+          li.focus();
+          this.emit("outline:move",{id:li.dataset.id,from:idx,to:idx-1});
+        }
+        if(e.key==="l"){
+          e.preventDefault();
+          this.indentItem(li);
+        }
+        if(e.key==="h"){
+          e.preventDefault();
+          this.outdentItem(li);
+        }
       }
     });
 

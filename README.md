@@ -1,70 +1,100 @@
 # Clarity Outline
 
-A powerful, keyboard-driven outline component built as a modern web component with embedded styling. Inspired by Emacs org-mode, now you can have the same powerful outline functionality in your web applications.
+A flexible, feature-rich outline component with keyboard navigation, metadata support, and web component integration.
 
 ## Features
 
-- **Keyboard Navigation**: Full keyboard support with arrow keys, shortcuts, and accessibility
-- **Rich Metadata**: Support for assignees, tags, due dates, priority, and status
-- **Hierarchical Structure**: Nested todos with indentation and collapse/expand
-- **Web Component**: Modern web component with embedded styling
-- **Theme Support**: Built-in light/dark theme with CSS custom properties
-- **Event-Driven**: Comprehensive event system for integration
-- **Smart Hover Behavior**: Hover buttons appear with a 1000ms delay and disappear immediately on unfocus
+- **Hierarchical Structure**: Create nested outlines with unlimited depth
+- **Keyboard Navigation**: Full emacs and vi-style keyboard shortcuts
+- **Metadata Support**: Priority, due dates, assignees, tags, notes, and more
+- **Status Management**: Customizable status labels with completion tracking
+- **Web Component**: Easy integration with any framework
+- **Accessibility**: Full keyboard navigation and screen reader support
+
+## Keyboard Navigation
+
+### Navigation Shortcuts
+
+#### Arrow Keys
+- **↑/↓**: Navigate between sibling items
+- **→**: Navigate into first child (expands if collapsed)
+- **←**: Navigate to parent item
+
+#### Emacs Style (Ctrl + key)
+- **Ctrl + N**: Next item
+- **Ctrl + P**: Previous item  
+- **Ctrl + F**: Forward into children
+- **Ctrl + B**: Back to parent
+
+#### Vi Style
+- **J**: Next item
+- **K**: Previous item
+- **L**: Forward into children
+- **H**: Back to parent
+
+### Item Movement Shortcuts
+
+#### Arrow Keys with Alt
+- **Alt + ↑**: Move item up in list
+- **Alt + ↓**: Move item down in list
+- **Alt + →**: Indent item (make it a child)
+- **Alt + ←**: Outdent item (make it a sibling)
+
+#### Emacs Style (Alt + key)
+- **Alt + N**: Move item down
+- **Alt + P**: Move item up
+- **Alt + F**: Indent item
+- **Alt + B**: Outdent item
+
+#### Vi Style (Alt + key)
+- **Alt + J**: Move item down
+- **Alt + K**: Move item up
+- **Alt + L**: Indent item
+- **Alt + H**: Outdent item
+
+### Other Shortcuts
+
+- **E**: Edit item text
+- **Enter**: Open item in solo view
+- **Alt + Enter**: Add new sibling todo
+- **Alt + Tab**: Toggle collapsed/expanded state
+- **Shift + →**: Cycle status forward
+- **Shift + ←**: Cycle status backward
+- **T**: Show tags popup
+- **P**: Toggle priority
+- **B**: Toggle blocked status
+- **D**: Set due date
+- **N**: Add notes
+- **A**: Assign to user
+- **R**: Remove item
+- **S**: Change status
+- **O**: Open solo view
 
 ## Quick Start
 
-```html
-<script src="outline.js"></script>
-
-<clarity-outline 
-  data-items='[{"id":"1","text":"Buy groceries","status":"TODO"},{"id":"2","text":"Review code","status":"DONE"}]'>
-</clarity-outline>
-```
-
-No CSS file needed.
-
-## Usage
-
-### Basic Usage
+### HTML Usage
 
 ```html
-<clarity-outline 
-  data-items='[{"id":"1","text":"Buy groceries","status":"TODO"},{"id":"2","text":"Review code","status":"DONE"}]'
-  options='{"assignees": ["alice", "bob", "charlie"], "tags": ["urgent", "bug", "feature"]}'>
-</clarity-outline>
+<outline-list 
+  data-assignees='["Alice", "Bob", "Charlie"]'
+  data-tags='["urgent", "bug", "feature"]'
+  data-status-labels='[{"label": "TODO", "isEndState": false}, {"label": "DONE", "isEndState": true}]'>
+</outline-list>
 ```
 
-### Outline Item Data Structure
+### JavaScript Usage
 
 ```javascript
-{
-  "id": "string",           // Required: Unique identifier
-  "text": "string",         // Required: Outline text content
-  "status": "string",       // Optional: Status label (TODO, DONE, etc.)
-  "completed": boolean,     // Optional: Alternative to status for completion
-  "priority": boolean,      // Optional: Mark as priority
-          "blocked": boolean,        // Optional: Mark as blocked
-  "schedule": "string",     // Optional: Due date (e.g., "Jan 5")
-  "assign": "string",       // Optional: Assigned user
-  "tags": ["string"],       // Optional: Array of tags
-  "children": [outlineItem], // Optional: Nested outline items
-  "classes": "string"       // Optional: Additional CSS classes
-}
-```
+import { Outline } from './outline.js';
 
-### Configuration Options
-
-```javascript
-{
-  assignees: ['alice', 'bob', 'charlie'],           // Available assignees
-  tags: ['urgent', 'bug', 'feature', 'docs'],       // Available tags
-  statusLabels: [                                   // Custom status labels
+const outline = new Outline(document.querySelector('.outline-list'), {
+  assignees: ['Alice', 'Bob', 'Charlie'],
+  tags: ['urgent', 'bug', 'feature'],
+  statusLabels: [
     { label: 'TODO', isEndState: false },
-    { label: 'IN PROGRESS', isEndState: false },
     { label: 'DONE', isEndState: true }
   ],
-  features: {                                       // Enable/disable features
+  features: {
     priority: true,
     blocked: true,
     dueDate: true,
@@ -73,83 +103,69 @@ No CSS file needed.
     notes: true,
     remove: true
   }
-}
+});
 ```
 
-## Keyboard Shortcuts
+## Configuration Options
 
-### Navigation
-- **Arrow Keys**: Navigate between items
-- **Ctrl+N/P**: Navigate down/up (Emacs style)
-- **J/K**: Navigate down/up (Vi style)
-- **H/L**: Navigate left/right (Vi style)
-- **Tab**: Navigate between items (browser default)
+### Status Labels
+Customize the status labels and their completion states:
 
-### Actions
-- **Enter**: Navigate to detail view
-- **Alt+Enter**: Create sibling outline item
-- **E**: Enter edit mode
-- **S**: Change status
-- **O**: Open detail view
-- **T**: Toggle tags
-- **A**: Assign to user
-- **D**: Set due date
-- **N**: Add notes
-- **R**: Remove item
-- **P**: Toggle priority
-- **B**: Toggle blocked
-- **Shift+Arrow**: Cycle through statuses
-- **Alt+Arrow**: Reorder items
-- **Alt+Tab**: Toggle collapse/expand
+```javascript
+statusLabels: [
+  { label: 'TODO', isEndState: false },
+  { label: 'IN PROGRESS', isEndState: false },
+  { label: 'REVIEW', isEndState: false },
+  { label: 'DONE', isEndState: true }
+]
+```
+
+### Features
+Enable or disable specific features:
+
+```javascript
+features: {
+  priority: true,      // Show priority toggle
+  blocked: true,       // Show blocked status
+  dueDate: true,       // Show due date picker
+  assign: true,        // Show assignee dropdown
+  tags: true,          // Show tags management
+  notes: true,         // Show notes editor
+  remove: true         // Show remove button
+}
+```
 
 ## Events
 
-```javascript
-element.addEventListener("outline:add", (e) => {
-  console.log("Outline item added:", e.detail);
-});
+The component emits various events for integration:
 
-element.addEventListener("outline:toggle", (e) => {
-  console.log("Outline item toggled:", e.detail);
-});
-```
-
-Available events: `outline:add`, `outline:toggle`, `outline:move`, `outline:edit:save`, `outline:due`, `outline:assign`, `outline:tags`, `outline:priority`, `outline:blocked`, `outline:navigate`, `outline:notes`, `outline:remove`
-
-## JavaScript API
-
-```javascript
-const webComponent = document.querySelector("clarity-outline");
-
-// Add outline item
-webComponent.addItem("New outline item");
-
-// Update outline items
-webComponent.setTodos([
-  { id: "1", text: "Updated outline item", status: "TODO" }
-]);
-
-// Get current outline items
-const currentItems = webComponent.getTodos();
-```
-
-## Theming
-
-The component uses CSS custom properties for theming:
-
-```css
-clarity-outline {
-  --clarity-outline-spacing: 0.5rem;
-  --clarity-outline-padding: 0.75rem;
-  --clarity-outline-font-size: 16px;
-  --clarity-outline-color-todo: #d16d7a;
-  --clarity-outline-color-done: #6c757d;
-}
-```
+- `outline:select` - Item selected
+- `outline:add` - New item added
+- `outline:edit:save` - Item text edited
+- `outline:move` - Item moved/reordered
+- `outline:indent` - Item indented
+- `outline:outdent` - Item outdented
+- `outline:collapse` - Item collapsed
+- `outline:expand` - Item expanded
+- `outline:toggle` - Status changed
+- `outline:priority` - Priority toggled
+- `outline:blocked` - Blocked status toggled
+- `outline:due` - Due date set/cleared
+- `outline:assign` - Assignee set/cleared
+- `outline:tags` - Tags updated
+- `outline:notes` - Notes updated
+- `outline:remove` - Item removed
 
 ## Examples
 
-See `examples.html` for complete examples with different themes and customization options.
+See the `examples.html` and `keyboard-navigation-demo.html` files for working examples.
+
+## Browser Support
+
+- Chrome 67+
+- Firefox 63+
+- Safari 11.1+
+- Edge 79+
 
 ## License
 
