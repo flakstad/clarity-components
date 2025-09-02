@@ -57,7 +57,7 @@ A flexible, feature-rich outline component with keyboard navigation, metadata su
 - **E**: Edit item text
 - **Enter**: Open item in solo view
 - **Alt + Enter**: Add new sibling todo
-- **Alt + Tab**: Toggle collapsed/expanded state
+- **Alt + T**: Toggle collapsed/expanded state (toggle hierarchy)
 - **Shift + →**: Cycle status forward
 - **Shift + ←**: Cycle status backward
 - **T**: Show tags popup

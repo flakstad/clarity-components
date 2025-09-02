@@ -366,8 +366,8 @@ class Outline {
         return;
       }
 
-      // Cycle collapsed/expanded with Alt+Tab
-      if(e.key==="Tab" && e.altKey && !e.ctrlKey && !e.metaKey) {
+      // Cycle collapsed/expanded with Alt+T (toggle hierarchy)
+      if(e.code==="KeyT" && e.altKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         this.cycleCollapsedState(li);
         return;

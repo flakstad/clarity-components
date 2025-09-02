@@ -206,16 +206,18 @@ hjkl
 CLOSED: [2025-09-02 Tue 22:51]
 alt + npfb
 alt + hjkl
-* TODO toggle expand/collapse hierarchy
-Confirm with AI that alt + tab is a default for application switching on windows and some linux distros.
-Have it suggest alternatives, with alt + something.., e.g. alt + h (hierarchy/hide)
+* DONE toggle expand/collapse hierarchy
+CLOSED: [2025-01-27 Mon 15:30]
+Confirmed with AI that alt + tab is a default for application switching on windows and some linux distros.
+Implemented Alt+T (toggle) as alternative - much more intuitive and conflict-free.
+* DONE alt + tab might be application switch in some Linux distros - problem
+CLOSED: [2025-01-27 Mon 15:30]
+Don't want to override Tab. Fixed by implementing Alt+T instead.
 * TODO status popup does not render current status
 * TODO event "outline:navigate" should be renamed to "outline:open"
 Update event and documentation. Refactor navigateToSoloView to be openItem, and the function should just emit the event.
 * TODO adjust color used in action popups - light blue selected does not match with theme
 * TODO shift + up/down to toggle priority
-* TODO alt + tab might be application switch in some Linux distros - problem
-Don't want to override Tab.
 * TODO notes popup must be bigger, or allow expansion when writing notes
 * TODO testing use with datastar
 Setup backend with in-memory state.

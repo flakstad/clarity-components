@@ -1269,7 +1269,7 @@ describe('Outline Web Component', () => {
       expect(childTodo).toBeDefined();
     });
 
-    test('should support Alt+Tab for toggle collapsed/expanded state', async () => {
+    test('should support Alt+T for toggle collapsed/expanded state', async () => {
       todoList.addItem('Parent todo');
       const parentTodo = getTodoByText(outlineList, 'Parent todo');
       
@@ -1280,10 +1280,10 @@ describe('Outline Web Component', () => {
       todoList.collapseItem(parentTodo);
       expect(parentTodo.classList.contains('collapsed')).toBe(true);
       
-      // Alt+Tab should expand
+      // Alt+T should expand
       parentTodo.focus();
       parentTodo.dispatchEvent(new KeyboardEvent('keydown', { 
-        key: 'Tab', 
+        code: 'KeyT', 
         altKey: true,
         bubbles: true 
       }));
