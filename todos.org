@@ -218,7 +218,8 @@ Update event and documentation. Refactor navigateToSoloView to be openItem, and 
 * DONE double click should go to edit mode, not open
 CLOSED: [2025-01-27 Mon 15:30]
 Double-click now enters edit mode instead of opening the item in solo view.
-* TODO status popup does not render current status
+* DONE status popup does not render current status
+CLOSED: [2025-09-03 Wed 01:12]
 * TODO adjust color used in action popups - light blue selected does not match with theme
 * TODO shift + up/down to toggle priority
 * TODO notes popup must be bigger, or allow expansion when writing notes

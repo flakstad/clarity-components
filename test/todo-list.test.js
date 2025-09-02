@@ -1493,6 +1493,73 @@ describe('Outline Web Component', () => {
       expect(assignSpan).toBeDefined();
       expect(assignSpan.textContent).toContain('alice');
     });
+
+    test('should show status popup with current status selected', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      // Initially should have TODO status
+      const label = todo.querySelector('.outline-label');
+      expect(label.textContent).toBe('TODO');
+      
+      // Open status popup
+      const statusButton = todo.querySelector('.state-button');
+      statusButton.click();
+      
+      // Should have status popup
+      const popup = getPopup(outlineList);
+      expect(popup).toBeDefined();
+      expect(popup.classList.contains('dropdown-popup')).toBe(true);
+      
+      // Should have "None" option first
+      const noneOption = popup.querySelector('.dropdown-item:first-child');
+      expect(noneOption.textContent).toBe('None');
+      
+      // Should have TODO option
+      const todoOption = popup.querySelector('.dropdown-item:nth-child(2)');
+      expect(todoOption.textContent).toBe('TODO');
+      
+      // Should have IN PROGRESS option
+      const inProgressOption = popup.querySelector('.dropdown-item:nth-child(3)');
+      expect(inProgressOption.textContent).toBe('IN PROGRESS');
+      
+      // Should have DONE option
+      const doneOption = popup.querySelector('.dropdown-item:nth-child(4)');
+      expect(doneOption.textContent).toBe('DONE');
+      
+      // TODO option should be selected (current status)
+      expect(todoOption.classList.contains('selected')).toBe(true);
+      
+      // Other options should not be selected
+      expect(noneOption.classList.contains('selected')).toBe(false);
+      expect(inProgressOption.classList.contains('selected')).toBe(false);
+      expect(doneOption.classList.contains('selected')).toBe(false);
+    });
+
+    test('should show status popup with "none" status selected for headers', async () => {
+      todoList.addItem('Header item');
+      const todo = getTodoByText(outlineList, 'Header item');
+      
+      // Convert to header (no label)
+      todoList.setTodoStatus(todo, 'none');
+      expect(todo.classList.contains('no-label')).toBe(true);
+      
+      // Open status popup
+      const statusButton = todo.querySelector('.state-button');
+      statusButton.click();
+      
+      // Should have status popup
+      const popup = getPopup(outlineList);
+      expect(popup).toBeDefined();
+      
+      // "None" option should be selected
+      const noneOption = popup.querySelector('.dropdown-item:first-child');
+      expect(noneOption.classList.contains('selected')).toBe(true);
+      
+      // Other options should not be selected
+      const todoOption = popup.querySelector('.dropdown-item:nth-child(2)');
+      expect(todoOption.classList.contains('selected')).toBe(false);
+    });
   });
 
   describe('Parent-Child Relationships', () => {

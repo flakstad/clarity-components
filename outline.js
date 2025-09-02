@@ -2504,6 +2504,18 @@ class Outline {
     const popup = document.createElement('div');
     popup.className = 'outline-popup dropdown-popup';
 
+    // Get current status to determine which option should be selected
+    const currentLabel = li.querySelector('.outline-label');
+    let currentStatus = 'none';
+    
+    if (currentLabel && currentLabel.style.display !== 'none') {
+      const currentText = currentLabel.textContent.trim();
+      const statusIndex = this.options.statusLabels.findIndex(status => status.label === currentText);
+      if (statusIndex >= 0) {
+        currentStatus = `status-${statusIndex}`;
+      }
+    }
+
     // Status options - use custom labels if provided
     const statusOptions = [];
 
@@ -2529,6 +2541,11 @@ class Outline {
       item.textContent = option.label;
       item.setAttribute('data-value', option.value);
       item.setAttribute('tabindex', '0');
+
+      // Mark current status as selected
+      if (option.value === currentStatus) {
+        item.classList.add('selected');
+      }
 
       // Handle click
       item.addEventListener('click', () => {
@@ -2561,10 +2578,11 @@ class Outline {
     // Position popup relative to the list container
     this.positionPopup(popup, button);
 
-    // Focus first item
+    // Focus the currently selected item, or first item if none selected
     setTimeout(() => {
-      const firstItem = popup.querySelector('.dropdown-item');
-      if (firstItem) firstItem.focus();
+      const selectedItem = popup.querySelector('.dropdown-item.selected') ||
+                          popup.querySelector('.dropdown-item');
+      if (selectedItem) selectedItem.focus();
     }, 0);
 
     // Close on outside click
