@@ -213,9 +213,10 @@ Implemented Alt+T (toggle) as alternative - much more intuitive and conflict-fre
 * DONE alt + tab might be application switch in some Linux distros - problem
 CLOSED: [2025-01-27 Mon 15:30]
 Don't want to override Tab. Fixed by implementing Alt+T instead.
-* TODO status popup does not render current status
-* TODO event "outline:navigate" should be renamed to "outline:open"
+* DONE event "outline:navigate" should be renamed to "outline:open"
 Update event and documentation. Refactor navigateToSoloView to be openItem, and the function should just emit the event.
+* TODO status popup does not render current status
+* TODO double click should go to edit mode, not open
 * TODO adjust color used in action popups - light blue selected does not match with theme
 * TODO shift + up/down to toggle priority
 * TODO notes popup must be bigger, or allow expansion when writing notes

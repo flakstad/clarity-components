@@ -962,48 +962,48 @@ describe('Outline Web Component', () => {
       expect(selectEventEmitted).toBe(true);
     });
 
-    test('should navigate to solo view on double click', () => {
+    test('should open item on double click', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
-      let navigateEventEmitted = false;
-      outlineList.addEventListener('outline:navigate', () => {
-        navigateEventEmitted = true;
+      let openEventEmitted = false;
+      outlineList.addEventListener('outline:open', () => {
+        openEventEmitted = true;
       });
       
       todo.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
       
-      expect(navigateEventEmitted).toBe(true);
+      expect(openEventEmitted).toBe(true);
     });
 
-    test('should navigate to solo view on Enter key', () => {
+    test('should open item on Enter key', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
-      let navigateEventEmitted = false;
-      outlineList.addEventListener('outline:navigate', () => {
-        navigateEventEmitted = true;
+      let openEventEmitted = false;
+      outlineList.addEventListener('outline:open', () => {
+        openEventEmitted = true;
       });
       
       todo.focus();
       todo.dispatchEvent(createKeyEvent('Enter'));
       
-      expect(navigateEventEmitted).toBe(true);
+      expect(openEventEmitted).toBe(true);
     });
 
-    test('should navigate to solo view on "o" key', () => {
+    test('should open item on "o" key', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
-      let navigateEventEmitted = false;
-      outlineList.addEventListener('outline:navigate', () => {
-        navigateEventEmitted = true;
+      let openEventEmitted = false;
+      outlineList.addEventListener('outline:open', () => {
+        openEventEmitted = true;
       });
       
       todo.focus();
       todo.dispatchEvent(createKeyEvent('o'));
       
-      expect(navigateEventEmitted).toBe(true);
+      expect(openEventEmitted).toBe(true);
     });
 
     test('should add open button to hover buttons', () => {
@@ -1015,19 +1015,19 @@ describe('Outline Web Component', () => {
       expect(openButton.textContent).toBe('open');
     });
 
-    test('should navigate to solo view when clicking open button', () => {
+    test('should open item when clicking open button', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
-      let navigateEventEmitted = false;
-      outlineList.addEventListener('outline:navigate', () => {
-        navigateEventEmitted = true;
+      let openEventEmitted = false;
+      outlineList.addEventListener('outline:open', () => {
+        openEventEmitted = true;
       });
       
       const openButton = todo.querySelector('.open-button');
       openButton.click();
       
-      expect(navigateEventEmitted).toBe(true);
+      expect(openEventEmitted).toBe(true);
     });
 
     test('should emit outline:select event on single click', (done) => {
@@ -1043,53 +1043,53 @@ describe('Outline Web Component', () => {
       todo.click();
     });
 
-    test('should emit outline:navigate event on navigation', () => {
+    test('should emit outline:open event on open', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
-      let navigateEventEmitted = false;
-      outlineList.addEventListener('outline:navigate', () => {
-        navigateEventEmitted = true;
+      let openEventEmitted = false;
+      outlineList.addEventListener('outline:open', () => {
+        openEventEmitted = true;
       });
       
       todo.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
       
-      expect(navigateEventEmitted).toBe(true);
+      expect(openEventEmitted).toBe(true);
     });
 
-    test('should not navigate when clicking on buttons', () => {
+    test('should not open when clicking on buttons', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
-      let navigateEventEmitted = false;
-      outlineList.addEventListener('outline:navigate', () => {
-        navigateEventEmitted = true;
+      let openEventEmitted = false;
+      outlineList.addEventListener('outline:open', () => {
+        openEventEmitted = true;
       });
       
       const assignButton = todo.querySelector('.assign-button');
       assignButton.click();
       
-      expect(navigateEventEmitted).toBe(false);
+      expect(openEventEmitted).toBe(false);
     });
 
-    test('should not navigate when clicking on edit input', () => {
+    test('should not open when clicking on edit input', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
       todoList.enterEditMode(todo);
       const input = todo.querySelector('.outline-edit-input');
       
-      let navigateEventEmitted = false;
-      outlineList.addEventListener('outline:navigate', () => {
-        navigateEventEmitted = true;
+      let openEventEmitted = false;
+      outlineList.addEventListener('outline:open', () => {
+        openEventEmitted = true;
       });
       
       input.click();
       
-      expect(navigateEventEmitted).toBe(false);
+      expect(openEventEmitted).toBe(false);
     });
 
-    test('should include correct status in navigation URL', () => {
+    test('should include correct status in open event', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
@@ -1097,16 +1097,16 @@ describe('Outline Web Component', () => {
       todoList.toggleItem(todo);
       todoList.toggleItem(todo);
       
-      let navigateEventEmitted = false;
-      outlineList.addEventListener('outline:navigate', (e) => {
-        navigateEventEmitted = true;
+      let openEventEmitted = false;
+      outlineList.addEventListener('outline:open', (e) => {
+        openEventEmitted = true;
         expect(e.detail).toBeDefined();
         expect(e.detail.id).toBe(todo.dataset.id);
       });
       
       todo.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
       
-      expect(navigateEventEmitted).toBe(true);
+      expect(openEventEmitted).toBe(true);
     });
 
     test('should position open button first among core actions when no data', () => {

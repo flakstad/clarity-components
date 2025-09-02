@@ -245,10 +245,10 @@ global.closeAllPopups = (outlineList) => {
 // Helper function to mock navigation for tests
 global.mockNavigation = (todoList) => {
   let navigatedUrl = null;
-  const originalNavigateToSoloView = todoList.navigateToSoloView;
-  
-  // Mock the navigateToSoloView method
-  todoList.navigateToSoloView = jest.fn((li) => {
+      const originalOpenItem = todoList.openItem;
+    
+    // Mock the openItem method
+    todoList.openItem = jest.fn((li) => {
     const todoId = li.dataset.id;
     const todoText = li.querySelector(".outline-text")?.textContent;
     const todoStatus = li.classList.contains("completed") ? "completed" : 
@@ -258,7 +258,7 @@ global.mockNavigation = (todoList) => {
 // navigatedUrl = `demos/todo.html?id=${encodeURIComponent(todoId)}&text=${encodeURIComponent(todoText)}&status=${encodeURIComponent(todoStatus)}`;
     
     // Still emit the event
-    todoList.emit("outline:navigate", {
+    todoList.emit("outline:open", {
       id: li.dataset.id,
       text: li.querySelector(".outline-text")?.textContent
     });
@@ -268,7 +268,7 @@ global.mockNavigation = (todoList) => {
     getNavigatedUrl: () => navigatedUrl,
     setNavigatedUrl: (url) => { navigatedUrl = url; },
     restore: () => {
-      todoList.navigateToSoloView = originalNavigateToSoloView;
+      todoList.openItem = originalOpenItem;
     }
   };
 };

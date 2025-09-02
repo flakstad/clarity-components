@@ -147,9 +147,9 @@ class Outline {
         return; // Let edit input handle its own clicks
       }
 
-      // Double click: navigate to solo view
-      console.log("Todo item double-clicked - navigating", li.dataset.id);
-      this.navigateToSoloView(li);
+      // Double click: open item
+      console.log("Todo item double-clicked - opening", li.dataset.id);
+      this.openItem(li);
     });
 
     this.el.addEventListener("keydown", e => {
@@ -345,17 +345,17 @@ class Outline {
         return;
       }
 
-      // Open solo view with 'o' key
+      // Open item with 'o' key
       if(e.key==="o" && !e.altKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
-        this.navigateToSoloView(li);
+        this.openItem(li);
         return;
       }
 
-      // Navigate to solo view with Enter
+      // Open item with Enter
       if(e.key==="Enter" && !e.altKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
-        this.navigateToSoloView(li);
+        this.openItem(li);
         return;
       }
 
@@ -1019,18 +1019,8 @@ class Outline {
     }
   }
 
-  navigateToSoloView(li) {
-    const todoId = li.dataset.id;
-    const todoText = li.querySelector(".outline-text")?.textContent;
-    const todoStatus = li.classList.contains("completed") ? "completed" :
-                      li.classList.contains("no-label") ? "heading" : "todo";
-
-    // Navigate to todo detail page with URL parameters
-    // Navigation to todo detail page removed - todo.html no longer exists
-// const url = `demos/todo.html?id=${encodeURIComponent(todoId)}&text=${encodeURIComponent(todoText)}&status=${encodeURIComponent(todoStatus)}`;
-    // window.location.href = url;
-
-    this.emit("outline:navigate", {
+  openItem(li) {
+    this.emit("outline:open", {
       id: li.dataset.id,
       text: li.querySelector(".outline-text")?.textContent
     });
@@ -1306,7 +1296,7 @@ class Outline {
     });
     buttonsContainer.appendChild(editBtn);
 
-    // Open button (for navigating to solo view) - always enabled
+    // Open button (for opening item) - always enabled
     const openBtn = document.createElement("button");
     openBtn.className = "hover-button open-button";
     openBtn.setAttribute("data-type", "open");
@@ -1314,7 +1304,7 @@ class Outline {
     openBtn.tabIndex = -1; // Remove from tab navigation
     openBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      this.navigateToSoloView(li);
+      this.openItem(li);
     });
     buttonsContainer.appendChild(openBtn);
 
@@ -3632,7 +3622,7 @@ class OutlineElement extends HTMLElement {
       'outline:add', 'outline:toggle', 'outline:move', 'outline:indent', 'outline:outdent',
       'outline:collapse', 'outline:expand', 'outline:edit:start', 'outline:edit:save',
       'outline:edit:cancel', 'outline:due', 'outline:assign', 'outline:tags',
-              'outline:priority', 'outline:blocked', 'outline:navigate', 'outline:select',
+              'outline:priority', 'outline:blocked', 'outline:open', 'outline:select',
       'outline:notes', 'outline:remove'
     ];
 
