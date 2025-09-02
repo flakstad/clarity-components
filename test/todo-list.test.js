@@ -1372,6 +1372,54 @@ describe('Outline Web Component', () => {
       expect(todo.querySelector('.priority-indicator')).toBeNull();
     });
 
+    test('should toggle priority with Shift + ArrowUp key', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      todo.focus();
+      todo.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'ArrowUp',
+        shiftKey: true,
+        bubbles: true 
+      }));
+      
+      // Should have priority indicator
+      const priorityIndicator = todo.querySelector('.priority-indicator');
+      expect(priorityIndicator).toBeDefined();
+      
+      // Toggle again to remove
+      todo.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'ArrowUp',
+        shiftKey: true,
+        bubbles: true 
+      }));
+      expect(todo.querySelector('.priority-indicator')).toBeNull();
+    });
+
+    test('should toggle priority with Shift + ArrowDown key', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      todo.focus();
+      todo.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'ArrowDown',
+        shiftKey: true,
+        bubbles: true 
+      }));
+      
+      // Should have priority indicator
+      const priorityIndicator = todo.querySelector('.priority-indicator');
+      expect(priorityIndicator).toBeDefined();
+      
+      // Toggle again to remove
+      todo.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'ArrowDown',
+        shiftKey: true,
+        bubbles: true 
+      }));
+      expect(todo.querySelector('.priority-indicator')).toBeNull();
+    });
+
     test('should toggle blocked with "b" key', async () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
@@ -1425,6 +1473,44 @@ describe('Outline Web Component', () => {
       const popup = getPopup(outlineList);
       expect(popup).toBeDefined();
       expect(popup.classList.contains('dropdown-popup')).toBe(true);
+    });
+
+    test('should not toggle priority with Shift + ArrowUp/Down when priority feature is disabled', async () => {
+      // Create a new outline list with priority disabled
+      const priorityDisabledList = document.createElement('clarity-outline');
+      priorityDisabledList.setAttribute('data-features', '{"priority": false}');
+      document.body.appendChild(priorityDisabledList);
+      
+      // Wait for the component to be connected and get the todo list instance
+      await new Promise(resolve => setTimeout(resolve, 10));
+      const priorityDisabledTodoList = priorityDisabledList.todoListInstance;
+      priorityDisabledTodoList.addItem('Test todo');
+      const todo = getTodoByText(priorityDisabledList, 'Test todo');
+      
+      todo.focus();
+      
+      // Try Shift + ArrowUp
+      todo.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'ArrowUp',
+        shiftKey: true,
+        bubbles: true 
+      }));
+      
+      // Should not have priority indicator
+      expect(todo.querySelector('.priority-indicator')).toBeNull();
+      
+      // Try Shift + ArrowDown
+      todo.dispatchEvent(new KeyboardEvent('keydown', {
+        key: 'ArrowDown',
+        shiftKey: true,
+        bubbles: true 
+      }));
+      
+      // Should still not have priority indicator
+      expect(todo.querySelector('.priority-indicator')).toBeNull();
+      
+      // Clean up
+      document.body.removeChild(priorityDisabledList);
     });
   });
 

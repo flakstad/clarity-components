@@ -61,6 +61,7 @@ A flexible, feature-rich outline component with keyboard navigation, metadata su
 - **Alt + T**: Toggle collapsed/expanded state (toggle hierarchy)
 - **Shift + →**: Cycle status forward
 - **Shift + ←**: Cycle status backward
+- **Shift + ↑/↓**: Toggle priority
 - **T**: Show tags popup
 - **P**: Toggle priority
 - **B**: Toggle blocked status

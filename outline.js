@@ -386,6 +386,19 @@ class Outline {
         return;
       }
 
+      // Toggle priority with Shift + up/down arrows (only if enabled)
+      if(e.key==="ArrowUp" && e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.priority) {
+        e.preventDefault();
+        this.togglePriority(li);
+        return;
+      }
+
+      if(e.key==="ArrowDown" && e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.priority) {
+        e.preventDefault();
+        this.togglePriority(li);
+        return;
+      }
+
       // Focus Navigation - Move Down (ArrowDown, Ctrl+N, J)
       const moveDownKeys = ['ArrowDown', 'n', 'j'];
       if(moveDownKeys.includes(e.key) && 
