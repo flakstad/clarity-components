@@ -962,18 +962,19 @@ describe('Outline Web Component', () => {
       expect(selectEventEmitted).toBe(true);
     });
 
-    test('should open item on double click', () => {
+    test('should enter edit mode on double click', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
-      let openEventEmitted = false;
-      outlineList.addEventListener('outline:open', () => {
-        openEventEmitted = true;
+      let editStartEventEmitted = false;
+      outlineList.addEventListener('outline:edit:start', () => {
+        editStartEventEmitted = true;
       });
       
       todo.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
       
-      expect(openEventEmitted).toBe(true);
+      expect(editStartEventEmitted).toBe(true);
+      expect(todo.classList.contains('editing')).toBe(true);
     });
 
     test('should open item on Enter key', () => {
@@ -1043,18 +1044,18 @@ describe('Outline Web Component', () => {
       todo.click();
     });
 
-    test('should emit outline:open event on open', () => {
+    test('should emit outline:edit:start event on double click', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
-      let openEventEmitted = false;
-      outlineList.addEventListener('outline:open', () => {
-        openEventEmitted = true;
+      let editStartEventEmitted = false;
+      outlineList.addEventListener('outline:edit:start', () => {
+        editStartEventEmitted = true;
       });
       
       todo.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
       
-      expect(openEventEmitted).toBe(true);
+      expect(editStartEventEmitted).toBe(true);
     });
 
     test('should not open when clicking on buttons', () => {
@@ -1089,7 +1090,7 @@ describe('Outline Web Component', () => {
       expect(openEventEmitted).toBe(false);
     });
 
-    test('should include correct status in open event', () => {
+    test('should include correct status in edit start event', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
@@ -1097,16 +1098,16 @@ describe('Outline Web Component', () => {
       todoList.toggleItem(todo);
       todoList.toggleItem(todo);
       
-      let openEventEmitted = false;
-      outlineList.addEventListener('outline:open', (e) => {
-        openEventEmitted = true;
+      let editStartEventEmitted = false;
+      outlineList.addEventListener('outline:edit:start', (e) => {
+        editStartEventEmitted = true;
         expect(e.detail).toBeDefined();
         expect(e.detail.id).toBe(todo.dataset.id);
       });
       
       todo.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
       
-      expect(openEventEmitted).toBe(true);
+      expect(editStartEventEmitted).toBe(true);
     });
 
     test('should position open button first among core actions when no data', () => {

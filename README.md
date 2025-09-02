@@ -55,6 +55,7 @@ A flexible, feature-rich outline component with keyboard navigation, metadata su
 ### Other Shortcuts
 
 - **E**: Edit item text
+- **Double-click**: Edit item text
 - **Enter**: Open item in solo view
 - **Alt + Enter**: Add new sibling todo
 - **Alt + T**: Toggle collapsed/expanded state (toggle hierarchy)

@@ -114,7 +114,7 @@ CLOSED: [2025-08-31 Sun 10:17]
 * DONE Refactor naming of component, classes, events
 CLOSED: [2025-08-31 Sun 16:09]
 M*ake styling be very much scoped to the component, wrap in a unique classname
-* DONE click to select, dblclick to navigate, view hover item to navigate
+* DONE click to select, dblclick to edit, view hover item to navigate
 CLOSED: [2025-08-31 Sun 17:23]
 * DONE no background by default, inherit from parent.
 CLOSED: [2025-08-31 Sun 17:34]
@@ -215,8 +215,10 @@ CLOSED: [2025-01-27 Mon 15:30]
 Don't want to override Tab. Fixed by implementing Alt+T instead.
 * DONE event "outline:navigate" should be renamed to "outline:open"
 Update event and documentation. Refactor navigateToSoloView to be openItem, and the function should just emit the event.
+* DONE double click should go to edit mode, not open
+CLOSED: [2025-01-27 Mon 15:30]
+Double-click now enters edit mode instead of opening the item in solo view.
 * TODO status popup does not render current status
-* TODO double click should go to edit mode, not open
 * TODO adjust color used in action popups - light blue selected does not match with theme
 * TODO shift + up/down to toggle priority
 * TODO notes popup must be bigger, or allow expansion when writing notes

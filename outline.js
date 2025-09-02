@@ -132,7 +132,7 @@ class Outline {
       });
     });
 
-    // Add double-click for navigation to solo view
+    // Add double-click for edit mode
     this.el.addEventListener("dblclick", e => {
       const li = e.target.closest("li");
       if (!li) return;
@@ -142,14 +142,14 @@ class Outline {
         return; // Let button handle its own click
       }
 
-      // Check if click is on edit input (don't navigate when editing)
+      // Check if click is on edit input (don't enter edit mode when already editing)
       if (e.target.classList.contains("outline-edit-input")) {
         return; // Let edit input handle its own clicks
       }
 
-      // Double click: open item
-      console.log("Todo item double-clicked - opening", li.dataset.id);
-      this.openItem(li);
+      // Double click: enter edit mode
+      console.log("Todo item double-clicked - entering edit mode", li.dataset.id);
+      this.enterEditMode(li);
     });
 
     this.el.addEventListener("keydown", e => {
