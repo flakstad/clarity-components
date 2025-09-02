@@ -1669,7 +1669,32 @@ class Outline {
     const left = buttonRect.left - containerRect.left;
     const top = buttonRect.bottom - containerRect.top + 5;
 
-    popup.style.left = `${left}px`;
+    // For notes popup, ensure it doesn't go off-screen and opens towards center
+    if (popup.classList.contains('notes-popup')) {
+      const popupWidth = 200; // Match the min-width from CSS
+      const containerWidth = containerRect.width;
+      const centerX = containerWidth / 2;
+      
+      // If the button is on the right side of the screen, open popup to the left
+      if (left > centerX) {
+        // Position popup to the left of the button, ensuring it doesn't go off-screen
+        const popupLeft = Math.max(0, left - popupWidth);
+        popup.style.left = `${popupLeft}px`;
+      } else {
+        // Button is on the left side, open popup to the right (default behavior)
+        const rightEdge = left + popupWidth;
+        if (rightEdge > containerWidth) {
+          // Adjust left position to keep popup within container
+          const adjustedLeft = Math.max(0, containerWidth - popupWidth - 10);
+          popup.style.left = `${adjustedLeft}px`;
+        } else {
+          popup.style.left = `${left}px`;
+        }
+      }
+    } else {
+      popup.style.left = `${left}px`;
+    }
+
     popup.style.top = `${top}px`;
   }
 
@@ -2194,22 +2219,26 @@ class Outline {
     popup.className = 'outline-popup date-popup notes-popup';
 
     const textarea = document.createElement('textarea');
-    textarea.className = 'dropdown-input';
+    textarea.className = 'dropdown-input notes-textarea';
     textarea.placeholder = 'Add notes…';
     textarea.style.padding = '0.5rem';
-    textarea.rows = 4;
+    textarea.rows = 8;
+    textarea.style.minHeight = '200px';
+    textarea.style.resize = 'vertical';
+    textarea.style.width = '200px';
 
     // Prefill from existing
     const existingNotesSpan = li.querySelector('.outline-notes');
     if (existingNotesSpan && existingNotesSpan.textContent) {
       textarea.value = existingNotesSpan.textContent.trim();
-    }
+    }        
     popup.appendChild(textarea);
 
     const buttonContainer = document.createElement('div');
     buttonContainer.style.display = 'flex';
     buttonContainer.style.gap = '0.5rem';
     buttonContainer.style.marginTop = '0.5rem';
+    buttonContainer.style.justifyContent = 'flex-end';
 
     const saveBtn = document.createElement('button');
     saveBtn.textContent = 'Save';
@@ -3527,6 +3556,33 @@ class OutlineElement extends HTMLElement {
         /* Date popup */
         .date-popup {
           min-width: 150px;
+        }
+
+        /* Notes popup specific styling */
+        .notes-popup {
+          min-width: 200px;
+          max-width: 400px;
+          padding: 1rem;
+        }
+
+        .notes-popup .notes-textarea {
+          width: 200px !important;
+          min-height: 200px !important;
+          max-height: 400px;
+          resize: vertical;
+          font-family: inherit;
+          line-height: 1.4;
+          box-sizing: border-box;
+          border: 1px solid var(--clarity-outline-border);
+          border-radius: 4px;
+          background: var(--clarity-outline-bg-tertiary);
+          color: var(--clarity-outline-text-primary);
+        }
+
+        .notes-popup .notes-textarea:focus {
+          outline: none;
+          border-color: var(--clarity-outline-border-focus);
+          box-shadow: 0 0 0 2px rgba(102, 217, 239, 0.2);
         }
 
         .date-popup button {
