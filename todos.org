@@ -202,18 +202,17 @@ CLOSED: [2025-09-02 Tue 15:31]
 CLOSED: [2025-09-02 Tue 22:15]
 ctrl + npfb
 hjkl
-* TODO move item with emacs and vi default bindings
+* DONE move item with emacs and vi default bindings
+CLOSED: [2025-09-02 Tue 22:51]
 alt + npfb
 alt + hjkl
 * TODO toggle expand/collapse hierarchy
 Confirm with AI that alt + tab is a default for application switching on windows and some linux distros.
 Have it suggest alternatives, with alt + something.., e.g. alt + h (hierarchy/hide)
 * TODO status popup does not render current status
+* TODO event "outline:navigate" should be renamed to "outline:open"
+Update event and documentation. Refactor navigateToSoloView to be openItem, and the function should just emit the event.
 * TODO adjust color used in action popups - light blue selected does not match with theme
-* TODO drag and drop?
-* TODO allow custom key bindings for movement of focus and items
-Pass in override key bindings.
-First for movement only, i.e. moving focus, moving items
 * TODO shift + up/down to toggle priority
 * TODO alt + tab might be application switch in some Linux distros - problem
 Don't want to override Tab.
@@ -246,3 +245,7 @@ Useful for ongoing lists, local storage. Likely not that useful for the
 project-oriented use case I envision in Clarity. But how do you get it back? Out
 of scope for the component. It would basically be the exact same as "remove",
 but emit a different event, allowing different persistence functionality.
+* TODO allow custom key bindings for movement of focus and items
+Pass in override key bindings.
+First for movement only, i.e. moving focus, moving items
+* TODO drag and drop?

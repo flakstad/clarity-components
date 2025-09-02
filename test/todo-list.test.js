@@ -520,9 +520,6 @@ describe('Outline Web Component', () => {
       expect(todo).toBeDefined();
     });
 
-    // Note: Popup outside clicks test removed due to complex shadow DOM event handling
-    // The core popup functionality is tested in other tests
-
     test('should handle edit mode with empty text', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
@@ -1272,7 +1269,7 @@ describe('Outline Web Component', () => {
       expect(childTodo).toBeDefined();
     });
 
-    test('should still support Alt+L for expand (no conflict with vi L)', async () => {
+    test('should support Alt+Tab for toggle collapsed/expanded state', async () => {
       todoList.addItem('Parent todo');
       const parentTodo = getTodoByText(outlineList, 'Parent todo');
       
@@ -1283,10 +1280,10 @@ describe('Outline Web Component', () => {
       todoList.collapseItem(parentTodo);
       expect(parentTodo.classList.contains('collapsed')).toBe(true);
       
-      // Alt+L should still expand
+      // Alt+Tab should expand
       parentTodo.focus();
       parentTodo.dispatchEvent(new KeyboardEvent('keydown', { 
-        key: 'L', 
+        key: 'Tab', 
         altKey: true,
         bubbles: true 
       }));
@@ -1508,6 +1505,7 @@ describe('Outline Web Component', () => {
       childTodo.focus();
       childTodo.dispatchEvent(new KeyboardEvent('keydown', { 
         key: 'ArrowRight', 
+        code: 'ArrowRight',
         altKey: true,
         bubbles: true 
       }));
@@ -1525,6 +1523,7 @@ describe('Outline Web Component', () => {
       childTodo.focus();
       childTodo.dispatchEvent(new KeyboardEvent('keydown', { 
         key: 'ArrowLeft', 
+        code: 'ArrowLeft',
         altKey: true,
         bubbles: true 
       }));

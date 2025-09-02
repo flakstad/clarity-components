@@ -42,8 +42,9 @@ global.loadOutlineComponent = () => {
     }
   };
   
-  // Evaluate the code in the current context
-  eval(outlineCode);
+  // Use Function constructor instead of eval to avoid Jest deep copying issues
+  const loadFunction = new Function('customElements', outlineCode);
+  loadFunction(customElements);
   
   // Restore original customElements.define
   customElements.define = originalDefine;
@@ -96,8 +97,25 @@ global.cleanupTestOutlineList = (container) => {
 
 // Helper function to create keyboard events
 global.createKeyEvent = (key, options = {}) => {
+  // Map common keys to their code values
+  const keyToCode = {
+    'n': 'KeyN',
+    'p': 'KeyP',
+    'f': 'KeyF',
+    'b': 'KeyB',
+    'j': 'KeyJ',
+    'k': 'KeyK',
+    'l': 'KeyL',
+    'h': 'KeyH',
+    'ArrowUp': 'ArrowUp',
+    'ArrowDown': 'ArrowDown',
+    'ArrowLeft': 'ArrowLeft',
+    'ArrowRight': 'ArrowRight'
+  };
+  
   return new KeyboardEvent('keydown', {
     key,
+    code: keyToCode[key] || key,
     bubbles: true,
     cancelable: true,
     ...options
@@ -151,16 +169,64 @@ global.waitForClass = (element, className, timeout = 1000) => {
 
 // Helper function to get all todos from web component
 global.getAllTodos = (outlineList) => {
+  console.log('getAllTodos called with:', outlineList);
+  console.log('outlineList.tagName:', outlineList.tagName);
+  console.log('outlineList.shadowRoot:', outlineList.shadowRoot);
+  
   const shadowRoot = outlineList.shadowRoot;
+  if (!shadowRoot) {
+    console.log('No shadow root found!');
+    return [];
+  }
+  
   const listElement = shadowRoot.querySelector('.outline-list');
-  return Array.from(listElement.querySelectorAll('li'));
+  console.log('listElement:', listElement);
+  console.log('listElement.tagName:', listElement?.tagName);
+  
+  if (!listElement) {
+    console.log('No .outline-list element found!');
+    return [];
+  }
+  
+  // Get only the top-level li elements (direct children of the list)
+  const liElements = Array.from(listElement.children).filter(child => child.tagName === 'LI');
+  console.log('liElements found:', liElements.length);
+  console.log('liElements:', Array.from(liElements).map(el => ({
+    tagName: el.tagName,
+    textContent: el.querySelector('.outline-text')?.textContent
+  })));
+  
+  return Array.from(liElements);
 };
 
 // Helper function to get todo by text from web component
 global.getTodoByText = (outlineList, text) => {
-  return getAllTodos(outlineList).find(todo => 
-    todo.querySelector('.outline-text').textContent === text
+  const shadowRoot = outlineList.shadowRoot;
+  if (!shadowRoot) {
+    return null;
+  }
+  
+  const listElement = shadowRoot.querySelector('.outline-list');
+  if (!listElement) {
+    return null;
+  }
+  
+  // Search all li elements recursively, not just top-level ones
+  const allLiElements = listElement.querySelectorAll('li');
+  return Array.from(allLiElements).find(li => 
+    li.querySelector('.outline-text')?.textContent === text
   );
+};
+
+// Helper function to get the active element considering shadow DOM
+global.getActiveElement = (outlineList) => {
+  // First check if the outline list itself has focus
+  if (document.activeElement === outlineList && outlineList.shadowRoot) {
+    // If so, check the shadow root's active element
+    return outlineList.shadowRoot.activeElement;
+  }
+  // Otherwise return the document's active element
+  return document.activeElement;
 };
 
 // Helper function to get popup from web component

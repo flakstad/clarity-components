@@ -199,6 +199,78 @@ class Outline {
         return;
       }
 
+      // Handle Alt key combinations FIRST (before single-key shortcuts)
+      if(e.altKey && !e.ctrlKey && !e.metaKey) {
+        console.log('Alt key detected:', e.code, 'idx:', idx, 'siblings:', siblings.length, 'e.altKey:', e.altKey, 'e.key:', e.key);
+        
+        // Move item down (Alt+N, Alt+J, Alt+ArrowDown)
+        const moveDownKeys = ['KeyN', 'KeyJ', 'ArrowDown'];
+        if(moveDownKeys.includes(e.code)){
+          if(idx<siblings.length-1){
+            console.log(`Alt+${e.code}: Moving item down, idx:`, idx, 'siblings:', siblings.length);
+            e.preventDefault();
+            if(e.code === 'ArrowDown') {
+              // Arrow key logic
+              li.parentNode.insertBefore(li, siblings[idx+1].nextSibling);
+            } else {
+              // Emacs/Vi key logic
+              const nextSibling = siblings[idx+1];
+              if (nextSibling.nextSibling) {
+                li.parentNode.insertBefore(li, nextSibling.nextSibling);
+              } else {
+                li.parentNode.appendChild(li);
+              }
+            }
+            // Recalculate siblings after the move to ensure proper state
+            const newSiblings = this.getSiblings(li);
+            const newIdx = newSiblings.indexOf(li);
+            li.focus();
+            this.emit("outline:move",{id:li.dataset.id,from:idx,to:newIdx});
+            return;
+          } else {
+            console.log(`Alt+${e.code}: Cannot move down - item is last in level, idx:`, idx, 'siblings:', siblings.length);
+          }
+        }
+        
+        // Move item up (Alt+P, Alt+K, Alt+ArrowUp)
+        const moveUpKeys = ['KeyP', 'KeyK', 'ArrowUp'];
+        if(moveUpKeys.includes(e.code)){
+          if(idx>0){
+            console.log(`Alt+${e.code}: Moving item up, idx:`, idx, 'siblings:', siblings.length);
+            e.preventDefault();
+            li.parentNode.insertBefore(li, siblings[idx-1]);
+            // Recalculate siblings after the move to ensure proper state
+            const newSiblings = this.getSiblings(li);
+            const newIdx = newSiblings.indexOf(li);
+            li.focus();
+            this.emit("outline:move",{id:li.dataset.id,from:idx,to:newIdx});
+            return;
+          } else {
+            console.log(`Alt+${e.code}: Cannot move up - item is first in level, idx:`, idx, 'siblings:', siblings.length);
+          }
+        }
+        
+        // Indent item (Alt+F, Alt+L, Alt+ArrowRight)
+        const indentKeys = ['KeyF', 'KeyL', 'ArrowRight'];
+        if(indentKeys.includes(e.code)){
+          console.log(`Alt+${e.code}: Indenting item`);
+          e.preventDefault();
+          this.indentItem(li);
+          return;
+        }
+        
+        // Outdent item (Alt+B, Alt+H, Alt+ArrowLeft)
+        const outdentKeys = ['KeyB', 'KeyH', 'ArrowLeft'];
+        if(outdentKeys.includes(e.code)){
+          console.log(`Alt+${e.code}: Outdenting item`);
+          e.preventDefault();
+          this.outdentItem(li);
+          return;
+        }
+        
+
+      }
+
       // Add/cycle tags with 't' key
       if(e.key==="t" && !e.altKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
@@ -301,8 +373,6 @@ class Outline {
         return;
       }
 
-
-
       // Cycle states with Shift + left/right arrows
       if(e.key==="ArrowLeft" && e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
@@ -316,8 +386,13 @@ class Outline {
         return;
       }
 
-      // Navigate with arrow keys
-      if(e.key==="ArrowDown") {
+      // Focus Navigation - Move Down (ArrowDown, Ctrl+N, J)
+      const moveDownKeys = ['ArrowDown', 'n', 'j'];
+      if(moveDownKeys.includes(e.key) && 
+         ((e.key === 'ArrowDown' && !e.altKey && !e.ctrlKey && !e.metaKey) ||
+          (e.key === 'n' && e.ctrlKey && !e.altKey && !e.metaKey) ||
+          (e.key === 'j' && !e.altKey && !e.ctrlKey && !e.metaKey))) {
+        console.log(`Focus: Moving down with ${e.key} (${e.ctrlKey ? 'Ctrl+' : ''}${e.key})`);
         e.preventDefault();
         if(idx < siblings.length - 1) {
           siblings[idx+1].focus();
@@ -325,9 +400,16 @@ class Outline {
           // last child, move to next available item by traversing up the hierarchy
           this.navigateToNextItem(li);
         }
+        return;
       }
 
-      if(e.key==="ArrowUp") {
+      // Focus Navigation - Move Up (ArrowUp, Ctrl+P, K)
+      const moveUpKeys = ['ArrowUp', 'p', 'k'];
+      if(moveUpKeys.includes(e.key) && 
+         ((e.key === 'ArrowUp' && !e.altKey && !e.ctrlKey && !e.metaKey) ||
+          (e.key === 'p' && e.ctrlKey && !e.altKey && !e.metaKey) ||
+          (e.key === 'k' && !e.altKey && !e.ctrlKey && !e.metaKey))) {
+        console.log(`Focus: Moving up with ${e.key} (${e.ctrlKey ? 'Ctrl+' : ''}${e.key})`);
         e.preventDefault();
         if(idx > 0) {
           siblings[idx-1].focus();
@@ -336,32 +418,16 @@ class Outline {
           const parentLi = li.parentNode.closest("li");
           if(parentLi) parentLi.focus();
         }
+        return;
       }
 
-      // Navigate with emacs bindings (Ctrl+N/P/F/B)
-      if(e.key==="n" && e.ctrlKey && !e.altKey && !e.metaKey) {
-        e.preventDefault();
-        if(idx < siblings.length - 1) {
-          siblings[idx+1].focus();
-        } else {
-          // last child, move to next available item by traversing up the hierarchy
-          this.navigateToNextItem(li);
-        }
-      }
-
-      if(e.key==="p" && e.ctrlKey && !e.altKey && !e.metaKey) {
-        e.preventDefault();
-        if(idx > 0) {
-          siblings[idx-1].focus();
-        } else {
-          // first child, move focus to parent li if exists
-          const parentLi = li.parentNode.closest("li");
-          if(parentLi) parentLi.focus();
-        }
-      }
-
-      // Emacs Ctrl+F (forward) and Ctrl+B (backward) for horizontal navigation
-      if(e.key==="f" && e.ctrlKey && !e.altKey && !e.metaKey) {
+      // Focus Navigation - Move Right/Forward (ArrowRight, Ctrl+F, L)
+      const moveRightKeys = ['ArrowRight', 'f', 'l'];
+      if(moveRightKeys.includes(e.key) && 
+         ((e.key === 'ArrowRight' && !e.altKey && !e.ctrlKey && !e.metaKey) ||
+          (e.key === 'f' && e.ctrlKey && !e.altKey && !e.metaKey) ||
+          (e.key === 'l' && !e.altKey && !e.ctrlKey && !e.metaKey))) {
+        console.log(`Focus: Moving right/forward with ${e.key} (${e.ctrlKey ? 'Ctrl+' : ''}${e.key})`);
         e.preventDefault();
         const sublist = li.querySelector("ul");
         if (sublist && sublist.children.length > 0) {
@@ -372,156 +438,27 @@ class Outline {
           const firstChild = sublist.querySelector("li");
           if (firstChild) firstChild.focus();
         }
+        return;
       }
 
-      if(e.key==="b" && e.ctrlKey && !e.altKey && !e.metaKey) {
+      // Focus Navigation - Move Left/Backward (ArrowLeft, Ctrl+B, H)
+      const moveLeftKeys = ['ArrowLeft', 'b', 'h'];
+      if(moveLeftKeys.includes(e.key) && 
+         ((e.key === 'ArrowLeft' && !e.altKey && !e.ctrlKey && !e.metaKey) ||
+          (e.key === 'b' && e.ctrlKey && !e.altKey && !e.metaKey) ||
+          (e.key === 'h' && !e.altKey && !e.ctrlKey && !e.metaKey))) {
+        console.log(`Focus: Moving left/backward with ${e.key} (${e.ctrlKey ? 'Ctrl+' : ''}${e.key})`);
         e.preventDefault();
         const parentLi = li.parentNode.closest("li");
         if (parentLi) {
           parentLi.focus();
         }
-      }
-
-      // Navigate with vi bindings (J/K for up/down, H/L for left/right)
-      if(e.key==="j" && !e.altKey && !e.ctrlKey && !e.metaKey) {
-        e.preventDefault();
-        if(idx < siblings.length - 1) {
-          siblings[idx+1].focus();
-        } else {
-          // last child, move to next available item by traversing up the hierarchy
-          this.navigateToNextItem(li);
-        }
-      }
-
-      if(e.key==="k" && !e.altKey && !e.ctrlKey && !e.metaKey) {
-        e.preventDefault();
-        if(idx > 0) {
-          siblings[idx-1].focus();
-        } else {
-          // first child, move focus to parent li if exists
-          const parentLi = li.parentNode.closest("li");
-          if(parentLi) parentLi.focus();
-        }
-      }
-
-      // Vi-style left/right navigation
-      if(e.key==="h" && !e.altKey && !e.ctrlKey && !e.metaKey) {
-        e.preventDefault();
-        const parentLi = li.parentNode.closest("li");
-        if (parentLi) {
-          parentLi.focus();
-        }
-      }
-
-      if(e.key==="l" && !e.altKey && !e.ctrlKey && !e.metaKey) {
-        e.preventDefault();
-        const sublist = li.querySelector("ul");
-        if (sublist && sublist.children.length > 0) {
-          // If collapsed, expand first-level children only
-          if (li.classList.contains("collapsed")) {
-            this.expandItem(li); // only expands direct children
-          }
-
-          const firstChild = sublist.querySelector("li");
-          if (firstChild) firstChild.focus();
-        }
-      }
-
-      // Navigate into first child with right arrow (if no Alt)
-      // Navigate into first child with right arrow (if no Alt)
-      if (!e.altKey && e.key === "ArrowRight") {
-        const sublist = li.querySelector("ul");
-        if (sublist && sublist.children.length > 0) {
-          e.preventDefault();
-
-          // If collapsed, expand first-level children only
-          if (li.classList.contains("collapsed")) {
-            this.expandItem(li); // only expands direct children
-          }
-
-          const firstChild = sublist.querySelector("li");
-          if (firstChild) firstChild.focus();
-        }
-      }
-
-
-      // Navigate back to parent with left arrow (if no Alt)
-      if (!e.altKey && e.key === "ArrowLeft") {
-        const parentLi = li.parentNode.closest("li");
-        if (parentLi) {
-          e.preventDefault();
-          parentLi.focus();
-        }
+        return;
       }
 
 
 
-      // Alt keys
-      if(e.altKey){
-        // Reorder
-        if(e.key==="ArrowUp" && idx>0){
-          e.preventDefault();
-          li.parentNode.insertBefore(li, siblings[idx-1]);
-          li.focus();
-          this.emit("outline:move",{id:li.dataset.id,from:idx,to:idx-1});
-        }
-        if(e.key==="ArrowDown" && idx<siblings.length-1){
-          e.preventDefault();
-          li.parentNode.insertBefore(siblings[idx+1], li);
-          li.focus();
-          this.emit("outline:move",{id:li.dataset.id,from:idx,to:idx+1});
-        }
-        // Hierarchy
-        if(e.key==="ArrowRight"){ e.preventDefault(); this.indentItem(li); }
-        if(e.key==="ArrowLeft"){ e.preventDefault(); this.outdentItem(li); }
-        // Collapse / Expand
-        if(e.key.toUpperCase()==="H"){ e.preventDefault(); this.collapseItem(li); }
-        if(e.key.toUpperCase()==="L"){ e.preventDefault(); this.expandItem(li); }
 
-        // Emacs-style Alt+N/P/F/B for moving items
-        if(e.key==="n" && idx<siblings.length-1){
-          e.preventDefault();
-          li.parentNode.insertBefore(li, siblings[idx+1]);
-          li.focus();
-          this.emit("outline:move",{id:li.dataset.id,from:idx,to:idx+1});
-        }
-        if(e.key==="p" && idx>0){
-          e.preventDefault();
-          li.parentNode.insertBefore(li, siblings[idx-1]);
-          li.focus();
-          this.emit("outline:move",{id:li.dataset.id,from:idx,to:idx-1});
-        }
-        if(e.key==="f"){
-          e.preventDefault();
-          this.indentItem(li);
-        }
-        if(e.key==="b"){
-          e.preventDefault();
-          this.outdentItem(li);
-        }
-
-        // Vi-style Alt+H/J/K/L for moving items
-        if(e.key==="j" && idx<siblings.length-1){
-          e.preventDefault();
-          li.parentNode.insertBefore(li, siblings[idx+1]);
-          li.focus();
-          this.emit("outline:move",{id:li.dataset.id,from:idx,to:idx+1});
-        }
-        if(e.key==="k" && idx>0){
-          e.preventDefault();
-          li.parentNode.insertBefore(li, siblings[idx-1]);
-          li.focus();
-          this.emit("outline:move",{id:li.dataset.id,from:idx,to:idx-1});
-        }
-        if(e.key==="l"){
-          e.preventDefault();
-          this.indentItem(li);
-        }
-        if(e.key==="h"){
-          e.preventDefault();
-          this.outdentItem(li);
-        }
-      }
     });
 
     this.el.addEventListener("click", e=>{
