@@ -3638,8 +3638,9 @@ class OutlineElement extends HTMLElement {
         }
 
         .dropdown-popup .dropdown-item.selected {
-          background: var(--clarity-outline-color-done);
-          color: var(--clarity-outline-bg-primary);
+          background: transparent;
+          color: var(--clarity-outline-text-primary);
+          border: 2px solid var(--clarity-outline-border);
         }
 
         .dropdown-popup .dropdown-item:focus {

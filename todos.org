@@ -229,7 +229,8 @@ CLOSED: [2025-09-03 Wed 11:55]
 * DONE fix regression where the container now shows scroll instead of letting popups etc extend outside
 CLOSED: [2025-09-03 Wed 12:02]
 popups should freely extend beyond the container of the todo items.
-* TODO make the popup highlight focused option color be darker for light mode
+* DONE make the popup highlight focused option color be darker for light mode
+CLOSED: [2025-09-03 Wed 12:14]
 * TODO testing use with datastar
 Setup backend with in-memory state.
 ** TODO handle new html reinit todolist script
