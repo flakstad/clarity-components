@@ -202,7 +202,7 @@ class Outline {
       // Handle Alt key combinations FIRST (before single-key shortcuts)
       if(e.altKey && !e.ctrlKey && !e.metaKey) {
         console.log('Alt key detected:', e.code, 'idx:', idx, 'siblings:', siblings.length, 'e.altKey:', e.altKey, 'e.key:', e.key);
-        
+
         // Move item down (Alt+N, Alt+J, Alt+ArrowDown)
         const moveDownKeys = ['KeyN', 'KeyJ', 'ArrowDown'];
         if(moveDownKeys.includes(e.code)){
@@ -231,7 +231,7 @@ class Outline {
             console.log(`Alt+${e.code}: Cannot move down - item is last in level, idx:`, idx, 'siblings:', siblings.length);
           }
         }
-        
+
         // Move item up (Alt+P, Alt+K, Alt+ArrowUp)
         const moveUpKeys = ['KeyP', 'KeyK', 'ArrowUp'];
         if(moveUpKeys.includes(e.code)){
@@ -249,7 +249,7 @@ class Outline {
             console.log(`Alt+${e.code}: Cannot move up - item is first in level, idx:`, idx, 'siblings:', siblings.length);
           }
         }
-        
+
         // Indent item (Alt+F, Alt+L, Alt+ArrowRight)
         const indentKeys = ['KeyF', 'KeyL', 'ArrowRight'];
         if(indentKeys.includes(e.code)){
@@ -258,7 +258,7 @@ class Outline {
           this.indentItem(li);
           return;
         }
-        
+
         // Outdent item (Alt+B, Alt+H, Alt+ArrowLeft)
         const outdentKeys = ['KeyB', 'KeyH', 'ArrowLeft'];
         if(outdentKeys.includes(e.code)){
@@ -267,7 +267,7 @@ class Outline {
           this.outdentItem(li);
           return;
         }
-        
+
 
       }
 
@@ -401,7 +401,7 @@ class Outline {
 
       // Focus Navigation - Move Down (ArrowDown, Ctrl+N, J)
       const moveDownKeys = ['ArrowDown', 'n', 'j'];
-      if(moveDownKeys.includes(e.key) && 
+      if(moveDownKeys.includes(e.key) &&
          ((e.key === 'ArrowDown' && !e.altKey && !e.ctrlKey && !e.metaKey) ||
           (e.key === 'n' && e.ctrlKey && !e.altKey && !e.metaKey) ||
           (e.key === 'j' && !e.altKey && !e.ctrlKey && !e.metaKey))) {
@@ -418,7 +418,7 @@ class Outline {
 
       // Focus Navigation - Move Up (ArrowUp, Ctrl+P, K)
       const moveUpKeys = ['ArrowUp', 'p', 'k'];
-      if(moveUpKeys.includes(e.key) && 
+      if(moveUpKeys.includes(e.key) &&
          ((e.key === 'ArrowUp' && !e.altKey && !e.ctrlKey && !e.metaKey) ||
           (e.key === 'p' && e.ctrlKey && !e.altKey && !e.metaKey) ||
           (e.key === 'k' && !e.altKey && !e.ctrlKey && !e.metaKey))) {
@@ -436,7 +436,7 @@ class Outline {
 
       // Focus Navigation - Move Right/Forward (ArrowRight, Ctrl+F, L)
       const moveRightKeys = ['ArrowRight', 'f', 'l'];
-      if(moveRightKeys.includes(e.key) && 
+      if(moveRightKeys.includes(e.key) &&
          ((e.key === 'ArrowRight' && !e.altKey && !e.ctrlKey && !e.metaKey) ||
           (e.key === 'f' && e.ctrlKey && !e.altKey && !e.metaKey) ||
           (e.key === 'l' && !e.altKey && !e.ctrlKey && !e.metaKey))) {
@@ -456,7 +456,7 @@ class Outline {
 
       // Focus Navigation - Move Left/Backward (ArrowLeft, Ctrl+B, H)
       const moveLeftKeys = ['ArrowLeft', 'b', 'h'];
-      if(moveLeftKeys.includes(e.key) && 
+      if(moveLeftKeys.includes(e.key) &&
          ((e.key === 'ArrowLeft' && !e.altKey && !e.ctrlKey && !e.metaKey) ||
           (e.key === 'b' && e.ctrlKey && !e.altKey && !e.metaKey) ||
           (e.key === 'h' && !e.altKey && !e.ctrlKey && !e.metaKey))) {
@@ -1643,8 +1643,8 @@ class Outline {
   }
 
   positionPopup(popup, button) {
-    // Append to the todo list container, not document.body
-    this.el.style.position = 'relative'; // Ensure container is positioned
+    // Ensure container has relative positioning for absolute popup positioning
+    this.el.style.position = 'relative';
     this.el.appendChild(popup);
 
     // Get button position relative to the list container
@@ -1669,33 +1669,47 @@ class Outline {
     const left = buttonRect.left - containerRect.left;
     const top = buttonRect.bottom - containerRect.top + 5;
 
-    // For notes popup, ensure it doesn't go off-screen and opens towards center
+    // Apply center-oriented positioning for all popups
+    const positionedLeft = this.calculateCenterOrientedPosition(popup, left, containerRect.width);
+    popup.style.left = `${positionedLeft}px`;
+    popup.style.top = `${top}px`;
+  }
+
+  /**
+   * Calculate the optimal left position for a popup to open towards the center
+   * and minimize the chance of extending outside the screen
+   */
+  calculateCenterOrientedPosition(popup, buttonLeft, containerWidth) {
+    // Get popup width - use different widths for different popup types
+    let popupWidth;
     if (popup.classList.contains('notes-popup')) {
-      const popupWidth = 200; // Match the min-width from CSS
-      const containerWidth = containerRect.width;
-      const centerX = containerWidth / 2;
-      
-      // If the button is on the right side of the screen, open popup to the left
-      if (left > centerX) {
-        // Position popup to the left of the button, ensuring it doesn't go off-screen
-        const popupLeft = Math.max(0, left - popupWidth);
-        popup.style.left = `${popupLeft}px`;
-      } else {
-        // Button is on the left side, open popup to the right (default behavior)
-        const rightEdge = left + popupWidth;
-        if (rightEdge > containerWidth) {
-          // Adjust left position to keep popup within container
-          const adjustedLeft = Math.max(0, containerWidth - popupWidth - 10);
-          popup.style.left = `${adjustedLeft}px`;
-        } else {
-          popup.style.left = `${left}px`;
-        }
-      }
+      popupWidth = 200; // Match the min-width from CSS
+    } else if (popup.classList.contains('dropdown-popup')) {
+      popupWidth = 150; // Typical width for dropdown popups
+    } else if (popup.classList.contains('date-popup')) {
+      popupWidth = 200; // Width for date popup
     } else {
-      popup.style.left = `${left}px`;
+      popupWidth = 200; // Default width
     }
 
-    popup.style.top = `${top}px`;
+    const centerX = containerWidth / 2;
+
+    // If the button is on the right side of the screen, open popup to the left
+    if (buttonLeft > centerX) {
+      // Position popup to the left of the button, ensuring it doesn't go off-screen
+      const popupLeft = Math.max(0, buttonLeft - popupWidth);
+      return popupLeft;
+    } else {
+      // Button is on the left side, open popup to the right (default behavior)
+      const rightEdge = buttonLeft + popupWidth;
+      if (rightEdge > containerWidth) {
+        // Adjust left position to keep popup within container
+        const adjustedLeft = Math.max(0, containerWidth - popupWidth - 10);
+        return adjustedLeft;
+      } else {
+        return buttonLeft;
+      }
+    }
   }
 
   showSchedulePopup(li, button) {
@@ -2231,7 +2245,7 @@ class Outline {
     const existingNotesSpan = li.querySelector('.outline-notes');
     if (existingNotesSpan && existingNotesSpan.textContent) {
       textarea.value = existingNotesSpan.textContent.trim();
-    }        
+    }
     popup.appendChild(textarea);
 
     const buttonContainer = document.createElement('div');
@@ -2422,10 +2436,10 @@ class Outline {
     const detailText = textSpan ? textSpan.textContent : '';
     const parentLi = li.parentNode.closest('li');
     const parentUl = li.parentNode;
-    
+
     // Find the next element to focus on before removing the current one
     const nextElement = this.findNextFocusableElement(li);
-    
+
     li.remove();
     if (parentUl && parentUl.tagName === 'UL') {
       // If parent LI exists, update child count and possibly remove empty ul
@@ -2438,12 +2452,12 @@ class Outline {
         }
       }
     }
-    
+
     // Set focus on the next available element
     if (nextElement) {
       nextElement.focus();
     }
-    
+
     this.emit('outline:remove', { id, text: detailText });
   }
 
@@ -2451,30 +2465,30 @@ class Outline {
     // Get all siblings of the current element
     const siblings = this.getSiblings(li);
     const currentIndex = siblings.indexOf(li);
-    
+
     // Try to find the next sibling
     if (currentIndex < siblings.length - 1) {
       return siblings[currentIndex + 1];
     }
-    
+
     // If no next sibling, try the previous sibling
     if (currentIndex > 0) {
       return siblings[currentIndex - 1];
     }
-    
+
     // If no siblings, try to find the parent
     const parentLi = li.parentNode.closest('li');
     if (parentLi) {
       return parentLi;
     }
-    
+
     // If no parent, try to find any available element in the list
     const allItems = this.getItems();
     if (allItems.length > 1) {
       // Find the first item that's not the one being removed
       return allItems.find(item => item !== li);
     }
-    
+
     // No other elements available
     return null;
   }
@@ -2549,7 +2563,7 @@ class Outline {
     // Get current status to determine which option should be selected
     const currentLabel = li.querySelector('.outline-label');
     let currentStatus = 'none';
-    
+
     if (currentLabel && currentLabel.style.display !== 'none') {
       const currentText = currentLabel.textContent.trim();
       const statusIndex = this.options.statusLabels.findIndex(status => status.label === currentText);
@@ -3308,7 +3322,7 @@ class OutlineElement extends HTMLElement {
         font-family: var(--clarity-outline-font-family);
         font-size: var(--clarity-outline-font-size);
         max-width: 100%;
-        overflow-x: hidden;
+        overflow: visible;
 
         /* Nested list styling */
         ul {
@@ -3548,7 +3562,7 @@ class OutlineElement extends HTMLElement {
           border: 1px solid var(--clarity-outline-border);
           border-radius: var(--clarity-outline-popup-border-radius);
           padding: var(--clarity-outline-popup-padding);
-          z-index: 100;
+          z-index: 1000;
           box-shadow: var(--clarity-outline-popup-shadow);
           min-width: var(--clarity-outline-popup-min-width);
         }
