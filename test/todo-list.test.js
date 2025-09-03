@@ -269,14 +269,29 @@ describe('Outline Web Component', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');
       
-      const scheduleBtn = todo.querySelector('.schedule-button');
-      expect(scheduleBtn.textContent).toBe('due on');
+      const dueBtn = todo.querySelector('.due-button');
+      expect(dueBtn.textContent).toBe('due');
       
       // Set a due date
       const testDate = new Date('2024-01-15');
+      todoList.setDueDate(todo, testDate);
+      
+      expect(dueBtn.textContent).toBe('due Jan 15');
+      expect(dueBtn.classList.contains('has-data')).toBe(true);
+    });
+
+    test('should update button text for schedule date', () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      const scheduleBtn = todo.querySelector('.schedule-button');
+      expect(scheduleBtn.textContent).toBe('schedule');
+      
+      // Set a schedule date
+      const testDate = new Date('2024-01-15');
       todoList.setScheduleDate(todo, testDate);
       
-      expect(scheduleBtn.textContent).toBe('Jan 15');
+      expect(scheduleBtn.textContent).toBe('on Jan 15');
       expect(scheduleBtn.classList.contains('has-data')).toBe(true);
     });
 

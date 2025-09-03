@@ -76,7 +76,7 @@ describe('Feature Options', () => {
     container.innerHTML = `
       <clarity-outline 
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
-        data-features='{"priority": false, "blocked": false, "dueDate": false, "assign": false, "tags": false}'
+        data-features='{"priority": false, "blocked": false, "due": false, "schedule": false, "assign": false, "tags": false}'
         options='{"assignees": ["alice"], "tags": ["urgent"]}'>
       </clarity-outline>
     `;
@@ -100,6 +100,7 @@ describe('Feature Options', () => {
     // These should be absent (disabled)
     expect(buttonTypes).not.toContain('priority');
     expect(buttonTypes).not.toContain('blocked');
+    expect(buttonTypes).not.toContain('due');
     expect(buttonTypes).not.toContain('schedule');
     expect(buttonTypes).not.toContain('assign');
     expect(buttonTypes).not.toContain('tags');
@@ -109,7 +110,7 @@ describe('Feature Options', () => {
     container.innerHTML = `
       <clarity-outline 
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
-        data-features='{"priority": true, "blocked": false, "dueDate": true, "assign": false, "tags": true}'
+        data-features='{"priority": true, "blocked": false, "due": true, "schedule": true, "assign": false, "tags": true}'
         options='{"assignees": ["alice"], "tags": ["urgent"]}'>
       </clarity-outline>
     `;
@@ -126,6 +127,7 @@ describe('Feature Options', () => {
     
     // These should be present
     expect(buttonTypes).toContain('priority');
+    expect(buttonTypes).toContain('due');
     expect(buttonTypes).toContain('schedule');
     expect(buttonTypes).toContain('tags');
     expect(buttonTypes).toContain('state');
@@ -141,7 +143,7 @@ describe('Feature Options', () => {
     container.innerHTML = `
       <clarity-outline 
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
-        data-features='{"priority": true, "blocked": false, "dueDate": true, "assign": false, "tags": true}'
+        data-features='{"priority": true, "blocked": false, "due": true, "schedule": true, "assign": false, "tags": true}'
         options='{"assignees": ["alice"], "tags": ["urgent"]}'>
       </clarity-outline>
     `;
@@ -153,13 +155,17 @@ describe('Feature Options', () => {
     const listElement = shadowRoot.querySelector('.outline-list');
     const li = listElement.querySelector('li');
     
+    // Check that schedule button exists before testing keyboard shortcut
+    const scheduleBtn = li.querySelector('.schedule-button');
+    expect(scheduleBtn).toBeDefined();
+    
     // Focus the item
     li.focus();
 
     // Test that enabled feature shortcuts work
     const priorityEvent = new KeyboardEvent('keydown', { key: 'p', bubbles: true });
     const blockedEvent = new KeyboardEvent('keydown', { key: 'b', bubbles: true });
-    const dueDateEvent = new KeyboardEvent('keydown', { key: 'd', bubbles: true });
+    const dueEvent = new KeyboardEvent('keydown', { key: 'd', bubbles: true });
     const tagsEvent = new KeyboardEvent('keydown', { key: 't', bubbles: true });
 
     // Priority should work (enabled)
@@ -173,9 +179,15 @@ describe('Feature Options', () => {
     expect(blockedSpy).not.toHaveBeenCalled();
 
     // Due date should work (enabled)
-    const dueDateSpy = jest.spyOn(outlineList.todoListInstance, 'showSchedulePopup');
-    li.dispatchEvent(dueDateEvent);
-    expect(dueDateSpy).toHaveBeenCalled();
+    const dueSpy = jest.spyOn(outlineList.todoListInstance, 'showDuePopup');
+    li.dispatchEvent(dueEvent);
+    expect(dueSpy).toHaveBeenCalled();
+
+    // Schedule should work (enabled)
+    const scheduleEvent = new KeyboardEvent('keydown', { key: 'c', bubbles: true });
+    const scheduleSpy = jest.spyOn(outlineList.todoListInstance, 'showSchedulePopup');
+    li.dispatchEvent(scheduleEvent);
+    expect(scheduleSpy).toHaveBeenCalled();
 
     // Tags should work (enabled)
     const tagsSpy = jest.spyOn(outlineList.todoListInstance, 'showTagsPopup');
@@ -187,7 +199,7 @@ describe('Feature Options', () => {
     container.innerHTML = `
       <clarity-outline 
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
-        options='{"features": {"priority": true, "blocked": false, "dueDate": true, "assign": false, "tags": true}, "assignees": ["alice"], "tags": ["urgent"]}'>
+        options='{"features": {"priority": true, "blocked": false, "due": true, "schedule": true, "assign": false, "tags": true}, "assignees": ["alice"], "tags": ["urgent"]}'>
       </clarity-outline>
     `;
 
@@ -213,6 +225,8 @@ describe('Feature Options', () => {
     expect(buttonTypes).not.toContain('blocked');
     expect(buttonTypes).not.toContain('assign');
   });
+
+
 
   test('should maintain backward compatibility with default features', async () => {
     container.innerHTML = `

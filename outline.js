@@ -11,7 +11,8 @@ class Outline {
       features: {
         priority: options.features?.priority !== false, // default: true
         blocked: options.features?.blocked !== false, // default: true
-        dueDate: options.features?.dueDate !== false, // default: true
+        due: (options.features?.due !== undefined ? options.features.due !== false : (options.features?.dueDate !== undefined ? options.features.dueDate !== false : true)), // default: true (backward compatibility with dueDate)
+        schedule: options.features?.schedule !== false, // default: true
         assign: options.features?.assign !== false, // default: true
         tags: options.features?.tags !== false, // default: true
         notes: options.features?.notes !== false, // default: true
@@ -166,7 +167,7 @@ class Outline {
             return;
           }
           // Allow opening new popups (this will close the current one)
-          if (e.key === 'd' || e.key === 'a' || e.key === 't') {
+          if (e.key === 'd' || e.key === 'c' || e.key === 'a' || e.key === 't') {
             // Let the event continue to be processed
           } else {
             return;
@@ -296,7 +297,17 @@ class Outline {
       }
 
       // Set due date with 'd' key (only if enabled)
-      if(e.key==="d" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.dueDate) {
+      if(e.key==="d" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.due) {
+        e.preventDefault();
+        const dueBtn = li.querySelector(".due-button");
+        if (dueBtn) {
+          this.showDuePopup(li, dueBtn);
+        }
+        return;
+      }
+
+      // Set schedule date with 'c' key (only if enabled)
+      if(e.key==="c" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.schedule) {
         e.preventDefault();
         const scheduleBtn = li.querySelector(".schedule-button");
         if (scheduleBtn) {
@@ -1221,8 +1232,21 @@ class Outline {
         buttonsContainer.appendChild(blockedBtn);
       }
 
+    // Due button (only if enabled)
+    if (this.options.features.due) {
+      const dueBtn = document.createElement("button");
+      dueBtn.className = "hover-button due-button";
+      dueBtn.setAttribute("data-type", "due");
+      dueBtn.tabIndex = -1; // Remove from tab navigation
+      dueBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.showDuePopup(li, dueBtn);
+      });
+      buttonsContainer.appendChild(dueBtn);
+    }
+
     // Schedule button (only if enabled)
-    if (this.options.features.dueDate) {
+    if (this.options.features.schedule) {
       const scheduleBtn = document.createElement("button");
       scheduleBtn.className = "hover-button schedule-button";
       scheduleBtn.setAttribute("data-type", "schedule");
@@ -1329,6 +1353,7 @@ class Outline {
       '.remove-button',
       '.priority-button',
       '.blocked-button',
+      '.due-button',
       '.schedule-button',
       '.assign-button',
       '.tags-button',
@@ -1447,6 +1472,7 @@ class Outline {
   updateHoverButtons(li) {
     const priorityBtn = li.querySelector(".priority-button");
     const blockedBtn = li.querySelector(".blocked-button");
+    const dueBtn = li.querySelector(".due-button");
     const scheduleBtn = li.querySelector(".schedule-button");
     const assignBtn = li.querySelector(".assign-button");
     const tagsBtn = li.querySelector(".tags-button");
@@ -1487,15 +1513,28 @@ class Outline {
       }
     }
 
+    // Update due button (if enabled)
+    if (dueBtn) {
+      const dueSpan = li.querySelector(".outline-due");
+      if (dueSpan && dueSpan.textContent.trim()) {
+        dueBtn.textContent = `due ${dueSpan.textContent.trim()}`;
+        dueBtn.classList.add("has-data");
+        hasAnyData = true;
+      } else {
+        dueBtn.innerHTML = "<u>d</u>ue";
+        dueBtn.classList.remove("has-data");
+      }
+    }
+
     // Update schedule button (if enabled)
     if (scheduleBtn) {
       const scheduleSpan = li.querySelector(".outline-schedule");
       if (scheduleSpan && scheduleSpan.textContent.trim()) {
-        scheduleBtn.textContent = scheduleSpan.textContent.trim();
+        scheduleBtn.textContent = `on ${scheduleSpan.textContent.trim()}`;
         scheduleBtn.classList.add("has-data");
         hasAnyData = true;
       } else {
-        scheduleBtn.innerHTML = "<u>d</u>ue on";
+        scheduleBtn.innerHTML = "s<u>c</u>hedule";
         scheduleBtn.classList.remove("has-data");
       }
     }
@@ -1589,9 +1628,10 @@ class Outline {
       priority: 4,
       blocked: 5,
       schedule: 6,
-      assign: 7,
-      tags: 8,
-      notes: 9
+      due: 7,      
+      assign: 8,
+      tags: 9,
+      notes: 10
     };
 
     const decorated = buttons.map((btn, index) => {
@@ -1712,6 +1752,173 @@ class Outline {
     }
   }
 
+  showDuePopup(li, button) {
+    this.closeAllPopups();
+
+    // Add popup-active class to keep metadata visible
+    li.classList.add('popup-active');
+    this.updateHoverButtonsVisibility(li);
+
+    const popup = document.createElement('div');
+    popup.className = 'outline-popup date-popup';
+
+    // Date input
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.className = 'dropdown-input';
+
+    // Get current date if set, otherwise use today
+    const existingDueSpan = li.querySelector('.outline-due');
+    let initialDate = new Date();
+
+    if (existingDueSpan && existingDueSpan.textContent.trim()) {
+      // Try to parse existing date (format: " Jan 5")
+      const dateText = existingDueSpan.textContent.trim();
+      console.log('Parsing due date text:', dateText); // Debug
+
+      const currentYear = new Date().getFullYear();
+
+      // Handle different date formats
+      let parsedDate;
+      if (dateText.includes(' ')) {
+        // Format: "Jan 5" or " Jan 5"
+        const dateWithYear = `${dateText} ${currentYear}`;
+        console.log('Trying to parse due date:', dateWithYear); // Debug
+        parsedDate = new Date(dateWithYear);
+
+        // Fix timezone issue by creating date in local timezone
+        if (!isNaN(parsedDate.getTime())) {
+          const month = parsedDate.getMonth();
+          const day = parsedDate.getDate();
+          initialDate = new Date(currentYear, month, day);
+          console.log('Created local due date:', initialDate); // Debug
+        }
+      } else {
+        // Try direct parsing
+        parsedDate = new Date(dateText);
+        if (!isNaN(parsedDate.getTime())) {
+          initialDate = parsedDate;
+        }
+      }
+
+      console.log('Parsed due date:', parsedDate, 'Valid:', !isNaN(parsedDate.getTime())); // Debug
+    }
+
+    // Use toLocaleDateString to avoid timezone issues
+    const year = initialDate.getFullYear();
+    const month = String(initialDate.getMonth() + 1).padStart(2, '0');
+    const day = String(initialDate.getDate()).padStart(2, '0');
+    dateInput.value = `${year}-${month}-${day}`;
+    console.log('Final due date input value:', dateInput.value); // Debug
+
+    popup.appendChild(dateInput);
+
+    // Add button container for better layout
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.gap = '0.5rem';
+    buttonContainer.style.marginTop = '0.5rem';
+
+    // Add confirm button
+    const confirmButton = document.createElement('button');
+    confirmButton.textContent = 'Set Date';
+    confirmButton.className = 'hover-button';
+    confirmButton.style.padding = '0.3rem 0.6rem';
+    confirmButton.style.flex = '1';
+    confirmButton.type = 'button'; // Ensure it's a button
+
+    // Handle confirm button click and keyboard
+    const handleConfirm = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (dateInput.value) {
+        const selectedDate = new Date(dateInput.value + 'T00:00:00');
+        this.setDueDate(li, selectedDate);
+        this.closeAllPopups();
+      }
+    };
+
+    confirmButton.addEventListener('click', handleConfirm);
+    confirmButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleConfirm(e);
+      }
+    });
+
+    // Add clear button
+    const clearButton = document.createElement('button');
+    clearButton.textContent = 'Clear';
+    clearButton.className = 'hover-button';
+    clearButton.style.padding = '0.3rem 0.6rem';
+    clearButton.style.flex = '1';
+    clearButton.type = 'button'; // Ensure it's a button
+
+    // Handle clear button click and keyboard
+    const handleClear = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.clearDueDate(li);
+      this.closeAllPopups();
+    };
+
+    clearButton.addEventListener('click', handleClear);
+    clearButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleClear(e);
+      }
+    });
+
+    buttonContainer.appendChild(confirmButton);
+    buttonContainer.appendChild(clearButton);
+    popup.appendChild(buttonContainer);
+
+    dateInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.closeAllPopups(li);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (dateInput.value) {
+          const selectedDate = new Date(dateInput.value + 'T00:00:00');
+          this.setDueDate(li, selectedDate);
+          this.closeAllPopups();
+        }
+      } else if (e.key === 'Tab') {
+        // Allow normal tab navigation to buttons
+        // Don't prevent default - let it move to next focusable element
+      }
+    });
+
+    // Position popup relative to the list container
+    this.positionPopup(popup, button);
+
+    // Focus the input
+    setTimeout(() => dateInput.focus(), 0);
+
+    // Store reference for cleanup
+    this.currentPopup = popup;
+
+    // Close on outside click - simplified approach
+    setTimeout(() => {
+      const handleOutsideClick = (e) => {
+        // Don't close if clicking inside the popup, on date picker elements, or within the web component
+        if (popup.contains(e.target) || e.target.matches('input[type="date"]') || e.target.closest('outline-list')) {
+          return;
+        }
+
+        // Close popup and remove listener
+        this.closeAllPopups(li);
+        document.removeEventListener('click', handleOutsideClick);
+      };
+
+      document.addEventListener('click', handleOutsideClick);
+
+      // Store reference to remove listener when popup closes
+      popup._outsideClickHandler = handleOutsideClick;
+    }, 100); // Increased timeout to ensure date picker is ready
+  }
+
   showSchedulePopup(li, button) {
     this.closeAllPopups();
 
@@ -1734,7 +1941,7 @@ class Outline {
     if (existingScheduleSpan && existingScheduleSpan.textContent.trim()) {
       // Try to parse existing date (format: " Jan 5")
       const dateText = existingScheduleSpan.textContent.trim();
-      console.log('Parsing date text:', dateText); // Debug
+      console.log('Parsing schedule date text:', dateText); // Debug
 
       const currentYear = new Date().getFullYear();
 
@@ -1743,7 +1950,7 @@ class Outline {
       if (dateText.includes(' ')) {
         // Format: "Jan 5" or " Jan 5"
         const dateWithYear = `${dateText} ${currentYear}`;
-        console.log('Trying to parse:', dateWithYear); // Debug
+        console.log('Trying to parse schedule date:', dateWithYear); // Debug
         parsedDate = new Date(dateWithYear);
 
         // Fix timezone issue by creating date in local timezone
@@ -1751,7 +1958,7 @@ class Outline {
           const month = parsedDate.getMonth();
           const day = parsedDate.getDate();
           initialDate = new Date(currentYear, month, day);
-          console.log('Created local date:', initialDate); // Debug
+          console.log('Created local schedule date:', initialDate); // Debug
         }
       } else {
         // Try direct parsing
@@ -1761,7 +1968,7 @@ class Outline {
         }
       }
 
-      console.log('Parsed date:', parsedDate, 'Valid:', !isNaN(parsedDate.getTime())); // Debug
+      console.log('Parsed schedule date:', parsedDate, 'Valid:', !isNaN(parsedDate.getTime())); // Debug
     }
 
     // Use toLocaleDateString to avoid timezone issues
@@ -1769,7 +1976,7 @@ class Outline {
     const month = String(initialDate.getMonth() + 1).padStart(2, '0');
     const day = String(initialDate.getDate()).padStart(2, '0');
     dateInput.value = `${year}-${month}-${day}`;
-    console.log('Final date input value:', dateInput.value); // Debug
+    console.log('Final schedule date input value:', dateInput.value); // Debug
 
     popup.appendChild(dateInput);
 
@@ -1909,7 +2116,7 @@ class Outline {
     // Restore focus to the todo item
     li.focus();
 
-    this.emit("outline:due", {
+    this.emit("outline:schedule", {
       id: li.dataset.id,
       text: textSpan.textContent,
       timestamp: date.toISOString()
@@ -1924,6 +2131,66 @@ class Outline {
     const scheduleSpan = li.querySelector(".outline-schedule");
     if (scheduleSpan) {
       scheduleSpan.remove();
+    }
+
+    // Update the hover button to show the data
+    this.updateHoverButtons(li);
+
+    // Restore focus to the todo item
+    li.focus();
+
+    this.emit("outline:schedule", {
+      id: li.dataset.id,
+      text: textSpan.textContent,
+      timestamp: null
+    });
+  }
+
+  setDueDate(li, date) {
+    const textSpan = li.querySelector(".outline-text");
+    if (!textSpan) return;
+
+    let dueSpan = li.querySelector(".outline-due");
+    if (!dueSpan) {
+      dueSpan = document.createElement("span");
+      dueSpan.className = "outline-due";
+      dueSpan.style.display = "none"; // Hide the span, show in button
+      // Insert after buttons container if it exists, otherwise after text
+      const buttonsContainer = li.querySelector(".outline-hover-buttons");
+      if (buttonsContainer) {
+        buttonsContainer.after(dueSpan);
+      } else {
+        textSpan.after(dueSpan);
+      }
+    }
+
+    const timestamp = date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+    dueSpan.textContent = ` ${timestamp}`;
+
+    // Update the hover button to show the data
+    this.updateHoverButtons(li);
+
+    // Restore focus to the todo item
+    li.focus();
+
+    this.emit("outline:due", {
+      id: li.dataset.id,
+      text: textSpan.textContent,
+      timestamp: date.toISOString()
+    });
+  }
+
+  clearDueDate(li) {
+    const textSpan = li.querySelector(".outline-text");
+    if (!textSpan) return;
+
+    // Remove the due span
+    const dueSpan = li.querySelector(".outline-due");
+    if (dueSpan) {
+      dueSpan.remove();
     }
 
     // Update the hover button to show the data

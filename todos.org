@@ -231,13 +231,29 @@ CLOSED: [2025-09-03 Wed 12:02]
 popups should freely extend beyond the container of the todo items.
 * DONE make the popup highlight focused option color be darker for light mode
 CLOSED: [2025-09-03 Wed 12:14]
+* DONE supporting both scheduled and deadline dates
+CLOSED: [2025-09-03 Wed 17:31]
+"Due on" is deadline. Need to support "Schedule on" as well for events/meetings or "plan to begin work on".
+Key shortcut "s" already used for "status". Could use "t" for that instead (+ Space)?
+<2025-09-03 Wed 16:49> Going with "c" for calendar, and it's in "schedule".
+
+- [X] update
+- [X] update the order of the items so they read naturally.
+- [X] update "dueDate" to "due"
+* TODO support setting hours/minutes for due and schedule
 * TODO testing use with datastar
 Setup backend with in-memory state.
 ** TODO handle new html reinit todolist script
 ** TODO comm with server listening for events
 * TODO double check that I'm happy with outline item data format
 ..will at some point forever by locked to this structure
+* TODO trim down bloated examples.html etc
 * TODO emit full json in events, option?
+* TODO allow setting hours+minutes for due date etc
+Or at least for schedule, if we support it, to allow adding meetings as items.
+* TODO extras for setting date - keyboard for jumping days/weeks/months
+* TODO unify color usage for popups: borders, focus, selection
+There are different blues and grays used..
 * TODO split up options props into separate props
 * TODO make all props by data-*, allowing datastar signal use
 * TODO make all the features optional, including status, edit and open
@@ -245,10 +261,6 @@ Setup backend with in-memory state.
 indenting an item under an item that is already a parent and which does not have a status label, does not add the counter
 * TODO attempt again to fix issue with hover items showing on parents when hovering child
 * TODO using clarity outline instead of this org file
-* TODO supporting both scheduled and deadline timestamps?
-"Due on" is deadline. Need to support "Schedule on" as well for events/meetings or "plan to begin work on".
-
-Key shortcut "s" already used for "status". Could use "t" for that instead (+ Space)?
 * TODO supporting repeating tasks, schedules that reoccur
 Would need slightly different visuals when you complete a task - it will go back
 to being in "TODO" state, but you will have completed it as well. Org simply

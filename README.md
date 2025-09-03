@@ -99,7 +99,8 @@ const outline = new Outline(document.querySelector('.outline-list'), {
   features: {
     priority: true,
     blocked: true,
-    dueDate: true,
+    due: true,
+    schedule: true,
     assign: true,
     tags: true,
     notes: true,
@@ -129,7 +130,8 @@ Enable or disable specific features:
 features: {
   priority: true,      // Show priority toggle
   blocked: true,       // Show blocked status
-  dueDate: true,       // Show due date picker
+  due: true,           // Show due date picker
+  schedule: true,      // Show schedule date picker
   assign: true,        // Show assignee dropdown
   tags: true,          // Show tags management
   notes: true,         // Show notes editor
@@ -153,6 +155,7 @@ The component emits various events for integration:
 - `outline:priority` - Priority toggled
 - `outline:blocked` - Blocked status toggled
 - `outline:due` - Due date set/cleared
+- `outline:schedule` - Schedule date set/cleared
 - `outline:assign` - Assignee set/cleared
 - `outline:tags` - Tags updated
 - `outline:notes` - Notes updated

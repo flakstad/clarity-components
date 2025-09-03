@@ -438,12 +438,12 @@
     <p>Only the non-customizable features are enabled: status, edit, and open. All other features are disabled.</p>
     <div class="code-block">
 &lt;clarity-outline 
-        data-features='{"priority": false, "blocked": false, "dueDate": false, "assign": false, "tags": false}'
+        data-features='{"priority": false, "blocked": false, "due": false, "schedule": false, "assign": false, "tags": false}'
   data-items='[{"id":"1","text":"Simple task 1","status":"TODO"},{"id":"2","text":"Simple task 2","status":"TODO"},{"id":"3","text":"Simple task 3","status":"TODO"}]'&gt;
 &lt;/clarity-outline&gt;
     </div>
     <clarity-outline 
-      data-features='{"priority": false, "blocked": false, "dueDate": false, "assign": false, "tags": false}'
+      data-features='{"priority": false, "blocked": false, "due": false, "assign": false, "tags": false}'
       data-items='[{"id":"1","text":"Simple task 1","status":"TODO"},{"id":"2","text":"Simple task 2","status":"TODO"},{"id":"3","text":"Simple task 3","status":"TODO"}]'>
     </clarity-outline>
 
@@ -451,12 +451,12 @@
             <p>Only priority and tags are enabled. Blocked, due date, and assign are disabled.</p>
     <div class="code-block">
 &lt;clarity-outline 
-        data-features='{"priority": true, "blocked": false, "dueDate": false, "assign": false, "tags": true}'
+        data-features='{"priority": true, "blocked": false, "due": false, "schedule": false, "assign": false, "tags": true}'
   data-items='[{"id":"1","text":"High priority task","status":"TODO"},{"id":"2","text":"Bug fix","status":"TODO"},{"id":"3","text":"Feature implementation","status":"TODO"}]'&gt;
 &lt;/clarity-outline&gt;
     </div>
     <clarity-outline 
-      data-features='{"priority": true, "blocked": false, "dueDate": false, "assign": false, "tags": true}'
+      data-features='{"priority": true, "blocked": false, "due": false, "assign": false, "tags": true}'
       data-items='[{"id":"1","text":"High priority task","status":"TODO"},{"id":"2","text":"Bug fix","status":"TODO"},{"id":"3","text":"Feature implementation","status":"TODO"}]'>
     </clarity-outline>
 
@@ -464,12 +464,12 @@
             <p>Only task management features are enabled: priority, due date, and assign. Tags and blocked are disabled.</p>
     <div class="code-block">
 &lt;clarity-outline 
-        data-features='{"priority": true, "blocked": false, "dueDate": true, "assign": true, "tags": false}'
+        data-features='{"priority": true, "blocked": false, "due": true, "schedule": true, "assign": true, "tags": false}'
   data-items='[{"id":"1","text":"Project planning","status":"TODO"},{"id":"2","text":"Team meeting","status":"TODO"},{"id":"3","text":"Code review","status":"TODO"}]'&gt;
 &lt;/clarity-outline&gt;
     </div>
     <clarity-outline 
-      data-features='{"priority": true, "blocked": false, "dueDate": true, "assign": true, "tags": false}'
+      data-features='{"priority": true, "blocked": false, "due": true, "assign": true, "tags": false}'
       data-items='[{"id":"1","text":"Project planning","status":"TODO"},{"id":"2","text":"Team meeting","status":"TODO"},{"id":"3","text":"Code review","status":"TODO"}]'>
     </clarity-outline>
   </div>
@@ -495,6 +495,7 @@
         <li><strong>P</strong>: Toggle priority</li>
         <li><strong>B</strong>: Toggle blocked</li>
         <li><strong>D</strong>: Set due date</li>
+        <li><strong>C</strong>: Set schedule date</li>
         <li><strong>A</strong>: Assign to user</li>
         <li><strong>T</strong>: Toggle tags</li>
         <li><strong>N</strong>: Add notes</li>
