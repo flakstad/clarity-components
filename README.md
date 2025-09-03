@@ -157,9 +157,9 @@ Both due dates and schedule dates support optional time setting with appropriate
 
 ### Time Display
 - Dates without time: "Jan 5"
-- Dates with time: "Jan 5 2:30 PM"
-- Midnight times (12:00 AM) are displayed when explicitly set
-- Times are shown in 12-hour format with AM/PM
+- Dates with time: "Jan 5 14:30"
+- Midnight times (00:00) are displayed when explicitly set
+- Times are shown in 24-hour format (HH:MM)
 
 ## Events
 

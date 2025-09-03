@@ -1789,15 +1789,15 @@ class Outline {
       const dateText = existingSpan.textContent.trim();
       console.log(`Parsing ${type} date text:`, dateText); // Debug
 
-      // Check if the text includes time (format: "Jan 5 2:30 PM" or "Jan 5, 2:30 PM")
-      hasTime = /\d{1,2}:\d{2}\s?(AM|PM)/i.test(dateText);
+      // Check if the text includes time (format: "Jan 5 14:30" or "Jan 5, 14:30")
+      hasTime = /\d{1,2}:\d{2}/.test(dateText);
       
       const currentYear = new Date().getFullYear();
       let parsedDate;
 
       if (hasTime) {
         // Try to parse full date with time
-        // Handle formats like "Jan 5 2:30 PM" or "Jan 5, 2:30 PM"
+        // Handle formats like "Jan 5 14:30" or "Jan 5, 14:30"
         const dateWithYear = dateText.includes(currentYear.toString()) ? 
           dateText : 
           dateText.replace(/(\w{3}\s+\d{1,2}),?\s+/, `$1 ${currentYear} `);
@@ -1863,7 +1863,7 @@ class Outline {
         const currentDate = dateInput.value;
         dateInput.type = 'datetime-local';
         if (currentDate) {
-          // Default to 9:00 AM
+          // Default to 09:00
           dateInput.value = `${currentDate}T09:00`;
         }
         timeIcon.textContent = 'Only date';
@@ -2042,9 +2042,9 @@ class Outline {
         month: 'short',
         day: 'numeric'
       }) + ' ' + date.toLocaleTimeString('en-US', {
-        hour: 'numeric',
+        hour: '2-digit',
         minute: '2-digit',
-        hour12: true
+        hour12: false
       });
     } else {
       timestamp = date.toLocaleDateString('en-US', {
@@ -2119,9 +2119,9 @@ class Outline {
         month: 'short',
         day: 'numeric'
       }) + ' ' + date.toLocaleTimeString('en-US', {
-        hour: 'numeric',
+        hour: '2-digit',
         minute: '2-digit',
-        hour12: true
+        hour12: false
       });
     } else {
       timestamp = date.toLocaleDateString('en-US', {

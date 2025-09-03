@@ -242,7 +242,6 @@ Key shortcut "s" already used for "status". Could use "t" for that instead (+ Sp
 - [X] update "dueDate" to "due"
 * DONE support setting hours/minutes for due and schedule
 CLOSED: [2025-09-03 Wed 18:14]
-* TODO store the dates in a universal format, only apply formatting when rendering
 * TODO testing use with datastar
 Setup backend with in-memory state.
 ** TODO handle new html reinit todolist script

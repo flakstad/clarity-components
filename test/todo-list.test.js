@@ -1751,8 +1751,8 @@ describe('Outline Web Component', () => {
       // Should have due indicator with time
       const dueSpan = todo.querySelector('.outline-due');
       expect(dueSpan).toBeDefined();
-      expect(dueSpan.textContent).toMatch(/\d{1,2}:\d{2}\s?(AM|PM)/);
-      expect(dueSpan.textContent).toContain('2:30 PM');
+      expect(dueSpan.textContent).toMatch(/\d{1,2}:\d{2}/);
+      expect(dueSpan.textContent).toContain('14:30');
     });
 
     test('should set schedule date with time', async () => {
@@ -1788,8 +1788,8 @@ describe('Outline Web Component', () => {
       // Should have schedule indicator with time
       const scheduleSpan = todo.querySelector('.outline-schedule');
       expect(scheduleSpan).toBeDefined();
-      expect(scheduleSpan.textContent).toMatch(/\d{1,2}:\d{2}\s?(AM|PM)/);
-      expect(scheduleSpan.textContent).toContain('10:15 AM');
+      expect(scheduleSpan.textContent).toMatch(/\d{1,2}:\d{2}/);
+      expect(scheduleSpan.textContent).toContain('10:15');
     });
 
     test('should display date only when no time is set', async () => {
@@ -1816,7 +1816,7 @@ describe('Outline Web Component', () => {
       // Should have due indicator without time
       const dueSpan = todo.querySelector('.outline-due');
       expect(dueSpan).toBeDefined();
-      expect(dueSpan.textContent).not.toMatch(/\d{1,2}:\d{2}\s?(AM|PM)/);
+      expect(dueSpan.textContent).not.toMatch(/\d{1,2}:\d{2}/);
       expect(dueSpan.textContent).toMatch(/\w{3}\s+\d{1,2}/); // Should match "Jan 5" format
     });
 
@@ -1963,7 +1963,7 @@ describe('Outline Web Component', () => {
       // Should have due indicator with midnight time
       const dueSpan = todo.querySelector('.outline-due');
       expect(dueSpan).toBeDefined();
-      expect(dueSpan.textContent).toContain('12:00 AM');
+      expect(dueSpan.textContent).toContain('00:00');
     });
 
     test('should handle noon time (12:00 PM) correctly', async () => {
@@ -1999,7 +1999,7 @@ describe('Outline Web Component', () => {
       // Should have schedule indicator with noon time
       const scheduleSpan = todo.querySelector('.outline-schedule');
       expect(scheduleSpan).toBeDefined();
-      expect(scheduleSpan.textContent).toContain('12:00 PM');
+      expect(scheduleSpan.textContent).toContain('12:00');
     });
   });
 
