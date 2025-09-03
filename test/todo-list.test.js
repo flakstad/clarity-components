@@ -272,8 +272,8 @@ describe('Outline Web Component', () => {
       const dueBtn = todo.querySelector('.due-button');
       expect(dueBtn.textContent).toBe('due');
       
-      // Set a due date
-      const testDate = new Date('2024-01-15');
+      // Set a due date at midnight (no time displayed)
+      const testDate = new Date('2024-01-15T00:00:00');
       todoList.setDueDate(todo, testDate);
       
       expect(dueBtn.textContent).toBe('due Jan 15');
@@ -287,8 +287,8 @@ describe('Outline Web Component', () => {
       const scheduleBtn = todo.querySelector('.schedule-button');
       expect(scheduleBtn.textContent).toBe('schedule');
       
-      // Set a schedule date
-      const testDate = new Date('2024-01-15');
+      // Set a schedule date at midnight (no time displayed)
+      const testDate = new Date('2024-01-15T00:00:00');
       todoList.setScheduleDate(todo, testDate);
       
       expect(scheduleBtn.textContent).toBe('on Jan 15');
@@ -1660,6 +1660,346 @@ describe('Outline Web Component', () => {
       // Other options should not be selected
       const todoOption = popup.querySelector('.dropdown-item:nth-child(2)');
       expect(todoOption.classList.contains('selected')).toBe(false);
+    });
+
+    test('should show time icon in due date popup', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      // Open due date popup
+      todo.focus();
+      todo.dispatchEvent(createKeyEvent('d'));
+      
+      const popup = getPopup(outlineList);
+      const timeIcon = popup.querySelector('.time-icon');
+      expect(timeIcon).toBeDefined();
+      expect(timeIcon.textContent).toBe('Add time');
+      expect(timeIcon.title).toBe('Add time');
+      
+      // Date input should be type 'date' initially
+      const dateInput = popup.querySelector('input[type="date"]');
+      expect(dateInput).toBeDefined();
+    });
+
+    test('should switch to datetime input when time icon is clicked', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      // Open due date popup
+      todo.focus();
+      todo.dispatchEvent(createKeyEvent('d'));
+      
+      const popup = getPopup(outlineList);
+      const timeIcon = popup.querySelector('.time-icon');
+      let dateInput = popup.querySelector('input[type="date"]');
+      
+      // Initially should be date input
+      expect(dateInput).toBeDefined();
+      expect(timeIcon.textContent).toBe('Add time');
+      
+      // Set a date first
+      const testDate = new Date();
+      testDate.setDate(testDate.getDate() + 1);
+      dateInput.value = testDate.toISOString().split('T')[0];
+      
+      // Click time icon
+      timeIcon.click();
+      
+      // Should switch to datetime-local input
+      const datetimeInput = popup.querySelector('input[type="datetime-local"]');
+      expect(datetimeInput).toBeDefined();
+      expect(popup.querySelector('input[type="date"]')).toBeNull();
+      
+      // Icon should change to "Only date" 
+      expect(timeIcon.textContent).toBe('Only date');
+      expect(timeIcon.title).toBe('Remove time (date only)');
+      
+      // Should have default time (9:00 AM)
+      expect(datetimeInput.value).toMatch(/T09:00$/);
+    });
+
+    test('should set due date with time', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      // Open due date popup
+      todo.focus();
+      todo.dispatchEvent(createKeyEvent('d'));
+      
+      const popup = getPopup(outlineList);
+      const dateInput = popup.querySelector('input[type="date"]');
+      const timeIcon = popup.querySelector('.time-icon');
+      
+      // Set date
+      const testDate = new Date();
+      testDate.setDate(testDate.getDate() + 1);
+      const dateStr = testDate.toISOString().split('T')[0];
+      dateInput.value = dateStr;
+      
+      // Click time icon to switch to datetime-local
+      timeIcon.click();
+      
+      const datetimeInput = popup.querySelector('input[type="datetime-local"]');
+      // Set time to 2:30 PM (14:30 in 24-hour format)
+      datetimeInput.value = `${dateStr}T14:30`;
+      
+      // Confirm - look for "Set Date" button specifically 
+      const buttons = popup.querySelectorAll('.hover-button');
+      const confirmButton = Array.from(buttons).find(btn => btn.textContent === 'Set');
+      confirmButton.click();
+      
+      // Should have due indicator with time
+      const dueSpan = todo.querySelector('.outline-due');
+      expect(dueSpan).toBeDefined();
+      expect(dueSpan.textContent).toMatch(/\d{1,2}:\d{2}\s?(AM|PM)/);
+      expect(dueSpan.textContent).toContain('2:30 PM');
+    });
+
+    test('should set schedule date with time', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      // Open schedule popup
+      todo.focus();
+      todo.dispatchEvent(createKeyEvent('c'));
+      
+      const popup = getPopup(outlineList);
+      const dateInput = popup.querySelector('input[type="date"]');
+      const timeIcon = popup.querySelector('.time-icon');
+      
+      // Set date
+      const testDate = new Date();
+      testDate.setDate(testDate.getDate() + 2);
+      const dateStr = testDate.toISOString().split('T')[0];
+      dateInput.value = dateStr;
+      
+      // Click time icon to switch to datetime-local
+      timeIcon.click();
+      
+      const datetimeInput = popup.querySelector('input[type="datetime-local"]');
+      // Set time to 10:15 AM
+      datetimeInput.value = `${dateStr}T10:15`;
+      
+      // Confirm - look for "Set Date" button specifically 
+      const buttons = popup.querySelectorAll('.hover-button');
+      const confirmButton = Array.from(buttons).find(btn => btn.textContent === 'Set');
+      confirmButton.click();
+      
+      // Should have schedule indicator with time
+      const scheduleSpan = todo.querySelector('.outline-schedule');
+      expect(scheduleSpan).toBeDefined();
+      expect(scheduleSpan.textContent).toMatch(/\d{1,2}:\d{2}\s?(AM|PM)/);
+      expect(scheduleSpan.textContent).toContain('10:15 AM');
+    });
+
+    test('should display date only when no time is set', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      // Open due date popup
+      todo.focus();
+      todo.dispatchEvent(createKeyEvent('d'));
+      
+      const popup = getPopup(outlineList);
+      const dateInput = popup.querySelector('input[type="date"]');
+      
+      // Set date only (no time)
+      const testDate = new Date();
+      testDate.setDate(testDate.getDate() + 1);
+      dateInput.value = testDate.toISOString().split('T')[0];
+      
+      // Confirm without setting time
+      const buttons = popup.querySelectorAll('.hover-button');
+      const confirmButton = Array.from(buttons).find(btn => btn.textContent === 'Set');
+      confirmButton.click();
+      
+      // Should have due indicator without time
+      const dueSpan = todo.querySelector('.outline-due');
+      expect(dueSpan).toBeDefined();
+      expect(dueSpan.textContent).not.toMatch(/\d{1,2}:\d{2}\s?(AM|PM)/);
+      expect(dueSpan.textContent).toMatch(/\w{3}\s+\d{1,2}/); // Should match "Jan 5" format
+    });
+
+    test('should remove time when time icon is clicked again', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      // Open due date popup
+      todo.focus();
+      todo.dispatchEvent(createKeyEvent('d'));
+      
+      const popup = getPopup(outlineList);
+      const dateInput = popup.querySelector('input[type="date"]');
+      const timeIcon = popup.querySelector('.time-icon');
+      
+      // Set a date first
+      const testDate = new Date();
+      testDate.setDate(testDate.getDate() + 1);
+      const dateStr = testDate.toISOString().split('T')[0];
+      dateInput.value = dateStr;
+      
+      // Click to add time
+      timeIcon.click();
+      let datetimeInput = popup.querySelector('input[type="datetime-local"]');
+      expect(datetimeInput).toBeDefined();
+      expect(timeIcon.textContent).toBe('Only date');
+      
+      // Click again to remove time
+      timeIcon.click();
+      const newDateInput = popup.querySelector('input[type="date"]');
+      expect(newDateInput).toBeDefined();
+      expect(popup.querySelector('input[type="datetime-local"]')).toBeNull();
+      expect(timeIcon.textContent).toBe('Add time');
+      expect(timeIcon.title).toBe('Add time');
+      
+      // Date should be preserved
+      expect(newDateInput.value).toBe(dateStr);
+    });
+
+    test('should parse existing time when editing due date with time', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      // Manually set a due date with time
+      const testDate = new Date();
+      testDate.setDate(testDate.getDate() + 1);
+      testDate.setHours(14, 30, 0, 0); // 2:30 PM
+      testDate._explicitTime = true;
+      todoList.setDueDate(todo, testDate);
+      
+      // Open due date popup to edit
+      todo.focus();
+      todo.dispatchEvent(createKeyEvent('d'));
+      
+      const popup = getPopup(outlineList);
+      const timeIcon = popup.querySelector('.time-icon');
+      const datetimeInput = popup.querySelector('input[type="datetime-local"]');
+      
+      // Should start with datetime-local input since time exists
+      expect(datetimeInput).toBeDefined();
+      expect(popup.querySelector('input[type="date"]')).toBeNull();
+      
+      // Icon should show "Only date" (time is set)
+      expect(timeIcon.textContent).toBe('Only date');
+      expect(timeIcon.title).toBe('Remove time (date only)');
+      
+      // Should have the existing date and time (in local timezone)
+      const year = testDate.getFullYear();
+      const month = String(testDate.getMonth() + 1).padStart(2, '0');
+      const day = String(testDate.getDate()).padStart(2, '0');
+      const hours = String(testDate.getHours()).padStart(2, '0');
+      const minutes = String(testDate.getMinutes()).padStart(2, '0');
+      const expectedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+      expect(datetimeInput.value).toBe(expectedDateTime);
+    });
+
+    test('should parse existing time when editing schedule date with time', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      // Manually set a schedule date with time
+      const testDate = new Date();
+      testDate.setDate(testDate.getDate() + 2);
+      testDate.setHours(9, 15, 0, 0); // 9:15 AM
+      testDate._explicitTime = true;
+      todoList.setScheduleDate(todo, testDate);
+      
+      // Open schedule popup to edit
+      todo.focus();
+      todo.dispatchEvent(createKeyEvent('c'));
+      
+      const popup = getPopup(outlineList);
+      const timeIcon = popup.querySelector('.time-icon');
+      const datetimeInput = popup.querySelector('input[type="datetime-local"]');
+      
+      // Should start with datetime-local input since time exists
+      expect(datetimeInput).toBeDefined();
+      expect(popup.querySelector('input[type="date"]')).toBeNull();
+      
+      // Icon should show "Only date" (time is set)
+      expect(timeIcon.textContent).toBe('Only date');
+      expect(timeIcon.title).toBe('Remove time (date only)');
+      
+      // Should have the existing date and time (in local timezone)
+      const year = testDate.getFullYear();
+      const month = String(testDate.getMonth() + 1).padStart(2, '0');
+      const day = String(testDate.getDate()).padStart(2, '0');
+      const hours = String(testDate.getHours()).padStart(2, '0');
+      const minutes = String(testDate.getMinutes()).padStart(2, '0');
+      const expectedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+      expect(datetimeInput.value).toBe(expectedDateTime);
+    });
+
+    test('should handle midnight time (12:00 AM) correctly', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      // Open due date popup
+      todo.focus();
+      todo.dispatchEvent(createKeyEvent('d'));
+      
+      const popup = getPopup(outlineList);
+      const dateInput = popup.querySelector('input[type="date"]');
+      const timeIcon = popup.querySelector('.time-icon');
+      
+      // Set date
+      const testDate = new Date();
+      testDate.setDate(testDate.getDate() + 1);
+      const dateStr = testDate.toISOString().split('T')[0];
+      dateInput.value = dateStr;
+      
+      // Click time icon to switch to datetime-local
+      timeIcon.click();
+      
+      const datetimeInput = popup.querySelector('input[type="datetime-local"]');
+      // Set time to midnight (00:00 in 24-hour format)
+      datetimeInput.value = `${dateStr}T00:00`;
+      
+      // Confirm - look for "Set Date" button specifically 
+      const buttons = popup.querySelectorAll('.hover-button');
+      const confirmButton = Array.from(buttons).find(btn => btn.textContent === 'Set');
+      confirmButton.click();
+      
+      // Should have due indicator with midnight time
+      const dueSpan = todo.querySelector('.outline-due');
+      expect(dueSpan).toBeDefined();
+      expect(dueSpan.textContent).toContain('12:00 AM');
+    });
+
+    test('should handle noon time (12:00 PM) correctly', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+      
+      // Open schedule popup
+      todo.focus();
+      todo.dispatchEvent(createKeyEvent('c'));
+      
+      const popup = getPopup(outlineList);
+      const dateInput = popup.querySelector('input[type="date"]');
+      const timeIcon = popup.querySelector('.time-icon');
+      
+      // Set date
+      const testDate = new Date();
+      testDate.setDate(testDate.getDate() + 1);
+      const dateStr = testDate.toISOString().split('T')[0];
+      dateInput.value = dateStr;
+      
+      // Click time icon to switch to datetime-local
+      timeIcon.click();
+      
+      const datetimeInput = popup.querySelector('input[type="datetime-local"]');
+      // Set time to noon (12:00 in 24-hour format)
+      datetimeInput.value = `${dateStr}T12:00`;
+      
+      // Confirm - look for "Set Date" button specifically 
+      const buttons = popup.querySelectorAll('.hover-button');
+      const confirmButton = Array.from(buttons).find(btn => btn.textContent === 'Set');
+      confirmButton.click();
+      
+      // Should have schedule indicator with noon time
+      const scheduleSpan = todo.querySelector('.outline-schedule');
+      expect(scheduleSpan).toBeDefined();
+      expect(scheduleSpan.textContent).toContain('12:00 PM');
     });
   });
 

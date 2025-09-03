@@ -1753,173 +1753,14 @@ class Outline {
   }
 
   showDuePopup(li, button) {
-    this.closeAllPopups();
-
-    // Add popup-active class to keep metadata visible
-    li.classList.add('popup-active');
-    this.updateHoverButtonsVisibility(li);
-
-    const popup = document.createElement('div');
-    popup.className = 'outline-popup date-popup';
-
-    // Date input
-    const dateInput = document.createElement('input');
-    dateInput.type = 'date';
-    dateInput.className = 'dropdown-input';
-
-    // Get current date if set, otherwise use today
-    const existingDueSpan = li.querySelector('.outline-due');
-    let initialDate = new Date();
-
-    if (existingDueSpan && existingDueSpan.textContent.trim()) {
-      // Try to parse existing date (format: " Jan 5")
-      const dateText = existingDueSpan.textContent.trim();
-      console.log('Parsing due date text:', dateText); // Debug
-
-      const currentYear = new Date().getFullYear();
-
-      // Handle different date formats
-      let parsedDate;
-      if (dateText.includes(' ')) {
-        // Format: "Jan 5" or " Jan 5"
-        const dateWithYear = `${dateText} ${currentYear}`;
-        console.log('Trying to parse due date:', dateWithYear); // Debug
-        parsedDate = new Date(dateWithYear);
-
-        // Fix timezone issue by creating date in local timezone
-        if (!isNaN(parsedDate.getTime())) {
-          const month = parsedDate.getMonth();
-          const day = parsedDate.getDate();
-          initialDate = new Date(currentYear, month, day);
-          console.log('Created local due date:', initialDate); // Debug
-        }
-      } else {
-        // Try direct parsing
-        parsedDate = new Date(dateText);
-        if (!isNaN(parsedDate.getTime())) {
-          initialDate = parsedDate;
-        }
-      }
-
-      console.log('Parsed due date:', parsedDate, 'Valid:', !isNaN(parsedDate.getTime())); // Debug
-    }
-
-    // Use toLocaleDateString to avoid timezone issues
-    const year = initialDate.getFullYear();
-    const month = String(initialDate.getMonth() + 1).padStart(2, '0');
-    const day = String(initialDate.getDate()).padStart(2, '0');
-    dateInput.value = `${year}-${month}-${day}`;
-    console.log('Final due date input value:', dateInput.value); // Debug
-
-    popup.appendChild(dateInput);
-
-    // Add button container for better layout
-    const buttonContainer = document.createElement('div');
-    buttonContainer.style.display = 'flex';
-    buttonContainer.style.gap = '0.5rem';
-    buttonContainer.style.marginTop = '0.5rem';
-
-    // Add confirm button
-    const confirmButton = document.createElement('button');
-    confirmButton.textContent = 'Set Date';
-    confirmButton.className = 'hover-button';
-    confirmButton.style.padding = '0.3rem 0.6rem';
-    confirmButton.style.flex = '1';
-    confirmButton.type = 'button'; // Ensure it's a button
-
-    // Handle confirm button click and keyboard
-    const handleConfirm = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (dateInput.value) {
-        const selectedDate = new Date(dateInput.value + 'T00:00:00');
-        this.setDueDate(li, selectedDate);
-        this.closeAllPopups();
-      }
-    };
-
-    confirmButton.addEventListener('click', handleConfirm);
-    confirmButton.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        handleConfirm(e);
-      }
-    });
-
-    // Add clear button
-    const clearButton = document.createElement('button');
-    clearButton.textContent = 'Clear';
-    clearButton.className = 'hover-button';
-    clearButton.style.padding = '0.3rem 0.6rem';
-    clearButton.style.flex = '1';
-    clearButton.type = 'button'; // Ensure it's a button
-
-    // Handle clear button click and keyboard
-    const handleClear = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      this.clearDueDate(li);
-      this.closeAllPopups();
-    };
-
-    clearButton.addEventListener('click', handleClear);
-    clearButton.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        handleClear(e);
-      }
-    });
-
-    buttonContainer.appendChild(confirmButton);
-    buttonContainer.appendChild(clearButton);
-    popup.appendChild(buttonContainer);
-
-    dateInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        this.closeAllPopups(li);
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        if (dateInput.value) {
-          const selectedDate = new Date(dateInput.value + 'T00:00:00');
-          this.setDueDate(li, selectedDate);
-          this.closeAllPopups();
-        }
-      } else if (e.key === 'Tab') {
-        // Allow normal tab navigation to buttons
-        // Don't prevent default - let it move to next focusable element
-      }
-    });
-
-    // Position popup relative to the list container
-    this.positionPopup(popup, button);
-
-    // Focus the input
-    setTimeout(() => dateInput.focus(), 0);
-
-    // Store reference for cleanup
-    this.currentPopup = popup;
-
-    // Close on outside click - simplified approach
-    setTimeout(() => {
-      const handleOutsideClick = (e) => {
-        // Don't close if clicking inside the popup, on date picker elements, or within the web component
-        if (popup.contains(e.target) || e.target.matches('input[type="date"]') || e.target.closest('outline-list')) {
-          return;
-        }
-
-        // Close popup and remove listener
-        this.closeAllPopups(li);
-        document.removeEventListener('click', handleOutsideClick);
-      };
-
-      document.addEventListener('click', handleOutsideClick);
-
-      // Store reference to remove listener when popup closes
-      popup._outsideClickHandler = handleOutsideClick;
-    }, 100); // Increased timeout to ensure date picker is ready
+    this.showDateTimePopup(li, button, 'due');
   }
 
   showSchedulePopup(li, button) {
+    this.showDateTimePopup(li, button, 'schedule');
+  }
+
+  showDateTimePopup(li, button, type) {
     this.closeAllPopups();
 
     // Add popup-active class to keep metadata visible
@@ -1929,36 +1770,51 @@ class Outline {
     const popup = document.createElement('div');
     popup.className = 'outline-popup date-popup';
 
+    // Date input container with icon
+    const dateContainer = document.createElement('div');
+    dateContainer.style.cssText = 'display: flex; align-items: center; gap: 0.5rem;';
+
     // Date input
     const dateInput = document.createElement('input');
     dateInput.type = 'date';
     dateInput.className = 'dropdown-input';
+    dateInput.style.flex = '1';
 
-    // Get current date if set, otherwise use today
-    const existingScheduleSpan = li.querySelector('.outline-schedule');
+    // Get current date/time if set, otherwise use today
+    const existingSpan = li.querySelector(`.outline-${type}`);
     let initialDate = new Date();
+    let hasTime = false;
 
-    if (existingScheduleSpan && existingScheduleSpan.textContent.trim()) {
-      // Try to parse existing date (format: " Jan 5")
-      const dateText = existingScheduleSpan.textContent.trim();
-      console.log('Parsing schedule date text:', dateText); // Debug
+    if (existingSpan && existingSpan.textContent.trim()) {
+      const dateText = existingSpan.textContent.trim();
+      console.log(`Parsing ${type} date text:`, dateText); // Debug
 
+      // Check if the text includes time (format: "Jan 5 2:30 PM" or "Jan 5, 2:30 PM")
+      hasTime = /\d{1,2}:\d{2}\s?(AM|PM)/i.test(dateText);
+      
       const currentYear = new Date().getFullYear();
-
-      // Handle different date formats
       let parsedDate;
-      if (dateText.includes(' ')) {
-        // Format: "Jan 5" or " Jan 5"
+
+      if (hasTime) {
+        // Try to parse full date with time
+        // Handle formats like "Jan 5 2:30 PM" or "Jan 5, 2:30 PM"
+        const dateWithYear = dateText.includes(currentYear.toString()) ? 
+          dateText : 
+          dateText.replace(/(\w{3}\s+\d{1,2}),?\s+/, `$1 ${currentYear} `);
+        parsedDate = new Date(dateWithYear);
+        
+        if (!isNaN(parsedDate.getTime())) {
+          initialDate = parsedDate;
+        }
+      } else if (dateText.includes(' ')) {
+        // Format: "Jan 5" - date only
         const dateWithYear = `${dateText} ${currentYear}`;
-        console.log('Trying to parse schedule date:', dateWithYear); // Debug
         parsedDate = new Date(dateWithYear);
 
-        // Fix timezone issue by creating date in local timezone
         if (!isNaN(parsedDate.getTime())) {
           const month = parsedDate.getMonth();
           const day = parsedDate.getDate();
           initialDate = new Date(currentYear, month, day);
-          console.log('Created local schedule date:', initialDate); // Debug
         }
       } else {
         // Try direct parsing
@@ -1968,39 +1824,116 @@ class Outline {
         }
       }
 
-      console.log('Parsed schedule date:', parsedDate, 'Valid:', !isNaN(parsedDate.getTime())); // Debug
+      console.log(`Parsed ${type} date:`, parsedDate, 'Valid:', !isNaN(parsedDate.getTime()), 'Has time:', hasTime);
     }
 
-    // Use toLocaleDateString to avoid timezone issues
-    const year = initialDate.getFullYear();
-    const month = String(initialDate.getMonth() + 1).padStart(2, '0');
-    const day = String(initialDate.getDate()).padStart(2, '0');
-    dateInput.value = `${year}-${month}-${day}`;
-    console.log('Final schedule date input value:', dateInput.value); // Debug
+    // Set the initial input type and value
+    if (hasTime) {
+      dateInput.type = 'datetime-local';
+      // Format for datetime-local: YYYY-MM-DDTHH:MM
+      const year = initialDate.getFullYear();
+      const month = String(initialDate.getMonth() + 1).padStart(2, '0');
+      const day = String(initialDate.getDate()).padStart(2, '0');
+      const hours = String(initialDate.getHours()).padStart(2, '0');
+      const minutes = String(initialDate.getMinutes()).padStart(2, '0');
+      dateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    } else {
+      // Set the date input value
+      const year = initialDate.getFullYear();
+      const month = String(initialDate.getMonth() + 1).padStart(2, '0');
+      const day = String(initialDate.getDate()).padStart(2, '0');
+      dateInput.value = `${year}-${month}-${day}`;
+    }
 
-    popup.appendChild(dateInput);
+    // Time toggle icon button
+    const timeIcon = document.createElement('button');
+    timeIcon.type = 'button';
+    timeIcon.className = 'hover-button time-icon';
+    timeIcon.textContent = hasTime ? 'Only date' : 'Add time';
+    timeIcon.title = hasTime ? 'Remove time (date only)' : 'Add time';
+    timeIcon.style.padding = '0.3rem 0.6rem';
 
-    // Add button container for better layout
+    // Prevent click events from bubbling up from the time icon
+    timeIcon.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      if (dateInput.type === 'date') {
+        // Switch to datetime-local
+        const currentDate = dateInput.value;
+        dateInput.type = 'datetime-local';
+        if (currentDate) {
+          // Default to 9:00 AM
+          dateInput.value = `${currentDate}T09:00`;
+        }
+        timeIcon.textContent = 'Only date';
+        timeIcon.title = 'Remove time (date only)';
+        
+        // Re-add click prevention for the new input type
+        dateInput.removeEventListener('click', dateInput._clickHandler);
+        dateInput._clickHandler = (e) => e.stopPropagation();
+        dateInput.addEventListener('click', dateInput._clickHandler);
+      } else {
+        // Switch back to date only
+        const currentDateTime = dateInput.value;
+        dateInput.type = 'date';
+        if (currentDateTime) {
+          dateInput.value = currentDateTime.split('T')[0];
+        }
+        timeIcon.textContent = 'Add time';
+        timeIcon.title = 'Add time';
+        
+        // Re-add click prevention for the new input type
+        dateInput.removeEventListener('click', dateInput._clickHandler);
+        dateInput._clickHandler = (e) => e.stopPropagation();
+        dateInput.addEventListener('click', dateInput._clickHandler);
+      }
+    });
+
+    // Prevent click events from bubbling up from the date input
+    dateInput._clickHandler = (e) => e.stopPropagation();
+    dateInput.addEventListener('click', dateInput._clickHandler);
+
+    dateContainer.appendChild(dateInput);
+    dateContainer.appendChild(timeIcon);
+    popup.appendChild(dateContainer);
+
+    // Button container
     const buttonContainer = document.createElement('div');
     buttonContainer.style.display = 'flex';
     buttonContainer.style.gap = '0.5rem';
     buttonContainer.style.marginTop = '0.5rem';
 
-    // Add confirm button
+    // Confirm button
     const confirmButton = document.createElement('button');
-    confirmButton.textContent = 'Set Date';
+    confirmButton.textContent = 'Set';
     confirmButton.className = 'hover-button';
     confirmButton.style.padding = '0.3rem 0.6rem';
     confirmButton.style.flex = '1';
-    confirmButton.type = 'button'; // Ensure it's a button
+    confirmButton.type = 'button';
 
-    // Handle confirm button click and keyboard
+    // Handle confirm button click
     const handleConfirm = (e) => {
       e.preventDefault();
       e.stopPropagation();
       if (dateInput.value) {
-        const selectedDate = new Date(dateInput.value + 'T00:00:00');
-        this.setScheduleDate(li, selectedDate);
+        let selectedDate;
+        
+        if (dateInput.type === 'datetime-local') {
+          // Parse datetime-local format: YYYY-MM-DDTHH:MM
+          selectedDate = new Date(dateInput.value);
+          // Mark that time was explicitly set
+          selectedDate._explicitTime = true;
+        } else {
+          // Parse date format: YYYY-MM-DD
+          selectedDate = new Date(dateInput.value + 'T00:00:00');
+        }
+        
+        if (type === 'due') {
+          this.setDueDate(li, selectedDate);
+        } else {
+          this.setScheduleDate(li, selectedDate);
+        }
         this.closeAllPopups();
       }
     };
@@ -2013,19 +1946,22 @@ class Outline {
       }
     });
 
-    // Add clear button
+    // Clear button
     const clearButton = document.createElement('button');
     clearButton.textContent = 'Clear';
-    clearButton.className = 'hover-button';
+    clearButton.className = 'hover-button clear-date';
     clearButton.style.padding = '0.3rem 0.6rem';
     clearButton.style.flex = '1';
-    clearButton.type = 'button'; // Ensure it's a button
+    clearButton.type = 'button';
 
-    // Handle clear button click and keyboard
     const handleClear = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      this.clearScheduleDate(li);
+      if (type === 'due') {
+        this.clearDueDate(li);
+      } else {
+        this.clearScheduleDate(li);
+      }
       this.closeAllPopups();
     };
 
@@ -2041,49 +1977,41 @@ class Outline {
     buttonContainer.appendChild(clearButton);
     popup.appendChild(buttonContainer);
 
+    // Keyboard handling
     dateInput.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         this.closeAllPopups(li);
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        if (dateInput.value) {
-          const selectedDate = new Date(dateInput.value + 'T00:00:00');
-          this.setScheduleDate(li, selectedDate);
-          this.closeAllPopups();
-        }
-      } else if (e.key === 'Tab') {
-        // Allow normal tab navigation to buttons
-        // Don't prevent default - let it move to next focusable element
+        handleConfirm(e);
       }
     });
 
-    // Position popup relative to the list container
+    // Position popup and setup
     this.positionPopup(popup, button);
-
-    // Focus the input
     setTimeout(() => dateInput.focus(), 0);
-
-    // Store reference for cleanup
     this.currentPopup = popup;
 
-    // Close on outside click - simplified approach
+    // Outside click handling
     setTimeout(() => {
       const handleOutsideClick = (e) => {
-        // Don't close if clicking inside the popup, on date picker elements, or within the web component
-        if (popup.contains(e.target) || e.target.matches('input[type="date"]') || e.target.closest('outline-list')) {
+        // Don't close if clicking inside the popup, on any date/datetime input, or within the web component
+        const isInsidePopup = popup.contains(e.target);
+        const isDateInput = e.target.matches('input[type="date"]') || e.target.matches('input[type="datetime-local"]');
+        const isInOutlineList = e.target.closest('outline-list');
+        const isPopupElement = e.target.closest('.outline-popup');
+        
+        if (isInsidePopup || isDateInput || isInOutlineList || isPopupElement) {
           return;
         }
-
-        // Close popup and remove listener
+        
         this.closeAllPopups(li);
         document.removeEventListener('click', handleOutsideClick);
       };
 
       document.addEventListener('click', handleOutsideClick);
-
-      // Store reference to remove listener when popup closes
       popup._outsideClickHandler = handleOutsideClick;
-    }, 100); // Increased timeout to ensure date picker is ready
+    }, 100);
   }
 
   setScheduleDate(li, date) {
@@ -2104,10 +2032,27 @@ class Outline {
       }
     }
 
-    const timestamp = date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    });
+    // Format with time if time was explicitly set (not default midnight)
+    const hasTime = (date.getHours() !== 0 || date.getMinutes() !== 0) || 
+                   (date._explicitTime === true);
+    let timestamp;
+    
+    if (hasTime) {
+      timestamp = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      }) + ' ' + date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    } else {
+      timestamp = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+    
     scheduleSpan.textContent = ` ${timestamp}`;
 
     // Update the hover button to show the data
@@ -2164,10 +2109,27 @@ class Outline {
       }
     }
 
-    const timestamp = date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    });
+    // Format with time if time was explicitly set (not default midnight)
+    const hasTime = (date.getHours() !== 0 || date.getMinutes() !== 0) || 
+                   (date._explicitTime === true);
+    let timestamp;
+    
+    if (hasTime) {
+      timestamp = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      }) + ' ' + date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    } else {
+      timestamp = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+    
     dueSpan.textContent = ` ${timestamp}`;
 
     // Update the hover button to show the data

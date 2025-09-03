@@ -240,7 +240,9 @@ Key shortcut "s" already used for "status". Could use "t" for that instead (+ Sp
 - [X] update
 - [X] update the order of the items so they read naturally.
 - [X] update "dueDate" to "due"
-* TODO support setting hours/minutes for due and schedule
+* DONE support setting hours/minutes for due and schedule
+CLOSED: [2025-09-03 Wed 18:14]
+* TODO store the dates in a universal format, only apply formatting when rendering
 * TODO testing use with datastar
 Setup backend with in-memory state.
 ** TODO handle new html reinit todolist script
@@ -249,8 +251,6 @@ Setup backend with in-memory state.
 ..will at some point forever by locked to this structure
 * TODO trim down bloated examples.html etc
 * TODO emit full json in events, option?
-* TODO allow setting hours+minutes for due date etc
-Or at least for schedule, if we support it, to allow adding meetings as items.
 * TODO extras for setting date - keyboard for jumping days/weeks/months
 * TODO unify color usage for popups: borders, focus, selection
 There are different blues and grays used..

@@ -65,7 +65,8 @@ A flexible, feature-rich outline component with keyboard navigation, metadata su
 - **T**: Show tags popup
 - **P**: Toggle priority
 - **B**: Toggle blocked status
-- **D**: Set due date
+- **D**: Set due date (with optional time)
+- **C**: Set schedule date (with optional time)
 - **N**: Add notes
 - **A**: Assign to user
 - **R**: Remove item
@@ -139,6 +140,27 @@ features: {
 }
 ```
 
+## Date and Time Setting
+
+Both due dates and schedule dates support optional time setting with appropriate friction to encourage date-only usage as the primary workflow.
+
+### Setting Dates
+- Press **D** for due dates or **C** for schedule dates
+- Select a date using the date picker
+- Click "Set Date" to save with date only
+
+### Adding Time (Optional)
+- After selecting a date, click the "Add time" button next to the date input
+- This switches the input to a datetime picker allowing both date and time selection
+- Times default to 9:00 AM when first adding time
+- Click the "Only date" button to remove time and return to date-only
+
+### Time Display
+- Dates without time: "Jan 5"
+- Dates with time: "Jan 5 2:30 PM"
+- Midnight times (12:00 AM) are displayed when explicitly set
+- Times are shown in 12-hour format with AM/PM
+
 ## Events
 
 The component emits various events for integration:
@@ -154,8 +176,8 @@ The component emits various events for integration:
 - `outline:toggle` - Status changed
 - `outline:priority` - Priority toggled
 - `outline:blocked` - Blocked status toggled
-- `outline:due` - Due date set/cleared
-- `outline:schedule` - Schedule date set/cleared
+- `outline:due` - Due date set/cleared (includes timestamp in ISO format)
+- `outline:schedule` - Schedule date set/cleared (includes timestamp in ISO format)
 - `outline:assign` - Assignee set/cleared
 - `outline:tags` - Tags updated
 - `outline:notes` - Notes updated
