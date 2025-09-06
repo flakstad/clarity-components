@@ -40,6 +40,7 @@
     },
     "collectCoverageFrom": [
       "outline.js",
+      "agenda.js",
       "!**/node_modules/**",
       "!**/test/**"
     ],

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clarity Agenda Demo</title>
+  <style>
+    /* Demo page styling */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    
+    /* Page theme variables */
+    :root {
+      /* Default dark theme for page */
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2d2d2d;
+      --bg-tertiary: #333333;
+      --text-primary: #f8f8f2;
+      --text-secondary: #ddd;
+      --text-muted: #888;
+      --border: #555;
+      --hover: rgba(255, 255, 255, 0.05);
+      
+      /* Web component theme variables */
+      --clarity-outline-bg-primary: #1e1e1e;
+      --clarity-outline-bg-secondary: #2d2d2d;
+      --clarity-outline-bg-tertiary: #333333;
+      --clarity-outline-text-primary: #f8f8f2;
+      --clarity-outline-text-secondary: #ddd;
+      --clarity-outline-text-muted: #888;
+      --clarity-outline-border: #555;
+      --clarity-outline-border-focus: #7aa2e3;
+      --clarity-outline-hover: rgba(255, 255, 255, 0.05);
+      --clarity-outline-focus: rgba(255, 255, 255, 0.1);
+      --clarity-outline-input-bg: #2d2d2d;
+      --clarity-outline-input-border: #555;
+      --clarity-outline-popup-bg: #2d2d2d;
+      --clarity-outline-popup-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Light theme */
+    @media (prefers-color-scheme: light) {
+      :root {
+        /* Light theme for page */
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8f9fa;
+        --bg-tertiary: #e9ecef;
+        --text-primary: #212529;
+        --text-secondary: #6c757d;
+        --text-muted: #adb5bd;
+        --border: #dee2e6;
+        --hover: rgba(0, 0, 0, 0.05);
+        
+        /* Light theme for web components */
+        --clarity-outline-bg-primary: #ffffff;
+        --clarity-outline-bg-secondary: #f8f9fa;
+        --clarity-outline-bg-tertiary: #e9ecef;
+        --clarity-outline-text-primary: #212529;
+        --clarity-outline-text-secondary: #6c757d;
+        --clarity-outline-text-muted: #adb5bd;
+        --clarity-outline-border: #dee2e6;
+        --clarity-outline-border-focus: #007bff;
+        --clarity-outline-hover: rgba(0, 0, 0, 0.05);
+        --clarity-outline-focus: rgba(0, 0, 0, 0.1);
+        --clarity-outline-input-bg: #ffffff;
+        --clarity-outline-input-border: #ced4da;
+        --clarity-outline-popup-bg: #ffffff;
+        --clarity-outline-popup-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+    
+    .demo-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .demo-section {
+      margin-bottom: 4rem;
+      padding: 2rem;
+      background: var(--bg-secondary);
+    }
+    
+    .demo-section h2 {
+      margin-top: 0;
+      color: var(--text-primary);
+    }
+    
+    .demo-section h3 {
+      color: var(--text-secondary);
+    }
+    
+    .demo-section p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    
+    .view-controls {
+      margin: 1rem 0;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .view-btn {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .view-btn:hover {
+      background: var(--hover);
+    }
+    
+    .view-btn.active {
+      background: var(--text-secondary);
+      color: var(--bg-primary);
+    }
+    
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      z-index: 1000;
+    }
+    
+    .theme-toggle:hover {
+      background: var(--hover);
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Theme</button>
+  
+  <div class="demo-container">
+    <h1>Clarity Agenda Component Demo</h1>
+    <p>An org-agenda inspired component for viewing scheduled and due tasks across different time periods.</p>
+    
+    <div class="demo-section">
+      <h2>Agenda Views</h2>
+      <p>Switch between different time views to see tasks organized by day, week, or month.</p>
+      
+      <div class="view-controls">
+        <button class="view-btn active" onclick="setView('agenda-demo', 'week')">Week</button>
+        <button class="view-btn" onclick="setView('agenda-demo', 'day')">Day</button>
+        <button class="view-btn" onclick="setView('agenda-demo', 'month')">Month</button>
+      </div>
+      
+      <clarity-agenda 
+        id="agenda-demo"
+        data-view="week"
+        data-tasks='[
+          {
+            "id": "1",
+            "text": "Team standup meeting",
+            "status": "TODO",
+            "schedule": "Sep 9 09:00",
+            "assign": "team"
+          },
+          {
+            "id": "2",
+            "text": "Review pull requests",
+            "status": "TODO",
+            "schedule": "Sep 9 10:30",
+            "priority": "high",
+            "assign": "alice"
+          },
+          {
+            "id": "3",
+            "text": "Deploy to production",
+            "status": "TODO",
+            "due": "Sep 9",
+            "assign": "alice",
+            "tags": ["deployment", "urgent"]
+          },
+          {
+            "id": "4",
+            "text": "Client presentation",
+            "status": "TODO",
+            "schedule": "Sep 10 14:00",
+            "assign": "team"
+          },
+          {
+            "id": "5",
+            "text": "Code review session",
+            "status": "TODO",
+            "schedule": "Sep 11 15:30",
+            "assign": "bob"
+          },
+          {
+            "id": "6",
+            "text": "Weekly planning",
+            "status": "TODO",
+            "schedule": "Sep 12 10:00",
+            "assign": "team"
+          },
+          {
+            "id": "7",
+            "text": "Bug fix for login issue",
+            "status": "DONE",
+            "schedule": "Sep 8 16:00",
+            "assign": "charlie"
+          },
+          {
+            "id": "8",
+            "text": "Database backup",
+            "status": "TODO",
+            "due": "Sep 13",
+            "assign": "ops",
+            "tags": ["maintenance"]
+          },
+          {
+            "id": "9",
+            "text": "Update documentation",
+            "status": "BLOCKED",
+            "due": "Sep 15",
+            "assign": "alice",
+            "tags": ["docs"]
+          },
+          {
+            "id": "10",
+            "text": "Performance optimization",
+            "status": "TODO",
+            "schedule": "Sep 13 11:00",
+            "priority": "high",
+            "assign": "bob"
+          }
+        ]'>
+      </clarity-agenda>
+    </div>
+  </div>
+
+  <script src="agenda.js"></script>
+  <script>
+    let currentTheme = 'auto';
+    
+    function toggleTheme() {
+      const themes = ['auto', 'light', 'dark'];
+      const currentIndex = themes.indexOf(currentTheme);
+      const nextIndex = (currentIndex + 1) % themes.length;
+      currentTheme = themes[nextIndex];
+      
+      console.log('Switching to theme:', currentTheme);
+      
+      const root = document.documentElement;
+      
+      if (currentTheme === 'auto') {
+        // Remove any forced theme and let CSS media queries handle it
+        root.removeAttribute('data-theme');
+        // Remove all custom properties to let CSS handle them
+        const properties = [
+          // Page theme properties
+          '--bg-primary', '--bg-secondary', '--bg-tertiary', '--text-primary', '--text-secondary', '--text-muted', '--border', '--hover',
+          // Web component properties
+          '--clarity-outline-bg-primary', '--clarity-outline-bg-secondary', '--clarity-outline-bg-tertiary',
+          '--clarity-outline-text-primary', '--clarity-outline-text-secondary', '--clarity-outline-text-muted',
+          '--clarity-outline-border', '--clarity-outline-border-focus', '--clarity-outline-hover', '--clarity-outline-focus',
+          '--clarity-outline-input-bg', '--clarity-outline-input-border', '--clarity-outline-popup-bg', '--clarity-outline-popup-shadow'
+        ];
+        
+        properties.forEach(prop => {
+          root.style.removeProperty(prop);
+        });
+      } else if (currentTheme === 'light') {
+        root.setAttribute('data-theme', 'light');
+        // Set light theme properties
+        root.style.setProperty('--bg-primary', '#ffffff');
+        root.style.setProperty('--bg-secondary', '#f8f9fa');
+        root.style.setProperty('--bg-tertiary', '#e9ecef');
+        root.style.setProperty('--text-primary', '#212529');
+        root.style.setProperty('--text-secondary', '#6c757d');
+        root.style.setProperty('--text-muted', '#adb5bd');
+        root.style.setProperty('--border', '#dee2e6');
+        root.style.setProperty('--hover', 'rgba(0, 0, 0, 0.05)');
+        
+        // Web component light theme
+        root.style.setProperty('--clarity-outline-bg-primary', '#ffffff');
+        root.style.setProperty('--clarity-outline-bg-secondary', '#f8f9fa');
+        root.style.setProperty('--clarity-outline-bg-tertiary', '#e9ecef');
+        root.style.setProperty('--clarity-outline-text-primary', '#212529');
+        root.style.setProperty('--clarity-outline-text-secondary', '#6c757d');
+        root.style.setProperty('--clarity-outline-text-muted', '#adb5bd');
+        root.style.setProperty('--clarity-outline-border', '#dee2e6');
+        root.style.setProperty('--clarity-outline-border-focus', '#007bff');
+        root.style.setProperty('--clarity-outline-hover', 'rgba(0, 0, 0, 0.05)');
+        root.style.setProperty('--clarity-outline-focus', 'rgba(0, 0, 0, 0.1)');
+        root.style.setProperty('--clarity-outline-input-bg', '#ffffff');
+        root.style.setProperty('--clarity-outline-input-border', '#ced4da');
+        root.style.setProperty('--clarity-outline-popup-bg', '#ffffff');
+        root.style.setProperty('--clarity-outline-popup-shadow', '0 4px 12px rgba(0, 0, 0, 0.15)');
+      } else if (currentTheme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        // Set dark theme properties
+        root.style.setProperty('--bg-primary', '#1e1e1e');
+        root.style.setProperty('--bg-secondary', '#2d2d2d');
+        root.style.setProperty('--bg-tertiary', '#333333');
+        root.style.setProperty('--text-primary', '#f8f8f2');
+        root.style.setProperty('--text-secondary', '#ddd');
+        root.style.setProperty('--text-muted', '#888');
+        root.style.setProperty('--border', '#555');
+        root.style.setProperty('--hover', 'rgba(255, 255, 255, 0.05)');
+        
+        // Web component dark theme
+        root.style.setProperty('--clarity-outline-bg-primary', '#1e1e1e');
+        root.style.setProperty('--clarity-outline-bg-secondary', '#2d2d2d');
+        root.style.setProperty('--clarity-outline-bg-tertiary', '#333333');
+        root.style.setProperty('--clarity-outline-text-primary', '#f8f8f2');
+        root.style.setProperty('--clarity-outline-text-secondary', '#ddd');
+        root.style.setProperty('--clarity-outline-text-muted', '#888');
+        root.style.setProperty('--clarity-outline-border', '#555');
+        root.style.setProperty('--clarity-outline-border-focus', '#7aa2e3');
+        root.style.setProperty('--clarity-outline-hover', 'rgba(255, 255, 255, 0.05)');
+        root.style.setProperty('--clarity-outline-focus', 'rgba(255, 255, 255, 0.1)');
+        root.style.setProperty('--clarity-outline-input-bg', '#2d2d2d');
+        root.style.setProperty('--clarity-outline-input-border', '#555');
+        root.style.setProperty('--clarity-outline-popup-bg', '#2d2d2d');
+        root.style.setProperty('--clarity-outline-popup-shadow', '0 4px 12px rgba(0, 0, 0, 0.3)');
+      }
+      
+      // Update button text
+      const button = document.querySelector('.theme-toggle');
+      button.textContent = `🌓 ${currentTheme.charAt(0).toUpperCase() + currentTheme.slice(1)} Theme`;
+    }
+    
+    function setView(elementId, view) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.setAttribute('data-view', view);
+        
+        // Update active button
+        const container = element.closest('.demo-section');
+        const buttons = container.querySelectorAll('.view-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        const activeButton = Array.from(buttons).find(btn => 
+          btn.textContent.toLowerCase() === view
+        );
+        if (activeButton) {
+          activeButton.classList.add('active');
+        }
+      }
+    }
+    
+    // Initialize theme button text
+    document.addEventListener('DOMContentLoaded', () => {
+      const button = document.querySelector('.theme-toggle');
+      button.textContent = `🌓 ${currentTheme.charAt(0).toUpperCase() + currentTheme.slice(1)} Theme`;
+    });
+  </script>
+</body>
+</html>

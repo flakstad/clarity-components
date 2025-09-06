@@ -2,6 +2,39 @@
 
 A flexible, feature-rich outline component with keyboard navigation, metadata support, and web component integration.
 
+## Agenda Component
+
+This repository also includes **Clarity Agenda**, an org-agenda inspired component for viewing scheduled and due tasks across different time periods. Perfect for project planning and task management.
+
+### Agenda Features
+
+- **Multiple Views**: Week, Day, 2-Week, and Month views
+- **Time-based Organization**: Tasks organized by schedule and due dates  
+- **Task Integration**: Uses the same task data structure as the outline component
+- **Responsive Design**: Works on desktop and mobile devices
+- **Theme Support**: Inherits theme from outline component or standalone
+- **Navigation**: Easy navigation between time periods
+- **Now Marker**: Shows current time in day view
+
+### Quick Start - Agenda
+
+```html
+<clarity-agenda 
+  data-view="week"
+  data-tasks='[
+    {
+      "id": "1",
+      "text": "Team meeting",
+      "status": "TODO", 
+      "schedule": "Jan 8 09:00",
+      "assign": "team"
+    }
+  ]'>
+</clarity-agenda>
+```
+
+See `agenda-demo.html` for comprehensive examples and usage patterns.
+
 ## Features
 
 - **Hierarchical Structure**: Create nested outlines with unlimited depth

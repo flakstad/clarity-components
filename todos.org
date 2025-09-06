@@ -242,10 +242,14 @@ Key shortcut "s" already used for "status". Could use "t" for that instead (+ Sp
 - [X] update "dueDate" to "due"
 * DONE support setting hours/minutes for due and schedule
 CLOSED: [2025-09-03 Wed 18:14]
+* DONE begin implementing agenda component here, might move to separate repo later - or not
+CLOSED: [2025-09-06 Sat 21:26]
 * TODO testing use with datastar
 Setup backend with in-memory state.
 ** TODO handle new html reinit todolist script
 ** TODO comm with server listening for events
+* TODO order of hover actions: schedule first, then due, then rest..
+..so it reads like: "Buy milk" on Sept 6
 * TODO double check that I'm happy with outline item data format
 ..will at some point forever by locked to this structure
 * TODO trim down bloated examples.html etc
