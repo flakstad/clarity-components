@@ -1351,10 +1351,10 @@ class Outline {
       '.state-button',
       '.edit-button',
       '.remove-button',
+      '.schedule-button',
+      '.due-button',
       '.priority-button',
       '.blocked-button',
-      '.due-button',
-      '.schedule-button',
       '.assign-button',
       '.tags-button',
       '.notes-button'
