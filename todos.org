@@ -247,19 +247,31 @@ CLOSED: [2025-09-06 Sat 21:26]
 * DONE order of hover actions: schedule first, then due, then rest..
 CLOSED: [2025-09-09 Tue 13:15]
 ..so it reads like: "Buy milk" on Sept 6
-* TODO redo notes: should be two features: adding a comment, or add to worklog
+* DONE redo notes: should be two features: adding a comment, or add to worklog
+CLOSED: [2025-09-10 Wed 12:31]
 should be able to see comments and worklog right there?
-* TODO see latest comment on a task on a new line underneath the task?
-* TODO testing use with datastar
+* DONE trim down bloated examples.html etc
+CLOSED: [2025-09-10 Wed 12:31]
+* TODO ability to prevent actions - missing permissions to edit
+Tasks have an owner. Stopping editing if user is not owner. How to inform the user in the UI?
+* TODO agenda view: list all tasks across projects
+* TODO datastar: testing driving with backend signals
 Setup backend with in-memory state.
 ** TODO handle new html reinit todolist script
 ** TODO comm with server listening for events
-* TODO agenda view: list all tasks across projects
+* TODO datastar: using debounce on saving changes to avoid storing temp states
+making it so that users can cycle through status labels without saving all temp states.
+
+Probably best handled by datastar using debounce - so we emit all the events
+right away, but we only save to backend after a delay and only use the latest
+value. In this model I think we need to save the entire JSON, not just the
+event. Hm tricky, I don't see fully how it can work right now..
+
+Could have debounce on every specific event perhaps, so we save all changes to
+various fields, but delay a bit to catch temp changes.
 * TODO double check that I'm happy with outline item data format
 ..will at some point forever by locked to this structure
-* TODO trim down bloated examples.html etc
 * TODO emit full json in events, option?
-* TODO extras for setting date - keyboard for jumping days/weeks/months
 * TODO unify color usage for popups: borders, focus, selection
 There are different blues and grays used..
 * TODO split up options props into separate props

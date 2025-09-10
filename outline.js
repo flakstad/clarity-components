@@ -4,6 +4,7 @@ class Outline {
     this.options = {
       assignees: options.assignees || [],
       tags: options.tags || [],
+      currentUser: options.currentUser || 'current-user', // Default current user
       statusLabels: options.statusLabels || [
         { label: 'TODO', isEndState: false },
         { label: 'DONE', isEndState: true }
@@ -15,7 +16,8 @@ class Outline {
         schedule: options.features?.schedule !== false, // default: true
         assign: options.features?.assign !== false, // default: true
         tags: options.features?.tags !== false, // default: true
-        notes: options.features?.notes !== false, // default: true
+        comments: options.features?.comments !== false, // default: true
+        worklog: options.features?.worklog !== false, // default: true
         remove: options.features?.remove !== false, // default: true
         // status, edit, and open are always enabled (non-customizable)
       },
@@ -28,6 +30,16 @@ class Outline {
     this.el.querySelectorAll("li").forEach(li => {
       li.tabIndex = 0;
       this.addHoverButtons(li);
+      
+      // Add click handler to existing status labels
+      const statusLabel = li.querySelector(".outline-label");
+      if (statusLabel) {
+        statusLabel.style.cursor = "pointer";
+        statusLabel.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.showStatusPopup(li, statusLabel);
+        });
+      }
     });
     this.bindEvents();
     this.initNewTodoButton();
@@ -41,6 +53,10 @@ class Outline {
     this.el.querySelectorAll("li").forEach(li => {
       this.updateHoverButtonsVisibility(li);
     });
+  }
+
+  getCurrentUser() {
+    return this.options.currentUser;
   }
 
   initNewTodoButton() {
@@ -71,6 +87,11 @@ class Outline {
     const labelSpan = document.createElement("span");
     labelSpan.className = "outline-label";
     labelSpan.textContent = "TODO";
+    labelSpan.style.cursor = "pointer";
+    labelSpan.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.showStatusPopup(newLi, labelSpan);
+    });
 
     // Create the text span
     const textSpan = document.createElement("span");
@@ -167,7 +188,7 @@ class Outline {
             return;
           }
           // Allow opening new popups (this will close the current one)
-          if (e.key === 'd' || e.key === 'c' || e.key === 'a' || e.key === 't') {
+          if (e.key === 'd' || e.key === 's' || e.key === 'c' || e.key === 'w' || e.key === 'a' || e.key === 't') {
             // Let the event continue to be processed
           } else {
             return;
@@ -306,8 +327,8 @@ class Outline {
         return;
       }
 
-      // Set schedule date with 'c' key (only if enabled)
-      if(e.key==="c" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.schedule) {
+      // Set schedule date with 's' key (only if enabled)
+      if(e.key==="s" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.schedule) {
         e.preventDefault();
         const scheduleBtn = li.querySelector(".schedule-button");
         if (scheduleBtn) {
@@ -316,12 +337,22 @@ class Outline {
         return;
       }
 
-      // Add notes with 'n' key (only if enabled)
-      if(e.key==="n" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.notes) {
+      // Add comment with 'c' key (only if enabled)
+      if(e.key==="c" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.comments) {
         e.preventDefault();
-        const notesBtn = li.querySelector(".notes-button");
-        if (notesBtn) {
-          this.showNotesPopup(li, notesBtn);
+        const commentsBtn = li.querySelector(".comments-button");
+        if (commentsBtn) {
+          this.showCommentsPopup(li, commentsBtn);
+        }
+        return;
+      }
+
+      // Add worklog entry with 'w' key (only if enabled)
+      if(e.key==="w" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.worklog) {
+        e.preventDefault();
+        const worklogBtn = li.querySelector(".worklog-button");
+        if (worklogBtn) {
+          this.showWorklogPopup(li, worklogBtn);
         }
         return;
       }
@@ -336,12 +367,12 @@ class Outline {
         return;
       }
 
-      // Status with 's' key (always enabled)
-      if(e.key==="s" && !e.altKey && !e.ctrlKey && !e.metaKey) {
+      // Status with SPACE key (always enabled)
+      if(e.key===" " && !e.altKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
-        const stateBtn = li.querySelector(".state-button");
-        if (stateBtn) {
-          this.showStatusPopup(li, stateBtn);
+        const statusLabel = li.querySelector(".outline-label");
+        if (statusLabel) {
+          this.showStatusPopup(li, statusLabel);
         }
         return;
       }
@@ -586,6 +617,11 @@ class Outline {
     const label = document.createElement("span");
     label.className = "outline-label";
     label.textContent = this.options.statusLabels[0].label;
+    label.style.cursor = "pointer";
+    label.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.showStatusPopup(li, label);
+    });
 
     // Create text span
     const spanText = document.createElement("span");
@@ -1284,18 +1320,34 @@ class Outline {
       buttonsContainer.appendChild(tagsBtn);
     }
 
-    // Notes button (only if enabled)
-    if (this.options.features.notes) {
-      const notesBtn = document.createElement("button");
-      notesBtn.className = "hover-button notes-button";
-      notesBtn.setAttribute("data-type", "notes");
-      notesBtn.tabIndex = -1; // Remove from tab navigation
-      notesBtn.addEventListener("click", (e) => {
+    // Comments button (only if enabled)
+    if (this.options.features.comments) {
+      const commentsBtn = document.createElement("button");
+      commentsBtn.className = "hover-button comments-button";
+      commentsBtn.setAttribute("data-type", "comments");
+      commentsBtn.tabIndex = -1; // Remove from tab navigation
+      commentsBtn.innerHTML = "<u>c</u>omment";
+      commentsBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        this.showNotesPopup(li, notesBtn);
+        this.showCommentsPopup(li, commentsBtn);
       });
-      buttonsContainer.appendChild(notesBtn);
+      buttonsContainer.appendChild(commentsBtn);
     }
+
+    // Worklog button (only if enabled)
+    if (this.options.features.worklog) {
+      const worklogBtn = document.createElement("button");
+      worklogBtn.className = "hover-button worklog-button";
+      worklogBtn.setAttribute("data-type", "worklog");
+      worklogBtn.tabIndex = -1; // Remove from tab navigation
+      worklogBtn.innerHTML = "<u>w</u>orklog";
+      worklogBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.showWorklogPopup(li, worklogBtn);
+      });
+      buttonsContainer.appendChild(worklogBtn);
+    }
+
 
     // Remove button (only if enabled)
     if (this.options.features.remove) {
@@ -1310,16 +1362,6 @@ class Outline {
       buttonsContainer.appendChild(removeBtn);
     }
 
-    // State button (for cycling TODO/DONE/no-label) - always enabled
-    const stateBtn = document.createElement("button");
-    stateBtn.className = "hover-button state-button";
-    stateBtn.setAttribute("data-type", "state");
-    stateBtn.tabIndex = -1; // Remove from tab navigation
-    stateBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.showStatusPopup(li, stateBtn);
-    });
-    buttonsContainer.appendChild(stateBtn);
 
     // Edit button - always enabled
     const editBtn = document.createElement("button");
@@ -1345,10 +1387,9 @@ class Outline {
     });
     buttonsContainer.appendChild(openBtn);
 
-    // Reorder buttons: open, status, edit, remove, then others
+    // Reorder buttons: open, edit, remove, then others
     const desiredOrder = [
       '.open-button',
-      '.state-button',
       '.edit-button',
       '.remove-button',
       '.schedule-button',
@@ -1357,7 +1398,8 @@ class Outline {
       '.blocked-button',
       '.assign-button',
       '.tags-button',
-      '.notes-button'
+      '.comments-button',
+      '.worklog-button'
     ];
     desiredOrder.forEach(selector => {
       const btn = buttonsContainer.querySelector(selector);
@@ -1476,14 +1518,14 @@ class Outline {
     const scheduleBtn = li.querySelector(".schedule-button");
     const assignBtn = li.querySelector(".assign-button");
     const tagsBtn = li.querySelector(".tags-button");
-    const notesBtn = li.querySelector(".notes-button");
+    const commentsBtn = li.querySelector(".comments-button");
+    const worklogBtn = li.querySelector(".worklog-button");
     const removeBtn = li.querySelector(".remove-button");
-    const stateBtn = li.querySelector(".state-button");
     const editBtn = li.querySelector(".edit-button");
     const openBtn = li.querySelector(".open-button");
 
     // Only require the always-enabled buttons to exist
-    if (!stateBtn || !editBtn || !openBtn) return;
+    if (!editBtn || !openBtn) return;
 
     let hasAnyData = false;
 
@@ -1534,7 +1576,7 @@ class Outline {
         scheduleBtn.classList.add("has-data");
         hasAnyData = true;
       } else {
-        scheduleBtn.innerHTML = "s<u>c</u>hedule";
+        scheduleBtn.innerHTML = "<u>s</u>chedule";
         scheduleBtn.classList.remove("has-data");
       }
     }
@@ -1566,18 +1608,18 @@ class Outline {
       }
     }
 
-    // Update notes button (if enabled)
-    if (notesBtn) {
-      const notesSpan = li.querySelector(".outline-notes");
-      if (notesSpan && notesSpan.textContent.trim()) {
-        notesBtn.textContent = "notes";
-        notesBtn.classList.add("has-data");
-        hasAnyData = true;
-      } else {
-        notesBtn.innerHTML = "<u>n</u>otes";
-        notesBtn.classList.remove("has-data");
-      }
+    // Update comments button (if enabled) - event-only, no has-data class
+    if (commentsBtn) {
+      commentsBtn.innerHTML = "<u>c</u>omment";
+      commentsBtn.classList.remove("has-data");
     }
+
+    // Update worklog button (if enabled) - event-only, no has-data class
+    if (worklogBtn) {
+      worklogBtn.innerHTML = "<u>w</u>orklog";
+      worklogBtn.classList.remove("has-data");
+    }
+
 
     // Update remove button (if enabled)
     if (removeBtn) {
@@ -1586,9 +1628,6 @@ class Outline {
       removeBtn.classList.remove("has-data");
     }
 
-    // State button always shows "status"
-    stateBtn.innerHTML = "<u>s</u>tatus";
-    stateBtn.classList.remove("has-data");
 
     // Edit button always shows "edit" and doesn't have data states
     editBtn.innerHTML = "<u>e</u>dit";
@@ -1622,16 +1661,16 @@ class Outline {
     // Desired priority within each group (has-data first group and no-data group)
     const rankByType = {
       open: 0,
-      state: 1,
-      edit: 2,
-      remove: 3,
-      priority: 4,
-      blocked: 5,
-      schedule: 6,
-      due: 7,      
-      assign: 8,
-      tags: 9,
-      notes: 10
+      edit: 1,
+      remove: 2,
+      priority: 3,
+      blocked: 4,
+      schedule: 5,
+      due: 6,      
+      assign: 7,
+      tags: 8,
+      comments: 9,
+      worklog: 10
     };
 
     const decorated = buttons.map((btn, index) => {
@@ -1722,7 +1761,7 @@ class Outline {
   calculateCenterOrientedPosition(popup, buttonLeft, containerWidth) {
     // Get popup width - use different widths for different popup types
     let popupWidth;
-    if (popup.classList.contains('notes-popup')) {
+    if (popup.classList.contains('notes-popup') || popup.classList.contains('comments-popup') || popup.classList.contains('worklog-popup')) {
       popupWidth = 200; // Match the min-width from CSS
     } else if (popup.classList.contains('dropdown-popup')) {
       popupWidth = 150; // Typical width for dropdown popups
@@ -2451,7 +2490,7 @@ class Outline {
     }, 100); // Increased timeout to ensure popup is ready
   }
 
-  showNotesPopup(li, button) {
+  showCommentsPopup(li, button) {
     this.closeAllPopups();
 
     // Keep metadata visible
@@ -2459,22 +2498,21 @@ class Outline {
     this.updateHoverButtonsVisibility(li);
 
     const popup = document.createElement('div');
-    popup.className = 'outline-popup date-popup notes-popup';
+    popup.className = 'outline-popup date-popup comments-popup';
+
+    const heading = document.createElement('div');
+    heading.className = 'heading';
+    heading.textContent = 'Add Comment';
+    popup.appendChild(heading);
 
     const textarea = document.createElement('textarea');
-    textarea.className = 'dropdown-input notes-textarea';
-    textarea.placeholder = 'Add notes…';
+    textarea.className = 'dropdown-input comments-textarea';
+    textarea.placeholder = 'Add a comment to the discussion…';
     textarea.style.padding = '0.5rem';
-    textarea.rows = 8;
-    textarea.style.minHeight = '200px';
+    textarea.rows = 6;
+    textarea.style.minHeight = '150px';
     textarea.style.resize = 'vertical';
     textarea.style.width = '200px';
-
-    // Prefill from existing
-    const existingNotesSpan = li.querySelector('.outline-notes');
-    if (existingNotesSpan && existingNotesSpan.textContent) {
-      textarea.value = existingNotesSpan.textContent.trim();
-    }
     popup.appendChild(textarea);
 
     const buttonContainer = document.createElement('div');
@@ -2484,7 +2522,7 @@ class Outline {
     buttonContainer.style.justifyContent = 'flex-end';
 
     const saveBtn = document.createElement('button');
-    saveBtn.textContent = 'Save';
+    saveBtn.textContent = 'Add Comment';
     saveBtn.className = 'hover-button';
     saveBtn.style.padding = '0.3rem 0.6rem';
     saveBtn.style.flex = '1';
@@ -2502,7 +2540,7 @@ class Outline {
     const handleSave = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      this.setNotes(li, textarea.value.trim());
+      this.addComment(li, textarea.value.trim());
       this.closeAllPopups();
     };
     const handleCancel = (e) => {
@@ -2555,31 +2593,151 @@ class Outline {
     }, 100);
   }
 
-  setNotes(li, notesText) {
+  showWorklogPopup(li, button) {
+    this.closeAllPopups();
+
+    // Keep metadata visible
+    li.classList.add('popup-active');
+    this.updateHoverButtonsVisibility(li);
+
+    const popup = document.createElement('div');
+    popup.className = 'outline-popup date-popup worklog-popup';
+
+    const heading = document.createElement('div');
+    heading.className = 'heading';
+    heading.textContent = 'Add to private worklog';
+    popup.appendChild(heading);
+
+    const textarea = document.createElement('textarea');
+    textarea.className = 'dropdown-input worklog-textarea';
+    textarea.placeholder = 'Add a work log entry…';
+    textarea.style.padding = '0.5rem';
+    textarea.rows = 6;
+    textarea.style.minHeight = '150px';
+    textarea.style.resize = 'vertical';
+    textarea.style.width = '200px';
+    popup.appendChild(textarea);
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.gap = '0.5rem';
+    buttonContainer.style.marginTop = '0.5rem';
+    buttonContainer.style.justifyContent = 'flex-end';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Add Entry';
+    saveBtn.className = 'hover-button';
+    saveBtn.style.padding = '0.3rem 0.6rem';
+    saveBtn.style.flex = '1';
+    saveBtn.type = 'button';
+    saveBtn.setAttribute('tabindex', '0');
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.className = 'hover-button';
+    cancelBtn.style.padding = '0.3rem 0.6rem';
+    cancelBtn.style.flex = '1';
+    cancelBtn.type = 'button';
+    cancelBtn.setAttribute('tabindex', '0');
+
+    const handleSave = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.addWorklogEntry(li, textarea.value.trim());
+      this.closeAllPopups();
+    };
+    const handleCancel = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.closeAllPopups(li);
+    };
+    saveBtn.addEventListener('click', handleSave);
+    cancelBtn.addEventListener('click', handleCancel);
+
+    buttonContainer.appendChild(saveBtn);
+    buttonContainer.appendChild(cancelBtn);
+    popup.appendChild(buttonContainer);
+
+    textarea.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.closeAllPopups(li);
+      } else if (e.key === 'Enter' && e.shiftKey) {
+        // allow newline
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSave(e);
+      } else if (e.key === 'Tab') {
+        // Allow normal tab navigation to buttons
+      }
+    });
+
+    saveBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSave(e); }
+      if (e.key === 'Escape') { this.closeAllPopups(li); }
+    });
+
+    cancelBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCancel(e); }
+      if (e.key === 'Escape') { this.closeAllPopups(li); }
+    });
+
+    this.positionPopup(popup, button);
+    setTimeout(() => textarea.focus(), 0);
+    this.currentPopup = popup;
+
+    setTimeout(() => {
+      const handleOutsideClick = (e) => {
+        if (popup.contains(e.target) || e.target.closest('outline-list')) return;
+        this.closeAllPopups(li);
+        document.removeEventListener('click', handleOutsideClick);
+      };
+      document.addEventListener('click', handleOutsideClick);
+      // Store reference to remove listener when popup closes
+      popup._outsideClickHandler = handleOutsideClick;
+    }, 100);
+  }
+
+  addComment(li, commentText) {
+    if (!commentText) return;
+    
     const textSpan = li.querySelector('.outline-text');
     if (!textSpan) return;
-    let notesSpan = li.querySelector('.outline-notes');
-    if (!notesSpan) {
-      notesSpan = document.createElement('span');
-      notesSpan.className = 'outline-notes';
-      notesSpan.style.display = 'none';
-      const buttonsContainer = li.querySelector('.outline-hover-buttons');
-      if (buttonsContainer) {
-        buttonsContainer.after(notesSpan);
-      } else {
-        textSpan.after(notesSpan);
-      }
-    }
-    notesSpan.textContent = notesText ? ` ${notesText}` : '';
-    if (!notesText) {
-      notesSpan.remove();
-    }
-    this.updateHoverButtons(li);
+    
+    // Create new comment object
+    const newComment = {
+      id: crypto.randomUUID(),
+      text: commentText,
+      author: this.getCurrentUser(),
+      timestamp: new Date().toISOString()
+    };
+    
     li.focus();
-    this.emit('outline:notes', {
+    this.emit('outline:comment', {
       id: li.dataset.id,
       text: textSpan.textContent,
-      notes: notesText || null
+      comment: newComment
+    });
+  }
+
+  addWorklogEntry(li, worklogText) {
+    if (!worklogText) return;
+    
+    const textSpan = li.querySelector('.outline-text');
+    if (!textSpan) return;
+    
+    // Create new worklog entry object
+    const newEntry = {
+      id: crypto.randomUUID(),
+      text: worklogText,
+      author: this.getCurrentUser(),
+      timestamp: new Date().toISOString()
+    };
+    
+    li.focus();
+    this.emit('outline:worklog', {
+      id: li.dataset.id,
+      text: textSpan.textContent,
+      worklogEntry: newEntry
     });
   }
 
@@ -3237,6 +3395,7 @@ class OutlineElement extends HTMLElement {
         todo.blocked = true;
       }
 
+
     // Handle nested todos
     const sublist = li.querySelector('ul');
     if (sublist) {
@@ -3293,6 +3452,11 @@ class OutlineElement extends HTMLElement {
     const labelSpan = document.createElement('span');
     labelSpan.className = 'outline-label';
     labelSpan.textContent = todo.status || 'TODO';
+    labelSpan.style.cursor = "pointer";
+    labelSpan.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.showStatusPopup(li, labelSpan);
+    });
     if (todo.status === 'none' || todo.noLabel) {
       labelSpan.style.display = 'none';
     }
@@ -3828,6 +3992,68 @@ class OutlineElement extends HTMLElement {
           box-shadow: 0 0 0 2px rgba(102, 217, 239, 0.2);
         }
 
+        /* Comments popup specific styling */
+        .comments-popup {
+          min-width: 200px;
+          max-width: 400px;
+          padding: 1rem;
+        }
+
+        .comments-popup .heading {
+          margin-bottom: 0.5rem;
+        }
+
+        .comments-popup .comments-textarea {
+          width: 200px !important;
+          min-height: 150px !important;
+          max-height: 400px;
+          resize: vertical;
+          font-family: inherit;
+          line-height: 1.4;
+          box-sizing: border-box;
+          border: 1px solid var(--clarity-outline-border);
+          border-radius: 4px;
+          background: var(--clarity-outline-bg-tertiary);
+          color: var(--clarity-outline-text-primary);
+        }
+
+        .comments-popup .comments-textarea:focus {
+          outline: none;
+          border-color: var(--clarity-outline-border-focus);
+          box-shadow: 0 0 0 2px rgba(102, 217, 239, 0.2);
+        }
+
+        /* Worklog popup specific styling */
+        .worklog-popup {
+          min-width: 200px;
+          max-width: 400px;
+          padding: 1rem;
+        }
+
+        .worklog-popup .heading {
+          margin-bottom: 0.5rem;
+        }
+
+        .worklog-popup .worklog-textarea {
+          width: 200px !important;
+          min-height: 150px !important;
+          max-height: 400px;
+          resize: vertical;
+          font-family: inherit;
+          line-height: 1.4;
+          box-sizing: border-box;
+          border: 1px solid var(--clarity-outline-border);
+          border-radius: 4px;
+          background: var(--clarity-outline-bg-tertiary);
+          color: var(--clarity-outline-text-primary);
+        }
+
+        .worklog-popup .worklog-textarea:focus {
+          outline: none;
+          border-color: var(--clarity-outline-border-focus);
+          box-shadow: 0 0 0 2px rgba(102, 217, 239, 0.2);
+        }
+
         .date-popup button {
           background: none;
           border: none;
@@ -3954,7 +4180,7 @@ class OutlineElement extends HTMLElement {
       'outline:collapse', 'outline:expand', 'outline:edit:start', 'outline:edit:save',
       'outline:edit:cancel', 'outline:due', 'outline:assign', 'outline:tags',
               'outline:priority', 'outline:blocked', 'outline:open', 'outline:select',
-      'outline:notes', 'outline:remove'
+      'outline:comment', 'outline:worklog', 'outline:remove'
     ];
 
     // Get the list element where events are dispatched

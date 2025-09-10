@@ -1604,8 +1604,8 @@ describe('Outline Web Component', () => {
       expect(label.textContent).toBe('TODO');
 
       // Open status popup
-      const statusButton = todo.querySelector('.state-button');
-      statusButton.click();
+      const statusLabel = todo.querySelector('.outline-label');
+      statusLabel.click();
 
       // Should have status popup
       const popup = getPopup(outlineList);
@@ -1646,8 +1646,8 @@ describe('Outline Web Component', () => {
       expect(todo.classList.contains('no-label')).toBe(true);
 
       // Open status popup
-      const statusButton = todo.querySelector('.state-button');
-      statusButton.click();
+      const statusLabel = todo.querySelector('.outline-label');
+      statusLabel.click();
 
       // Should have status popup
       const popup = getPopup(outlineList);
@@ -1761,7 +1761,7 @@ describe('Outline Web Component', () => {
 
       // Open schedule popup
       todo.focus();
-      todo.dispatchEvent(createKeyEvent('c'));
+      todo.dispatchEvent(createKeyEvent('s'));
 
       const popup = getPopup(outlineList);
       const dateInput = popup.querySelector('input[type="date"]');
@@ -1906,7 +1906,7 @@ describe('Outline Web Component', () => {
 
       // Open schedule popup to edit
       todo.focus();
-      todo.dispatchEvent(createKeyEvent('c'));
+      todo.dispatchEvent(createKeyEvent('s'));
 
       const popup = getPopup(outlineList);
       const timeIcon = popup.querySelector('.time-icon');
@@ -1972,7 +1972,7 @@ describe('Outline Web Component', () => {
 
       // Open schedule popup
       todo.focus();
-      todo.dispatchEvent(createKeyEvent('c'));
+      todo.dispatchEvent(createKeyEvent('s'));
 
       const popup = getPopup(outlineList);
       const dateInput = popup.querySelector('input[type="date"]');

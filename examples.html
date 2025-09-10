@@ -12,7 +12,7 @@
       background: var(--bg-primary);
       color: var(--text-primary);
     }
-    
+
     /* Page theme variables */
     :root {
       /* Default dark theme for page */
@@ -24,7 +24,7 @@
       --text-muted: #888;
       --border: #555;
       --hover: rgba(255, 255, 255, 0.05);
-      
+
       /* Web component theme variables */
       --clarity-outline-bg-primary: #1e1e1e;
       --clarity-outline-bg-secondary: #2d2d2d;
@@ -41,7 +41,7 @@
       --clarity-outline-popup-bg: #2d2d2d;
       --clarity-outline-popup-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
-    
+
     /* Light theme */
     @media (prefers-color-scheme: light) {
       :root {
@@ -54,7 +54,7 @@
         --text-muted: #adb5bd;
         --border: #dee2e6;
         --hover: rgba(0, 0, 0, 0.05);
-        
+
         /* Light theme for web components */
         --clarity-outline-bg-primary: #ffffff;
         --clarity-outline-bg-secondary: #f8f9fa;
@@ -72,13 +72,13 @@
         --clarity-outline-popup-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
     }
-    
+
     .demo-container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 2rem;
     }
-    
+
     .demo-section {
       margin-bottom: 4rem;
       padding: 2rem;
@@ -86,21 +86,21 @@
       border-radius: 8px;
       background: var(--bg-secondary);
     }
-    
+
     .demo-section h2 {
       margin-top: 0;
       margin-bottom: 1rem;
       font-size: 1.8rem;
       color: var(--text-primary);
     }
-    
+
     .demo-section h3 {
       margin-top: 2rem;
       margin-bottom: 1rem;
       font-size: 1.2rem;
       color: var(--text-secondary);
     }
-    
+
     .code-block {
       background: var(--bg-tertiary);
       border: 1px solid var(--border);
@@ -112,7 +112,7 @@
       overflow-x: auto;
       color: var(--text-primary);
     }
-    
+
     .theme-toggle {
       position: fixed;
       top: 1rem;
@@ -125,11 +125,11 @@
       cursor: pointer;
       font-family: inherit;
     }
-    
+
     .theme-toggle:hover {
       background: var(--hover);
     }
-    
+
     /* Custom theme examples */
     .custom-theme {
       --clarity-outline-bg-primary: #2c3e50;
@@ -145,7 +145,7 @@
       --clarity-outline-color-priority: #f39c12;
               --clarity-outline-color-blocked: #e67e22;
     }
-    
+
     .minimal-theme {
       --clarity-outline-bg-primary: #ffffff;
       --clarity-outline-bg-secondary: #f8f9fa;
@@ -160,7 +160,7 @@
       --clarity-outline-color-priority: #fd7e14;
               --clarity-outline-color-blocked: #ffc107;
     }
-    
+
     .dark-theme {
       --clarity-outline-bg-primary: #1a1a1a;
       --clarity-outline-bg-secondary: #2d2d2d;
@@ -184,13 +184,11 @@
 </div>
 
 <div class="demo-container">
-  <h1>Outline Component Examples</h1>
-  
+
+
   <div class="demo-section">
-    <h2>1. Empty Outline</h2>
-    <p>A basic outline component with no initial data. You can add items by clicking the "Add todo" button.</p>
-    
-    <clarity-outline 
+
+    <clarity-outline
       id="empty-outline"
       options='{
         "assignees": ["alice", "bob", "charlie"],
@@ -205,10 +203,8 @@
   </div>
 
   <div class="demo-section">
-    <h2>2. Sample Data Example</h2>
-    <p>The original example with sample todo items demonstrating various features.</p>
-    
-    <clarity-outline 
+
+    <clarity-outline
       id="sample-outline"
       data-items='[
         {
@@ -290,274 +286,23 @@
       }'>
     </clarity-outline>
   </div>
-
-  <div class="demo-section custom-theme">
-    <h2>3. Custom Theme - Blue</h2>
-    <p>Example with a custom blue theme applied to the section.</p>
-    
-    <clarity-outline 
-      id="custom-outline"
-      data-items='[
-        {
-          "id": "1",
-          "text": "Custom themed todo",
-          "status": "TODO",
-          "priority": true
-        },
-        {
-          "id": "2",
-          "text": "Another item",
-          "status": "IN PROGRESS",
-          "tags": ["feature"]
-        }
-      ]'
-      options='{
-        "assignees": ["alice", "bob"],
-        "tags": ["urgent", "feature"],
-        "statusLabels": [
-          {"label": "TODO", "isEndState": false},
-          {"label": "IN PROGRESS", "isEndState": false},
-          {"label": "DONE", "isEndState": true}
-        ]
-      }'>
-    </clarity-outline>
-  </div>
-
-  <div class="demo-section minimal-theme">
-    <h2>4. Minimal Theme</h2>
-    <p>A clean, minimal theme with subtle colors.</p>
-    
-    <clarity-outline 
-      id="minimal-outline"
-      data-items='[
-        {
-          "id": "1",
-          "text": "Minimal design todo",
-          "status": "TODO"
-        },
-        {
-          "id": "2",
-          "text": "Clean and simple",
-          "status": "DONE"
-        }
-      ]'
-      options='{
-        "assignees": ["alice"],
-        "tags": ["simple"],
-        "statusLabels": [
-          {"label": "TODO", "isEndState": false},
-          {"label": "DONE", "isEndState": true}
-        ]
-      }'>
-    </clarity-outline>
-  </div>
-
-  <div class="demo-section dark-theme">
-    <h2>5. Dark Theme</h2>
-    <p>A dark theme with high contrast colors.</p>
-    
-    <clarity-outline 
-      id="dark-outline"
-      data-items='[
-        {
-          "id": "1",
-          "text": "Dark mode todo",
-          "status": "TODO",
-          "priority": true
-        },
-        {
-          "id": "2",
-          "text": "High contrast item",
-          "status": "IN PROGRESS",
-          "tags": ["urgent"]
-        }
-      ]'
-      options='{
-        "assignees": ["alice", "bob"],
-        "tags": ["urgent", "feature"],
-        "statusLabels": [
-          {"label": "TODO", "isEndState": false},
-          {"label": "IN PROGRESS", "isEndState": false},
-          {"label": "DONE", "isEndState": true}
-        ]
-      }'>
-    </clarity-outline>
-  </div>
-
-  <div class="demo-section">
-    <h2>6. Custom Styling Example</h2>
-    <p>Example with custom CSS variables for spacing and styling.</p>
-    
-    <clarity-outline 
-      id="custom-styled-outline"
-      data-items='[
-        {
-          "id": "1",
-          "text": "Custom styled item",
-          "status": "TODO"
-        }
-      ]'
-      options='{
-        "assignees": ["alice"],
-        "tags": ["custom"],
-        "statusLabels": [
-          {"label": "TODO", "isEndState": false},
-          {"label": "DONE", "isEndState": true}
-        ]
-      }'
-      style="
-        --clarity-outline-spacing: 0.5rem;
-        --clarity-outline-padding: 0.75rem;
-        --clarity-outline-border-radius: 4px;
-        --clarity-outline-font-size: 16px;
-        --clarity-outline-line-height: 1.6;
-        --clarity-outline-transition-duration: 0.2s;
-        --clarity-outline-nested-indent: 1rem;
-        --clarity-outline-nested-border-width: 2px;
-        --clarity-outline-nested-border-style: solid;
-      ">
-    </clarity-outline>
-  </div>
-
-  <div class="demo-section">
-    <h2>7. Feature Options Examples</h2>
-    <p>Examples demonstrating the new feature options functionality.</p>
-    
-    <h3>Default Features (All Enabled)</h3>
-            <p>All features are enabled by default: priority, blocked, due date, assign, and tags.</p>
-    <div class="code-block">
-&lt;clarity-outline 
-  data-items='[{"id":"1","text":"Buy groceries","status":"TODO"},{"id":"2","text":"Write documentation","status":"TODO"},{"id":"3","text":"Review pull requests","status":"TODO"}]'&gt;
-&lt;/clarity-outline&gt;
-    </div>
-    <clarity-outline 
-      data-items='[{"id":"1","text":"Buy groceries","status":"TODO"},{"id":"2","text":"Write documentation","status":"TODO"},{"id":"3","text":"Review pull requests","status":"TODO"}]'>
-    </clarity-outline>
-
-    <h3>Minimal Features (Only Status, Edit, Open)</h3>
-    <p>Only the non-customizable features are enabled: status, edit, and open. All other features are disabled.</p>
-    <div class="code-block">
-&lt;clarity-outline 
-        data-features='{"priority": false, "blocked": false, "due": false, "schedule": false, "assign": false, "tags": false}'
-  data-items='[{"id":"1","text":"Simple task 1","status":"TODO"},{"id":"2","text":"Simple task 2","status":"TODO"},{"id":"3","text":"Simple task 3","status":"TODO"}]'&gt;
-&lt;/clarity-outline&gt;
-    </div>
-    <clarity-outline 
-      data-features='{"priority": false, "blocked": false, "due": false, "assign": false, "tags": false}'
-      data-items='[{"id":"1","text":"Simple task 1","status":"TODO"},{"id":"2","text":"Simple task 2","status":"TODO"},{"id":"3","text":"Simple task 3","status":"TODO"}]'>
-    </clarity-outline>
-
-    <h3>Custom Feature Selection</h3>
-            <p>Only priority and tags are enabled. Blocked, due date, and assign are disabled.</p>
-    <div class="code-block">
-&lt;clarity-outline 
-        data-features='{"priority": true, "blocked": false, "due": false, "schedule": false, "assign": false, "tags": true}'
-  data-items='[{"id":"1","text":"High priority task","status":"TODO"},{"id":"2","text":"Bug fix","status":"TODO"},{"id":"3","text":"Feature implementation","status":"TODO"}]'&gt;
-&lt;/clarity-outline&gt;
-    </div>
-    <clarity-outline 
-      data-features='{"priority": true, "blocked": false, "due": false, "assign": false, "tags": true}'
-      data-items='[{"id":"1","text":"High priority task","status":"TODO"},{"id":"2","text":"Bug fix","status":"TODO"},{"id":"3","text":"Feature implementation","status":"TODO"}]'>
-    </clarity-outline>
-
-    <h3>Task Management Features Only</h3>
-            <p>Only task management features are enabled: priority, due date, and assign. Tags and blocked are disabled.</p>
-    <div class="code-block">
-&lt;clarity-outline 
-        data-features='{"priority": true, "blocked": false, "due": true, "schedule": true, "assign": true, "tags": false}'
-  data-items='[{"id":"1","text":"Project planning","status":"TODO"},{"id":"2","text":"Team meeting","status":"TODO"},{"id":"3","text":"Code review","status":"TODO"}]'&gt;
-&lt;/clarity-outline&gt;
-    </div>
-    <clarity-outline 
-      data-features='{"priority": true, "blocked": false, "due": true, "assign": true, "tags": false}'
-      data-items='[{"id":"1","text":"Project planning","status":"TODO"},{"id":"2","text":"Team meeting","status":"TODO"},{"id":"3","text":"Code review","status":"TODO"}]'>
-    </clarity-outline>
-  </div>
-
-  <div class="demo-section">
-    <h2>8. Keyboard Navigation</h2>
-    <p>Try navigating through the items using different keyboard shortcuts:</p>
-    
-    <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
-      <h4 style="margin-top: 0;">Navigation Shortcuts:</h4>
-      <ul style="margin: 0; padding-left: 1.5rem;">
-        <li><strong>Arrow Keys</strong>: Navigate between items</li>
-        <li><strong>Ctrl+N/P</strong>: Navigate down/up (Emacs style)</li>
-        <li><strong>J/K</strong>: Navigate down/up (Vi style)</li>
-        <li><strong>H/L</strong>: Navigate left/right (Vi style)</li>
-        <li><strong>Tab</strong>: Navigate between items (browser default)</li>
-      </ul>
-      <h4 style="margin-top: 1rem; margin-bottom: 0.5rem;">Action Shortcuts:</h4>
-      <ul style="margin: 0; padding-left: 1.5rem;">
-        <li><strong>E</strong>: Edit item</li>
-        <li><strong>Enter</strong>: Open detail view</li>
-        <li><strong>S</strong>: Change status</li>
-        <li><strong>P</strong>: Toggle priority</li>
-        <li><strong>B</strong>: Toggle blocked</li>
-        <li><strong>D</strong>: Set due date</li>
-        <li><strong>C</strong>: Set schedule date</li>
-        <li><strong>A</strong>: Assign to user</li>
-        <li><strong>T</strong>: Toggle tags</li>
-        <li><strong>N</strong>: Add notes</li>
-        <li><strong>R</strong>: Remove item</li>
-      </ul>
-    </div>
-    
-    <clarity-outline 
-      id="keyboard-nav-outline"
-      data-items='[
-        {
-          "id": "1",
-          "text": "First item - try Ctrl+N or J to move down",
-          "status": "TODO"
-        },
-        {
-          "id": "2",
-          "text": "Second item - try Ctrl+P or K to move up",
-          "status": "IN PROGRESS",
-          "priority": true
-        },
-        {
-          "id": "3",
-          "text": "Third item - use any navigation method",
-          "status": "DONE",
-          "tags": ["demo"]
-        },
-        {
-          "id": "4",
-          "text": "Fourth item - experiment with shortcuts",
-          "status": "TODO",
-          "assign": "alice"
-        }
-      ]'
-      options='{
-        "assignees": ["alice", "bob"],
-        "tags": ["demo", "feature"],
-        "statusLabels": [
-          {"label": "TODO", "isEndState": false},
-          {"label": "IN PROGRESS", "isEndState": false},
-          {"label": "DONE", "isEndState": true}
-        ]
-      }'>
-    </clarity-outline>
-  </div>
 </div>
 
 <script src="outline.js"></script>
 <script>
   // Theme toggle functionality
   let currentTheme = 'auto';
-  
+
   function toggleTheme() {
     const themes = ['auto', 'light', 'dark'];
     const currentIndex = themes.indexOf(currentTheme);
     const nextIndex = (currentIndex + 1) % themes.length;
     currentTheme = themes[nextIndex];
-    
+
     console.log('Switching to theme:', currentTheme);
-    
+
     const root = document.documentElement;
-    
+
     if (currentTheme === 'auto') {
       // Remove any forced theme and let CSS media queries handle it
       root.removeAttribute('data-theme');
@@ -599,7 +344,7 @@
       root.style.setProperty('--clarity-outline-input-border', '#ced4da');
       root.style.setProperty('--clarity-outline-popup-bg', '#ffffff');
       root.style.setProperty('--clarity-outline-popup-shadow', '0 4px 12px rgba(0, 0, 0, 0.15)');
-      
+
       console.log('Set light theme properties. Current bg-primary:', getComputedStyle(root).getPropertyValue('--clarity-outline-bg-primary'));
     } else if (currentTheme === 'dark') {
       // Force dark theme
@@ -629,7 +374,7 @@
       root.style.setProperty('--clarity-outline-popup-bg', '#2d2d2d');
       root.style.setProperty('--clarity-outline-popup-shadow', '0 4px 12px rgba(0, 0, 0, 0.3)');
     }
-    
+
     // Update button text
     const button = document.querySelector('.theme-toggle');
     const icons = ['🌓', '☀️', '🌙'];
@@ -638,7 +383,7 @@
 
   // Initialize all outline components
   const outlines = document.querySelectorAll('clarity-outline');
-  
+
   outlines.forEach(outline => {
     // Log events for debugging
     const events = [
@@ -647,11 +392,23 @@
       'outline:edit:cancel', 'outline:due', 'outline:assign', 'outline:tags',
               'outline:priority', 'outline:blocked', 'outline:open'
     ];
-    
+
     events.forEach(eventName => {
       outline.addEventListener(eventName, e => {
         console.log(`${outline.id}: ${eventName}`, e.detail);
       });
+    });
+  });
+
+  // Add event listeners for the new comments and worklog features
+  const newFeatureOutlines = document.querySelectorAll('clarity-outline');
+  newFeatureOutlines.forEach(outline => {
+    outline.addEventListener('outline:comment', e => {
+      console.log('New comment added:', e.detail);
+    });
+
+    outline.addEventListener('outline:worklog', e => {
+      console.log('New worklog entry added:', e.detail);
     });
   });
 </script>

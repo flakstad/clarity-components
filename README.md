@@ -39,7 +39,7 @@ See `agenda-demo.html` for comprehensive examples and usage patterns.
 
 - **Hierarchical Structure**: Create nested outlines with unlimited depth
 - **Keyboard Navigation**: Full emacs and vi-style keyboard shortcuts
-- **Metadata Support**: Priority, due dates, assignees, tags, notes, and more
+- **Metadata Support**: Priority, due dates, assignees, tags, comments, worklog, and more
 - **Status Management**: Customizable status labels with completion tracking
 - **Web Component**: Easy integration with any framework
 - **Accessibility**: Full keyboard navigation and screen reader support
@@ -99,11 +99,12 @@ See `agenda-demo.html` for comprehensive examples and usage patterns.
 - **P**: Toggle priority
 - **B**: Toggle blocked status
 - **D**: Set due date (with optional time)
-- **C**: Set schedule date (with optional time)
-- **N**: Add notes
+- **S**: Set schedule date (with optional time)
+- **C**: Add comment (public discussion)
+- **W**: Add worklog entry (private notes)
 - **A**: Assign to user
 - **R**: Remove item
-- **S**: Change status
+- **Space**: Change status
 - **O**: Open solo view
 
 ## Quick Start
@@ -168,7 +169,8 @@ features: {
   schedule: true,      // Show schedule date picker
   assign: true,        // Show assignee dropdown
   tags: true,          // Show tags management
-  notes: true,         // Show notes editor
+  comments: true,      // Show comments (public discussion)
+  worklog: true,       // Show worklog (private notes)
   remove: true         // Show remove button
 }
 ```
@@ -193,6 +195,63 @@ Both due dates and schedule dates support optional time setting with appropriate
 - Dates with time: "Jan 5 14:30"
 - Midnight times (00:00) are displayed when explicitly set
 - Times are shown in 24-hour format (HH:MM)
+
+## Comments and Worklog
+
+The outline component supports two types of notes for each task:
+
+### Comments (Public Discussion)
+- **Purpose**: Public discussion thread visible to all team members
+- **Keyboard shortcut**: **C**
+- **Data structure**: Array of comment objects with `id`, `text`, `author`, and `timestamp`
+- **Event**: `outline:comment` - emitted when a new comment is added
+
+### Worklog (Private Notes)
+- **Purpose**: Private work tracking visible only to the current user
+- **Keyboard shortcut**: **W**
+- **Data structure**: Array of worklog objects with `id`, `text`, `author`, and `timestamp`
+- **Event**: `outline:worklog` - emitted when a new worklog entry is added
+- **Privacy**: Users can only see their own worklog entries
+
+### Usage Example
+
+```javascript
+// Listen for new comments and worklog entries
+outline.addEventListener('outline:comment', (e) => {
+  console.log('New comment:', e.detail.comment);
+  console.log('All comments:', e.detail.allComments);
+});
+
+outline.addEventListener('outline:worklog', (e) => {
+  console.log('New worklog entry:', e.detail.worklogEntry);
+  console.log('All worklog entries:', e.detail.allWorklog);
+});
+```
+
+### Data Structure
+
+```javascript
+{
+  id: "task-id",
+  text: "Task description",
+  comments: [
+    {
+      id: "comment-id",
+      text: "Comment text",
+      author: "user-id",
+      timestamp: "2024-01-15T10:30:00Z"
+    }
+  ],
+  worklog: [
+    {
+      id: "worklog-id", 
+      text: "Worklog entry",
+      author: "user-id",
+      timestamp: "2024-01-15T10:30:00Z"
+    }
+  ]
+}
+```
 
 ## Events
 

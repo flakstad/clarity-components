@@ -67,7 +67,6 @@ describe('Feature Options', () => {
     expect(buttonTypes).toContain('schedule');
     expect(buttonTypes).toContain('assign');
     expect(buttonTypes).toContain('tags');
-    expect(buttonTypes).toContain('state');
     expect(buttonTypes).toContain('edit');
     expect(buttonTypes).toContain('open');
   });
@@ -93,7 +92,6 @@ describe('Feature Options', () => {
     const buttonTypes = Array.from(buttons).map(btn => btn.getAttribute('data-type'));
     
     // These should be present (always enabled)
-    expect(buttonTypes).toContain('state');
     expect(buttonTypes).toContain('edit');
     expect(buttonTypes).toContain('open');
     
@@ -130,7 +128,6 @@ describe('Feature Options', () => {
     expect(buttonTypes).toContain('due');
     expect(buttonTypes).toContain('schedule');
     expect(buttonTypes).toContain('tags');
-    expect(buttonTypes).toContain('state');
     expect(buttonTypes).toContain('edit');
     expect(buttonTypes).toContain('open');
     
@@ -184,7 +181,7 @@ describe('Feature Options', () => {
     expect(dueSpy).toHaveBeenCalled();
 
     // Schedule should work (enabled)
-    const scheduleEvent = new KeyboardEvent('keydown', { key: 'c', bubbles: true });
+    const scheduleEvent = new KeyboardEvent('keydown', { key: 's', bubbles: true });
     const scheduleSpy = jest.spyOn(outlineList.todoListInstance, 'showSchedulePopup');
     li.dispatchEvent(scheduleEvent);
     expect(scheduleSpy).toHaveBeenCalled();
@@ -217,7 +214,6 @@ describe('Feature Options', () => {
     expect(buttonTypes).toContain('priority');
     expect(buttonTypes).toContain('schedule');
     expect(buttonTypes).toContain('tags');
-    expect(buttonTypes).toContain('state');
     expect(buttonTypes).toContain('edit');
     expect(buttonTypes).toContain('open');
     
@@ -252,7 +248,6 @@ describe('Feature Options', () => {
     expect(buttonTypes).toContain('schedule');
     expect(buttonTypes).toContain('assign');
     expect(buttonTypes).toContain('tags');
-    expect(buttonTypes).toContain('state');
     expect(buttonTypes).toContain('edit');
     expect(buttonTypes).toContain('open');
   });
