@@ -37,6 +37,10 @@ class Outline {
         statusLabel.style.cursor = "pointer";
         statusLabel.addEventListener("click", (e) => {
           e.stopPropagation();
+          if(!this.isItemEditable(li)) {
+            this.showPermissionDeniedFeedback(li);
+            return;
+          }
           this.showStatusPopup(li, statusLabel);
         });
       }
@@ -57,6 +61,26 @@ class Outline {
 
   getCurrentUser() {
     return this.options.currentUser;
+  }
+
+  isItemEditable(li) {
+    return li.dataset.editable !== 'false';
+  }
+
+  showPermissionDeniedFeedback(li) {
+    // Add a subtle visual feedback that the action is not permitted
+    li.classList.add('permission-denied');
+    
+    // Remove the class after a short delay
+    setTimeout(() => {
+      li.classList.remove('permission-denied');
+    }, 1000);
+    
+    // Emit a permission denied event for external handling
+    this.emit('outline:permission-denied', {
+      id: li.dataset.id,
+      action: 'edit'
+    });
   }
 
   initNewTodoButton() {
@@ -90,6 +114,10 @@ class Outline {
     labelSpan.style.cursor = "pointer";
     labelSpan.addEventListener("click", (e) => {
       e.stopPropagation();
+      if(!this.isItemEditable(newLi)) {
+        this.showPermissionDeniedFeedback(newLi);
+        return;
+      }
       this.showStatusPopup(newLi, labelSpan);
     });
 
@@ -171,6 +199,10 @@ class Outline {
 
       // Double click: enter edit mode
       console.log("Todo item double-clicked - entering edit mode", li.dataset.id);
+      if(!this.isItemEditable(li)) {
+        this.showPermissionDeniedFeedback(li);
+        return;
+      }
       this.enterEditMode(li);
     });
 
@@ -217,6 +249,10 @@ class Outline {
       // Enter edit mode
       if(e.key==="e" && !e.altKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         this.enterEditMode(li);
         return;
       }
@@ -228,6 +264,11 @@ class Outline {
         // Move item down (Alt+N, Alt+J, Alt+ArrowDown)
         const moveDownKeys = ['KeyN', 'KeyJ', 'ArrowDown'];
         if(moveDownKeys.includes(e.code)){
+          if(!this.isItemEditable(li)) {
+            e.preventDefault();
+            this.showPermissionDeniedFeedback(li);
+            return;
+          }
           if(idx<siblings.length-1){
             console.log(`Alt+${e.code}: Moving item down, idx:`, idx, 'siblings:', siblings.length);
             e.preventDefault();
@@ -257,6 +298,11 @@ class Outline {
         // Move item up (Alt+P, Alt+K, Alt+ArrowUp)
         const moveUpKeys = ['KeyP', 'KeyK', 'ArrowUp'];
         if(moveUpKeys.includes(e.code)){
+          if(!this.isItemEditable(li)) {
+            e.preventDefault();
+            this.showPermissionDeniedFeedback(li);
+            return;
+          }
           if(idx>0){
             console.log(`Alt+${e.code}: Moving item up, idx:`, idx, 'siblings:', siblings.length);
             e.preventDefault();
@@ -275,6 +321,11 @@ class Outline {
         // Indent item (Alt+F, Alt+L, Alt+ArrowRight)
         const indentKeys = ['KeyF', 'KeyL', 'ArrowRight'];
         if(indentKeys.includes(e.code)){
+          if(!this.isItemEditable(li)) {
+            e.preventDefault();
+            this.showPermissionDeniedFeedback(li);
+            return;
+          }
           console.log(`Alt+${e.code}: Indenting item`);
           e.preventDefault();
           this.indentItem(li);
@@ -284,6 +335,11 @@ class Outline {
         // Outdent item (Alt+B, Alt+H, Alt+ArrowLeft)
         const outdentKeys = ['KeyB', 'KeyH', 'ArrowLeft'];
         if(outdentKeys.includes(e.code)){
+          if(!this.isItemEditable(li)) {
+            e.preventDefault();
+            this.showPermissionDeniedFeedback(li);
+            return;
+          }
           console.log(`Alt+${e.code}: Outdenting item`);
           e.preventDefault();
           this.outdentItem(li);
@@ -296,6 +352,10 @@ class Outline {
       // Add/cycle tags with 't' key
       if(e.key==="t" && !e.altKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         const tagsBtn = li.querySelector(".tags-button");
         if (tagsBtn) {
           this.showTagsPopup(li, tagsBtn);
@@ -306,6 +366,10 @@ class Outline {
       // Toggle priority with 'p' key (only if enabled)
       if(e.key==="p" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.priority) {
         e.preventDefault();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         this.togglePriority(li);
         return;
       }
@@ -313,6 +377,10 @@ class Outline {
       // Toggle blocked with 'b' key (only if enabled)
       if(e.key==="b" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.blocked) {
         e.preventDefault();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         this.toggleBlocked(li);
         return;
       }
@@ -320,6 +388,10 @@ class Outline {
       // Set due date with 'd' key (only if enabled)
       if(e.key==="d" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.due) {
         e.preventDefault();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         const dueBtn = li.querySelector(".due-button");
         if (dueBtn) {
           this.showDuePopup(li, dueBtn);
@@ -330,6 +402,10 @@ class Outline {
       // Set schedule date with 's' key (only if enabled)
       if(e.key==="s" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.schedule) {
         e.preventDefault();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         const scheduleBtn = li.querySelector(".schedule-button");
         if (scheduleBtn) {
           this.showSchedulePopup(li, scheduleBtn);
@@ -360,6 +436,10 @@ class Outline {
       // Remove item with 'r' key (only if enabled)
       if(e.key==="r" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.remove) {
         e.preventDefault();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         const removeBtn = li.querySelector(".remove-button");
         if (removeBtn) {
           this.showRemovePopup(li, removeBtn);
@@ -370,6 +450,10 @@ class Outline {
       // Status with SPACE key (always enabled)
       if(e.key===" " && !e.altKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         const statusLabel = li.querySelector(".outline-label");
         if (statusLabel) {
           this.showStatusPopup(li, statusLabel);
@@ -380,6 +464,10 @@ class Outline {
       // Assign with 'a' key (only if enabled)
       if(e.key==="a" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.assign) {
         e.preventDefault();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         const assignBtn = li.querySelector(".assign-button");
         if (assignBtn) {
           this.showAssignPopup(li, assignBtn);
@@ -1250,6 +1338,10 @@ class Outline {
       priorityBtn.tabIndex = -1; // Remove from tab navigation
       priorityBtn.addEventListener("click", (e) => {
         e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         this.togglePriority(li);
       });
       buttonsContainer.appendChild(priorityBtn);
@@ -1263,6 +1355,10 @@ class Outline {
         blockedBtn.tabIndex = -1; // Remove from tab navigation
         blockedBtn.addEventListener("click", (e) => {
           e.stopPropagation();
+          if(!this.isItemEditable(li)) {
+            this.showPermissionDeniedFeedback(li);
+            return;
+          }
           this.toggleBlocked(li);
         });
         buttonsContainer.appendChild(blockedBtn);
@@ -1276,6 +1372,10 @@ class Outline {
       dueBtn.tabIndex = -1; // Remove from tab navigation
       dueBtn.addEventListener("click", (e) => {
         e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         this.showDuePopup(li, dueBtn);
       });
       buttonsContainer.appendChild(dueBtn);
@@ -1289,6 +1389,10 @@ class Outline {
       scheduleBtn.tabIndex = -1; // Remove from tab navigation
       scheduleBtn.addEventListener("click", (e) => {
         e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         this.showSchedulePopup(li, scheduleBtn);
       });
       buttonsContainer.appendChild(scheduleBtn);
@@ -1302,6 +1406,10 @@ class Outline {
       assignBtn.tabIndex = -1; // Remove from tab navigation
       assignBtn.addEventListener("click", (e) => {
         e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         this.showAssignPopup(li, assignBtn);
       });
       buttonsContainer.appendChild(assignBtn);
@@ -1315,6 +1423,10 @@ class Outline {
       tagsBtn.tabIndex = -1; // Remove from tab navigation
       tagsBtn.addEventListener("click", (e) => {
         e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         this.showTagsPopup(li, tagsBtn);
       });
       buttonsContainer.appendChild(tagsBtn);
@@ -1357,6 +1469,10 @@ class Outline {
       removeBtn.tabIndex = -1; // Remove from tab navigation
       removeBtn.addEventListener("click", (e) => {
         e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
         this.showRemovePopup(li, removeBtn);
       });
       buttonsContainer.appendChild(removeBtn);
@@ -1371,6 +1487,10 @@ class Outline {
     editBtn.tabIndex = -1; // Remove from tab navigation
     editBtn.addEventListener("click", (e) => {
       e.stopPropagation();
+      if(!this.isItemEditable(li)) {
+        this.showPermissionDeniedFeedback(li);
+        return;
+      }
       this.enterEditMode(li);
     });
     buttonsContainer.appendChild(editBtn);
@@ -3366,7 +3486,8 @@ class OutlineElement extends HTMLElement {
       id: li.dataset.id || crypto.randomUUID(),
       text: li.querySelector('.outline-text')?.textContent || '',
       status: li.querySelector('.outline-label')?.textContent || 'TODO',
-      classes: Array.from(li.classList).join(' ')
+      classes: Array.from(li.classList).join(' '),
+      editable: li.dataset.editable !== 'false' // Default to true if not specified
     };
 
     // Parse metadata
@@ -3419,6 +3540,9 @@ class OutlineElement extends HTMLElement {
     const li = document.createElement('li');
     li.dataset.id = todo.id;
     li.tabIndex = 0;
+    
+    // Set editable attribute (default to true if not specified)
+    li.dataset.editable = todo.editable !== false ? 'true' : 'false';
 
     // Add classes
     if (todo.classes) {
@@ -3455,6 +3579,10 @@ class OutlineElement extends HTMLElement {
     labelSpan.style.cursor = "pointer";
     labelSpan.addEventListener("click", (e) => {
       e.stopPropagation();
+      if(!this.isItemEditable(li)) {
+        this.showPermissionDeniedFeedback(li);
+        return;
+      }
       this.showStatusPopup(li, labelSpan);
     });
     if (todo.status === 'none' || todo.noLabel) {
@@ -4131,6 +4259,19 @@ class OutlineElement extends HTMLElement {
           outline: none;
           border-color: var(--clarity-outline-border-focus);
         }
+
+        /* Permission denied feedback */
+        li.permission-denied {
+          background: rgba(255, 0, 0, 0.1) !important;
+          border-left: 3px solid rgba(255, 0, 0, 0.5);
+          animation: permission-denied-shake 0.5s ease-in-out;
+        }
+
+        @keyframes permission-denied-shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-2px); }
+          75% { transform: translateX(2px); }
+        }
       }
     `;
     this.shadowRoot.appendChild(style);
@@ -4180,7 +4321,7 @@ class OutlineElement extends HTMLElement {
       'outline:collapse', 'outline:expand', 'outline:edit:start', 'outline:edit:save',
       'outline:edit:cancel', 'outline:due', 'outline:assign', 'outline:tags',
               'outline:priority', 'outline:blocked', 'outline:open', 'outline:select',
-      'outline:comment', 'outline:worklog', 'outline:remove'
+      'outline:comment', 'outline:worklog', 'outline:remove', 'outline:permission-denied'
     ];
 
     // Get the list element where events are dispatched

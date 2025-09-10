@@ -252,9 +252,15 @@ CLOSED: [2025-09-10 Wed 12:31]
 should be able to see comments and worklog right there?
 * DONE trim down bloated examples.html etc
 CLOSED: [2025-09-10 Wed 12:31]
-* TODO ability to prevent actions - missing permissions to edit
+* DONE ability to prevent actions - missing permissions to edit
+CLOSED: [2025-09-10 Wed 12:51]
 Tasks have an owner. Stopping editing if user is not owner. How to inform the user in the UI?
+* TODO when in edit mode, show always show space for the status label - allowing mouse users to change status label
 * TODO agenda view: list all tasks across projects
+* TODO agenda view: list day-scheduled/due tasks at the bottom
+* TODO agenda view: show tasks in completed state in the agenda
+..showing timestamp when they were completed.
+Even if they weren't scheduled/due.
 * TODO datastar: testing driving with backend signals
 Setup backend with in-memory state.
 ** TODO handle new html reinit todolist script

@@ -203,7 +203,7 @@
   </div>
 
   <div class="demo-section">
-
+  
     <clarity-outline
       id="sample-outline"
       data-items='[
@@ -272,11 +272,19 @@
           "status": "CANCELLED",
           "assign": "diana",
           "tags": ["feature", "cancelled"]
+        },
+        {
+          "id": "11",
+          "text": "Read-only task (try editing this!)",
+          "status": "TODO",
+          "editable": false,
+          "priority": true,
+          "tags": ["readonly"]
         }
       ]'
       options='{
         "assignees": ["alice", "bob", "charlie", "diana", "eve", "frank"],
-        "tags": ["urgent", "bug", "feature", "docs", "review", "ui", "backend", "testing"],
+        "tags": ["urgent", "bug", "feature", "docs", "review", "ui", "backend", "testing", "readonly", "completed"],
         "statusLabels": [
           {"label": "TODO", "isEndState": false},
           {"label": "IN PROGRESS", "isEndState": false},
@@ -285,6 +293,7 @@
         ]
       }'>
     </clarity-outline>
+    
   </div>
 </div>
 
@@ -390,7 +399,7 @@
       'outline:add', 'outline:toggle', 'outline:move', 'outline:indent', 'outline:outdent',
       'outline:collapse', 'outline:expand', 'outline:edit:start', 'outline:edit:save',
       'outline:edit:cancel', 'outline:due', 'outline:assign', 'outline:tags',
-              'outline:priority', 'outline:blocked', 'outline:open'
+              'outline:priority', 'outline:blocked', 'outline:open', 'outline:permission-denied'
     ];
 
     events.forEach(eventName => {
@@ -409,6 +418,12 @@
 
     outline.addEventListener('outline:worklog', e => {
       console.log('New worklog entry added:', e.detail);
+    });
+
+    // Listen for permission denied events
+    outline.addEventListener('outline:permission-denied', e => {
+      console.log('Permission denied for item:', e.detail.id, 'action:', e.detail.action);
+      // You could show a toast notification or other UI feedback here
     });
   });
 </script>
