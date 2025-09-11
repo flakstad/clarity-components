@@ -273,6 +273,13 @@ We had this, perhaps it's only missing some example data. We need examples of ta
 CLOSED: [2025-09-11 Thu 10:22]
 Tasks that are due within 3 days should show up in the bottom section of the current day view
 * TODO extract task item to a separate web-component, allowing use from both agenda and outline?
+* TODO agenda view rendering should not be a web component?
+I only need the web component to capture the complicated interactions. If each
+task item is a web component with it's own interaction, then the layout
+rendering of the agenda should be driven by the backend. Including changing
+views - those are new queries to the backend.
+
+We might need the agenda web component for navigation and shortcuts for queries. Or possibly datastar signals in the html is enough to detect this?
 * TODO datastar: testing driving with backend signals
 Setup backend with in-memory state.
 ** TODO handle new html reinit todolist script
