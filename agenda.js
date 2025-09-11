@@ -8,9 +8,12 @@ class Agenda {
         { label: 'TODO', isEndState: false },
         { label: 'DONE', isEndState: true }
       ],
-      view: options.view || 'week', // 'day', 'week', 'month'
+      view: options.view || 'week', // 'day', 'week', 'month', 'all-tasks'
       startDate: options.startDate || new Date(),
       tasks: options.tasks || [],
+      projects: options.projects || [], // Array of project objects with id, name, tasks
+      showAllTasks: options.showAllTasks || false, // Show all tasks regardless of schedule/due
+      showCompletedTasks: options.showCompletedTasks || false, // Show completed tasks with timestamps
       ...options
     };
     this.init();
@@ -32,6 +35,9 @@ class Agenda {
       case 'month':
         this.renderMonthView();
         break;
+      case 'all-tasks':
+        this.renderAllTasksView();
+        break;
       default:
         this.renderWeekView();
     }
@@ -48,10 +54,18 @@ class Agenda {
     header.className = 'agenda-header';
     header.innerHTML = `
       <h2>Week of ${this.formatDate(startOfWeek)}</h2>
-      <div class="agenda-nav">
-        <button class="agenda-nav-btn" data-action="prev-week">‹ Previous</button>
-        <button class="agenda-nav-btn" data-action="today">Today</button>
-        <button class="agenda-nav-btn" data-action="next-week">Next ›</button>
+      <div class="agenda-controls">
+        <div class="agenda-view-toggles">
+          <button class="agenda-view-btn" data-view="day">Day</button>
+          <button class="agenda-view-btn active" data-view="week">Week</button>
+          <button class="agenda-view-btn" data-view="month">Month</button>
+          <button class="agenda-view-btn" data-view="all-tasks">All Tasks</button>
+        </div>
+        <div class="agenda-nav">
+          <button class="agenda-nav-btn" data-action="prev-week">‹ Previous</button>
+          <button class="agenda-nav-btn" data-action="today">Today</button>
+          <button class="agenda-nav-btn" data-action="next-week">Next ›</button>
+        </div>
       </div>
     `;
     this.el.appendChild(header);
@@ -63,6 +77,7 @@ class Agenda {
       const dayElement = this.createVerticalDayElement(day);
       weekContainer.appendChild(dayElement);
     });
+
 
     this.el.appendChild(weekContainer);
   }
@@ -77,10 +92,18 @@ class Agenda {
     header.className = 'agenda-header';
     header.innerHTML = `
       <h2>${this.formatDayHeader(day)}</h2>
-      <div class="agenda-nav">
-        <button class="agenda-nav-btn" data-action="prev-day">‹ Previous</button>
-        <button class="agenda-nav-btn" data-action="today">Today</button>
-        <button class="agenda-nav-btn" data-action="next-day">Next ›</button>
+      <div class="agenda-controls">
+        <div class="agenda-view-toggles">
+          <button class="agenda-view-btn active" data-view="day">Day</button>
+          <button class="agenda-view-btn" data-view="week">Week</button>
+          <button class="agenda-view-btn" data-view="month">Month</button>
+          <button class="agenda-view-btn" data-view="all-tasks">All Tasks</button>
+        </div>
+        <div class="agenda-nav">
+          <button class="agenda-nav-btn" data-action="prev-day">‹ Previous</button>
+          <button class="agenda-nav-btn" data-action="today">Today</button>
+          <button class="agenda-nav-btn" data-action="next-day">Next ›</button>
+        </div>
       </div>
     `;
     this.el.appendChild(header);
@@ -146,7 +169,6 @@ class Agenda {
       const untimedSection = document.createElement('div');
       untimedSection.className = 'agenda-untimed-tasks';
       
-      
       const untimedContent = document.createElement('div');
       untimedContent.className = 'agenda-time-content';
       
@@ -160,9 +182,47 @@ class Agenda {
       dayContainer.appendChild(untimedSection);
     }
 
-    // Add "now" marker if this is today
+    // Add overdue tasks at the bottom if this is today
     const now = new Date();
     if (this.isSameDay(day, now)) {
+      const overdueTasks = this.getOverdueTasks();
+      if (overdueTasks.length > 0) {
+        const overdueSection = document.createElement('div');
+        overdueSection.className = 'agenda-overdue-tasks';
+        
+        const overdueContent = document.createElement('div');
+        overdueContent.className = 'agenda-time-content';
+        
+        overdueTasks.forEach(task => {
+          const taskElement = this.createOverdueTaskElement(task);
+          taskElement.classList.add('agenda-task-inline');
+          overdueContent.appendChild(taskElement);
+        });
+        
+        overdueSection.appendChild(overdueContent);
+        dayContainer.appendChild(overdueSection);
+      }
+
+      // Add tasks due within 3 days
+      const upcomingDueTasks = this.getUpcomingDueTasks();
+      if (upcomingDueTasks.length > 0) {
+        const upcomingSection = document.createElement('div');
+        upcomingSection.className = 'agenda-upcoming-tasks';
+        
+        const upcomingContent = document.createElement('div');
+        upcomingContent.className = 'agenda-time-content';
+        
+        upcomingDueTasks.forEach(task => {
+          const taskElement = this.createTaskElement(task);
+          taskElement.classList.add('agenda-task-inline');
+          upcomingContent.appendChild(taskElement);
+        });
+        
+        upcomingSection.appendChild(upcomingContent);
+        dayContainer.appendChild(upcomingSection);
+      }
+
+      // Add "now" marker
       const nowMarker = document.createElement('div');
       nowMarker.className = 'agenda-now-marker-line';
       
@@ -221,10 +281,18 @@ class Agenda {
     header.className = 'agenda-header';
     header.innerHTML = `
       <h2>${this.formatMonthHeader(this.options.startDate)}</h2>
-      <div class="agenda-nav">
-        <button class="agenda-nav-btn" data-action="prev-month">‹ Previous</button>
-        <button class="agenda-nav-btn" data-action="today">Today</button>
-        <button class="agenda-nav-btn" data-action="next-month">Next ›</button>
+      <div class="agenda-controls">
+        <div class="agenda-view-toggles">
+          <button class="agenda-view-btn" data-view="day">Day</button>
+          <button class="agenda-view-btn" data-view="week">Week</button>
+          <button class="agenda-view-btn active" data-view="month">Month</button>
+          <button class="agenda-view-btn" data-view="all-tasks">All Tasks</button>
+        </div>
+        <div class="agenda-nav">
+          <button class="agenda-nav-btn" data-action="prev-month">‹ Previous</button>
+          <button class="agenda-nav-btn" data-action="today">Today</button>
+          <button class="agenda-nav-btn" data-action="next-month">Next ›</button>
+        </div>
       </div>
     `;
     this.el.appendChild(header);
@@ -238,6 +306,34 @@ class Agenda {
     });
 
     this.el.appendChild(monthContainer);
+  }
+
+  renderAllTasksView() {
+    this.el.innerHTML = '';
+    this.el.className = 'agenda-container agenda-all-tasks-view';
+
+    const header = document.createElement('div');
+    header.className = 'agenda-header';
+    header.innerHTML = `
+      <h2>All Tasks</h2>
+      <div class="agenda-controls">
+        <div class="agenda-view-toggles">
+          <button class="agenda-view-btn" data-view="day">Day</button>
+          <button class="agenda-view-btn" data-view="week">Week</button>
+          <button class="agenda-view-btn" data-view="month">Month</button>
+          <button class="agenda-view-btn active" data-view="all-tasks">All Tasks</button>
+        </div>
+        <div class="agenda-nav">
+          <button class="agenda-nav-btn" data-action="prev-week">‹ Previous</button>
+          <button class="agenda-nav-btn" data-action="today">Today</button>
+          <button class="agenda-nav-btn" data-action="next-week">Next ›</button>
+        </div>
+      </div>
+    `;
+    this.el.appendChild(header);
+
+    const allTasksSection = this.createAllTasksSection();
+    this.el.appendChild(allTasksSection);
   }
 
   createDayElement(day, isMonthView = false) {
@@ -455,25 +551,6 @@ class Agenda {
       }
     });
 
-    // Add tasks without specific times at the top if there are timed tasks
-    if (tasksWithTime.length > 0 && tasksWithoutTime.length > 0) {
-      const untimedSection = document.createElement('div');
-      untimedSection.className = 'agenda-untimed-tasks-top';
-      
-      
-      const untimedContent = document.createElement('div');
-      untimedContent.className = 'agenda-time-content-vertical';
-      
-      tasksWithoutTime.forEach(task => {
-        const taskElement = this.createTaskElement(task);
-        taskElement.classList.add('agenda-task-inline-vertical');
-        untimedContent.appendChild(taskElement);
-      });
-      
-      untimedSection.appendChild(untimedContent);
-      container.appendChild(untimedSection);
-    }
-
     if (tasksWithTime.length > 0) {
       // Group tasks by hour
       const tasksByHour = new Map();
@@ -550,13 +627,22 @@ class Agenda {
       });
     }
 
-    // If no timed tasks, show untimed tasks as simple list (without "All day" header)
-    if (tasksWithTime.length === 0 && tasksWithoutTime.length > 0) {
+    // Add tasks without specific times at the bottom
+    if (tasksWithoutTime.length > 0) {
+      const untimedSection = document.createElement('div');
+      untimedSection.className = 'agenda-untimed-tasks-bottom';
+      
+      const untimedContent = document.createElement('div');
+      untimedContent.className = 'agenda-time-content-vertical';
+      
       tasksWithoutTime.forEach(task => {
         const taskElement = this.createTaskElement(task);
-        taskElement.classList.add('agenda-task-vertical');
-        container.appendChild(taskElement);
+        taskElement.classList.add('agenda-task-inline-vertical');
+        untimedContent.appendChild(taskElement);
       });
+      
+      untimedSection.appendChild(untimedContent);
+      container.appendChild(untimedSection);
     }
   }
 
@@ -583,11 +669,11 @@ class Agenda {
     taskElement.dataset.id = task.id;
 
     if (task.priority) {
-      taskElement.classList.add('agenda-task-priority');
+      taskElement.classList.add('priority');
     }
     
     if (task.blocked) {
-      taskElement.classList.add('agenda-task-blocked');
+      taskElement.classList.add('blocked');
     }
 
     // Determine completion status
@@ -596,7 +682,7 @@ class Agenda {
     );
     
     if (isCompleted) {
-      taskElement.classList.add('agenda-task-completed');
+      taskElement.classList.add('completed');
     }
 
     const taskContent = document.createElement('div');
@@ -611,11 +697,33 @@ class Agenda {
       taskContent.appendChild(document.createTextNode(' '));
     }
 
-    // Task text
+    // Task text with project name prepended
     const taskText = document.createElement('span');
     taskText.className = 'agenda-task-text';
-    taskText.textContent = task.text;
+    
+    // Prepend project name to task text for better organization
+    let displayText = task.text;
+    if (task.project) {
+      displayText = `${task.project.name}: ${task.text}`;
+    }
+    taskText.textContent = displayText;
     taskContent.appendChild(taskText);
+
+    // Priority indicator (after task text)
+    if (task.priority) {
+      const prioritySpan = document.createElement('span');
+      prioritySpan.className = 'agenda-task-priority';
+      prioritySpan.textContent = ' priority';
+      taskContent.appendChild(prioritySpan);
+    }
+
+    // Blocked indicator (after task text)
+    if (task.blocked) {
+      const blockedSpan = document.createElement('span');
+      blockedSpan.className = 'agenda-task-blocked';
+      blockedSpan.textContent = ' blocked';
+      taskContent.appendChild(blockedSpan);
+    }
 
     // Schedule or due date display
     if (task.schedule) {
@@ -634,10 +742,19 @@ class Agenda {
       taskContent.appendChild(dueSpan);
     }
 
+    // Completion timestamp for completed tasks
+    if (isCompleted && task.completedAt && this.options.showCompletedTasks) {
+      const completedSpan = document.createElement('span');
+      completedSpan.className = 'agenda-task-completed-at';
+      const completedDate = new Date(task.completedAt);
+      completedSpan.textContent = ` completed ${this.formatCompletionTime(completedDate)}`;
+      taskContent.appendChild(completedSpan);
+    }
+
     // Metadata
     const metadata = [];
     if (task.assign) metadata.push(`@${task.assign}`);
-    if (task.tags && task.tags.length > 0) metadata.push(task.tags.join(' '));
+    if (task.tags && task.tags.length > 0) metadata.push(task.tags.map(tag => `#${tag}`).join(' '));
     
     if (metadata.length > 0) {
       const metaSpan = document.createElement('span');
@@ -650,8 +767,38 @@ class Agenda {
     return taskElement;
   }
 
+  getAllTasks() {
+    const allTasks = [...this.options.tasks];
+    
+    // Add tasks from projects
+    this.options.projects.forEach(project => {
+      if (project.tasks && Array.isArray(project.tasks)) {
+        project.tasks.forEach(task => {
+          // Add project context to task
+          const taskWithProject = {
+            ...task,
+            project: {
+              id: project.id,
+              name: project.name
+            }
+          };
+          allTasks.push(taskWithProject);
+        });
+      }
+    });
+    
+    return allTasks;
+  }
+
   getTasksForDay(day) {
-    return this.options.tasks.filter(task => {
+    const allTasks = this.getAllTasks();
+    
+    return allTasks.filter(task => {
+      // If showAllTasks is enabled, include all tasks
+      if (this.options.showAllTasks) {
+        return true;
+      }
+      
       // Check both schedule and due dates
       const taskDate = task.schedule || task.due;
       if (!taskDate) return false;
@@ -735,10 +882,142 @@ class Agenda {
     return `${hour.toString().padStart(2, '0')}:00`;
   }
 
+  formatCompletionTime(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return 'today';
+    } else if (diffDays === 1) {
+      return 'yesterday';
+    } else if (diffDays < 7) {
+      return `${diffDays} days ago`;
+    } else {
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+      });
+    }
+  }
+
+  getOverdueTasks() {
+    const allTasks = this.getAllTasks();
+    const today = new Date();
+    
+    return allTasks.filter(task => {
+      // Only include tasks that are not completed
+      const isCompleted = this.options.statusLabels.find(
+        label => label.label === task.status && label.isEndState
+      );
+      if (isCompleted) return false;
+      
+      // Only include tasks with due dates (not scheduled dates)
+      if (!task.due) return false;
+      
+      const parsedDate = this.parseTaskDate(task.due);
+      if (!parsedDate) return false;
+      
+      // Check if the due date is in the past
+      return parsedDate < today;
+    });
+  }
+
+  getUpcomingDueTasks() {
+    const allTasks = this.getAllTasks();
+    const today = new Date();
+    const threeDaysFromNow = new Date(today);
+    threeDaysFromNow.setDate(today.getDate() + 3);
+    
+    return allTasks.filter(task => {
+      // Only include tasks that are not completed
+      const isCompleted = this.options.statusLabels.find(
+        label => label.label === task.status && label.isEndState
+      );
+      if (isCompleted) return false;
+      
+      // Only include tasks with due dates (not scheduled dates)
+      if (!task.due) return false;
+      
+      const parsedDate = this.parseTaskDate(task.due);
+      if (!parsedDate) return false;
+      
+      // Check if the due date is within the next 3 days (but not today or overdue)
+      return parsedDate > today && parsedDate <= threeDaysFromNow;
+    });
+  }
+
+  createOverdueTaskElement(task) {
+    const taskElement = this.createTaskElement(task);
+    
+    // Add overdue information
+    const parsedDate = this.parseTaskDate(task.due);
+    const today = new Date();
+    const diffMs = today - parsedDate;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    const overdueSpan = document.createElement('span');
+    overdueSpan.className = 'agenda-task-overdue-info';
+    overdueSpan.textContent = ` (${diffDays} day${diffDays !== 1 ? 's' : ''} overdue)`;
+    
+    const taskContent = taskElement.querySelector('.agenda-task-content');
+    taskContent.appendChild(overdueSpan);
+    
+    return taskElement;
+  }
+
+  createAllTasksSection() {
+    const allTasks = this.getAllTasks();
+    const section = document.createElement('div');
+    section.className = 'agenda-all-tasks-section';
+    
+    const header = document.createElement('div');
+    header.className = 'agenda-section-header';
+    header.textContent = 'All Tasks';
+    section.appendChild(header);
+    
+    const tasksContainer = document.createElement('div');
+    tasksContainer.className = 'agenda-all-tasks-container';
+    
+    // Sort tasks alphabetically by project name, then by task text
+    const sortedTasks = allTasks.sort((a, b) => {
+      const projectA = a.project ? a.project.name : 'No Project';
+      const projectB = b.project ? b.project.name : 'No Project';
+      
+      // First sort by project name
+      if (projectA !== projectB) {
+        return projectA.localeCompare(projectB);
+      }
+      
+      // Then sort by task text within the same project
+      return a.text.localeCompare(b.text);
+    });
+    
+    // Render all tasks in sorted order
+    sortedTasks.forEach(task => {
+      const taskElement = this.createTaskElement(task);
+      taskElement.classList.add('agenda-task-all');
+      tasksContainer.appendChild(taskElement);
+    });
+    
+    section.appendChild(tasksContainer);
+    return section;
+  }
+
+
   bindEvents() {
-    // Navigation events
+    // Navigation and view events
     this.el.addEventListener('click', (e) => {
       const action = e.target.dataset.action;
+      const view = e.target.dataset.view;
+      
+      if (view) {
+        // View toggle button clicked
+        this.setView(view);
+        return;
+      }
+      
       if (!action) return;
 
       switch (action) {
@@ -879,7 +1158,7 @@ class AgendaElement extends HTMLElement {
     
     this.observer.observe(this, {
       attributes: true,
-      attributeFilter: ['data-tasks', 'data-view', 'data-start-date']
+      attributeFilter: ['data-tasks', 'data-view', 'data-start-date', 'data-projects', 'data-show-all-tasks', 'data-show-completed-tasks']
     });
   }
 
@@ -931,6 +1210,25 @@ class AgendaElement extends HTMLElement {
       } catch (e) {
         console.warn('Invalid status labels JSON:', e);
       }
+    }
+
+    // Parse projects
+    if (this.hasAttribute('data-projects')) {
+      try {
+        options.projects = JSON.parse(this.getAttribute('data-projects'));
+      } catch (e) {
+        console.warn('Invalid projects JSON:', e);
+      }
+    }
+
+    // Parse show all tasks flag
+    if (this.hasAttribute('data-show-all-tasks')) {
+      options.showAllTasks = this.getAttribute('data-show-all-tasks') === 'true';
+    }
+
+    // Parse show completed tasks flag
+    if (this.hasAttribute('data-show-completed-tasks')) {
+      options.showCompletedTasks = this.getAttribute('data-show-completed-tasks') === 'true';
     }
 
     return options;
@@ -1031,6 +1329,50 @@ class AgendaElement extends HTMLElement {
         color: var(--clarity-agenda-text-primary);
       }
 
+      .agenda-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-end;
+      }
+
+      .agenda-view-toggles {
+        display: flex;
+        gap: 0.25rem;
+        background: var(--clarity-agenda-bg-secondary);
+        border-radius: var(--clarity-agenda-border-radius);
+        padding: 0.25rem;
+      }
+
+      .agenda-view-btn {
+        background: none;
+        border: none;
+        color: var(--clarity-agenda-text-secondary);
+        padding: 0.25rem 0.75rem;
+        border-radius: calc(var(--clarity-agenda-border-radius) - 2px);
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.85em;
+        font-weight: 500;
+        transition: all var(--clarity-agenda-transition-duration) ease;
+      }
+
+      .agenda-view-btn:hover {
+        background: var(--clarity-agenda-hover);
+        color: var(--clarity-agenda-text-primary);
+      }
+
+      .agenda-view-btn.active {
+        background: var(--clarity-agenda-focus);
+        color: var(--clarity-agenda-text-primary);
+        font-weight: bold;
+      }
+
+      .agenda-view-btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--clarity-agenda-border-focus);
+      }
+
       .agenda-nav {
         display: flex;
         gap: 0.5rem;
@@ -1080,21 +1422,21 @@ class AgendaElement extends HTMLElement {
 
       .agenda-time-slot {
         display: flex;
-        min-height: 3rem;
+        min-height: 2rem;
       }
 
       .agenda-time-label {
         width: 4rem;
-        padding: 0.5rem;
+        padding: 0.25rem 0.5rem;
         background: var(--clarity-agenda-bg-secondary);
-        font-size: 0.85em;
+        font-size: 0.8em;
         color: var(--clarity-agenda-text-muted);
         text-align: right;
       }
 
       .agenda-time-content {
         flex: 1;
-        padding: 0.5rem;
+        padding: 0.25rem 0.5rem;
         background: var(--clarity-agenda-bg-primary);
         position: relative;
       }
@@ -1214,7 +1556,8 @@ class AgendaElement extends HTMLElement {
       }
 
       .agenda-task-inline {
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.15rem;
+        font-size: 0.85em;
       }
 
       .agenda-untimed-tasks {
@@ -1222,11 +1565,12 @@ class AgendaElement extends HTMLElement {
         padding-top: 0.5rem;
       }
 
+
       /* Vertical Time Slots for Week/Month Views */
       .agenda-time-slot-vertical {
         display: flex;
-        margin-bottom: 0.5rem;
-        min-height: 1.5rem;
+        margin-bottom: 0.25rem;
+        min-height: 1.25rem;
       }
 
       .agenda-time-label-vertical {
@@ -1260,9 +1604,9 @@ class AgendaElement extends HTMLElement {
       }
 
       .agenda-task-inline-vertical {
-        margin-bottom: 0.25rem;
-        padding: 0.1rem 0;
-        font-size: 0.85em;
+        margin-bottom: 0.15rem;
+        padding: 0.05rem 0;
+        font-size: 0.8em;
       }
 
       .agenda-untimed-tasks-vertical {
@@ -1270,10 +1614,12 @@ class AgendaElement extends HTMLElement {
         padding-top: 0.5rem;
       }
 
-      .agenda-untimed-tasks-top {
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.5rem;
+      .agenda-untimed-tasks-bottom {
+        margin-top: 0.75rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--clarity-agenda-border);
       }
+
 
       .agenda-empty-time-slot {
         height: 1rem;
@@ -1295,12 +1641,9 @@ class AgendaElement extends HTMLElement {
       }
 
       .agenda-task-priority {
-        font-weight: bold;
+        /* Priority tasks no longer have bold styling */
       }
 
-      .agenda-task-blocked {
-        font-style: italic;
-      }
 
       .agenda-task-completed {
         opacity: 0.6;
@@ -1319,13 +1662,36 @@ class AgendaElement extends HTMLElement {
       }
 
       .agenda-task-status {
-        font-weight: bold;
         color: var(--clarity-agenda-color-todo);
         font-size: 0.8em;
       }
 
+      .agenda-task-priority {
+        color: var(--clarity-agenda-color-priority);
+        font-size: 0.8em;
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      .agenda-task-blocked {
+        color: var(--clarity-agenda-color-blocked);
+        font-size: 0.8em;
+        font-weight: normal;
+        font-style: normal;
+      }
+
+
       .agenda-task-text {
         color: var(--clarity-agenda-text-primary);
+      }
+
+      .agenda-task.completed .agenda-task-text {
+        color: var(--clarity-agenda-color-done);
+        text-decoration: line-through;
+      }
+
+      .agenda-task.completed .agenda-task-status {
+        color: var(--clarity-agenda-color-done);
       }
 
       .agenda-task-time {
@@ -1339,9 +1705,8 @@ class AgendaElement extends HTMLElement {
       }
 
       .agenda-task-due {
-        color: var(--clarity-agenda-color-blocked);
+        color: var(--clarity-agenda-text-secondary);
         font-size: 0.8em;
-        font-weight: bold;
       }
 
       .agenda-task-meta {
@@ -1349,12 +1714,76 @@ class AgendaElement extends HTMLElement {
         font-size: 0.8em;
       }
 
+
+      .agenda-task-completed-at {
+        color: var(--clarity-agenda-color-done);
+        font-size: 0.8em;
+        font-style: italic;
+      }
+
+      .agenda-task-overdue-info {
+        color: #dc3545;
+        font-size: 0.8em;
+      }
+
+      .agenda-overdue-tasks {
+        margin-top: 1rem;
+        padding-top: 0.5rem;
+      }
+
+      .agenda-upcoming-tasks {
+        margin-top: 1rem;
+        padding-top: 0.5rem;
+      }
+
+      /* Section Headers */
+      .agenda-section-header {
+        font-weight: bold;
+        font-size: 1.1em;
+        color: var(--clarity-agenda-text-primary);
+        margin: 1rem 0 0.5rem 0;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--clarity-agenda-border);
+      }
+
+
+      /* All Tasks Section */
+      .agenda-all-tasks-section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--clarity-agenda-border);
+      }
+
+      .agenda-all-tasks-container {
+        padding-left: 0.5rem;
+      }
+
+      .agenda-task-all {
+        margin-bottom: 0.25rem;
+        padding: 0.25rem 0;
+      }
+
+
       /* Responsive Design */
       @media (max-width: 768px) {
         .agenda-header {
           flex-direction: column;
           gap: 0.5rem;
           text-align: center;
+        }
+
+        .agenda-controls {
+          align-items: center;
+        }
+
+        .agenda-view-toggles {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .agenda-view-btn {
+          font-size: 0.8em;
+          padding: 0.2rem 0.5rem;
         }
 
         .agenda-day {

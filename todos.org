@@ -255,12 +255,24 @@ CLOSED: [2025-09-10 Wed 12:31]
 * DONE ability to prevent actions - missing permissions to edit
 CLOSED: [2025-09-10 Wed 12:51]
 Tasks have an owner. Stopping editing if user is not owner. How to inform the user in the UI?
-* TODO when in edit mode, show always show space for the status label - allowing mouse users to change status label
-* TODO agenda view: list all tasks across projects
-* TODO agenda view: list day-scheduled/due tasks at the bottom
-* TODO agenda view: show tasks in completed state in the agenda
+* DONE agenda view: list all tasks across projects
+CLOSED: [2025-09-11 Thu 09:03]
+* DONE agenda view: list day-scheduled/due tasks at the bottom
+CLOSED: [2025-09-11 Thu 09:03]
+* DONE agenda view: tasks that have schedule or due dates from the past and not completed should show at the bottom of the current day view
+CLOSED: [2025-09-11 Thu 09:13]
+It should be shown how many days over schedule and due they are.
+* DONE agenda view: in the demo make the day view the default
+CLOSED: [2025-09-11 Thu 10:22]
+* DONE agenda view: show tasks in completed state in the agenda
+CLOSED: [2025-09-11 Thu 10:22]
 ..showing timestamp when they were completed.
 Even if they weren't scheduled/due.
+We had this, perhaps it's only missing some example data. We need examples of tasks that have no schedule/due set, only completed, and those shall show.
+* DONE agenda view: showing due tasks a few days in advance
+CLOSED: [2025-09-11 Thu 10:22]
+Tasks that are due within 3 days should show up in the bottom section of the current day view
+* TODO extract task item to a separate web-component, allowing use from both agenda and outline?
 * TODO datastar: testing driving with backend signals
 Setup backend with in-memory state.
 ** TODO handle new html reinit todolist script
