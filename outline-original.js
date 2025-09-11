@@ -1324,12 +1324,209 @@ class Outline {
   }
 
   addHoverButtons(li) {
-    // Create buttons using the TaskItemButtons helper class
-    const buttonManager = new TaskItemButtons(this, li, this.options.features);
-    const buttonsContainer = buttonManager.createButtonsContainer();
-    
-    // If buttons already exist, return early
-    if (!buttonsContainer) return;
+    // Don't add buttons if they already exist
+    if (li.querySelector(".outline-hover-buttons")) return;
+
+    const buttonsContainer = document.createElement("div");
+    buttonsContainer.className = "outline-hover-buttons";
+
+    // Priority button (only if enabled)
+    if (this.options.features.priority) {
+      const priorityBtn = document.createElement("button");
+      priorityBtn.className = "hover-button priority-button";
+      priorityBtn.setAttribute("data-type", "priority");
+      priorityBtn.tabIndex = -1; // Remove from tab navigation
+      priorityBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.togglePriority(li);
+      });
+      buttonsContainer.appendChild(priorityBtn);
+    }
+
+          // Blocked button (only if enabled)
+      if (this.options.features.blocked) {
+        const blockedBtn = document.createElement("button");
+        blockedBtn.className = "hover-button blocked-button";
+        blockedBtn.setAttribute("data-type", "blocked");
+        blockedBtn.tabIndex = -1; // Remove from tab navigation
+        blockedBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if(!this.isItemEditable(li)) {
+            this.showPermissionDeniedFeedback(li);
+            return;
+          }
+          this.toggleBlocked(li);
+        });
+        buttonsContainer.appendChild(blockedBtn);
+      }
+
+    // Due button (only if enabled)
+    if (this.options.features.due) {
+      const dueBtn = document.createElement("button");
+      dueBtn.className = "hover-button due-button";
+      dueBtn.setAttribute("data-type", "due");
+      dueBtn.tabIndex = -1; // Remove from tab navigation
+      dueBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.showDuePopup(li, dueBtn);
+      });
+      buttonsContainer.appendChild(dueBtn);
+    }
+
+    // Schedule button (only if enabled)
+    if (this.options.features.schedule) {
+      const scheduleBtn = document.createElement("button");
+      scheduleBtn.className = "hover-button schedule-button";
+      scheduleBtn.setAttribute("data-type", "schedule");
+      scheduleBtn.tabIndex = -1; // Remove from tab navigation
+      scheduleBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.showSchedulePopup(li, scheduleBtn);
+      });
+      buttonsContainer.appendChild(scheduleBtn);
+    }
+
+    // Assign button (only if enabled)
+    if (this.options.features.assign) {
+      const assignBtn = document.createElement("button");
+      assignBtn.className = "hover-button assign-button";
+      assignBtn.setAttribute("data-type", "assign");
+      assignBtn.tabIndex = -1; // Remove from tab navigation
+      assignBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.showAssignPopup(li, assignBtn);
+      });
+      buttonsContainer.appendChild(assignBtn);
+    }
+
+    // Tags button (only if enabled)
+    if (this.options.features.tags) {
+      const tagsBtn = document.createElement("button");
+      tagsBtn.className = "hover-button tags-button";
+      tagsBtn.setAttribute("data-type", "tags");
+      tagsBtn.tabIndex = -1; // Remove from tab navigation
+      tagsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.showTagsPopup(li, tagsBtn);
+      });
+      buttonsContainer.appendChild(tagsBtn);
+    }
+
+    // Comments button (only if enabled)
+    if (this.options.features.comments) {
+      const commentsBtn = document.createElement("button");
+      commentsBtn.className = "hover-button comments-button";
+      commentsBtn.setAttribute("data-type", "comments");
+      commentsBtn.tabIndex = -1; // Remove from tab navigation
+      commentsBtn.innerHTML = "<u>c</u>omment";
+      commentsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.showCommentsPopup(li, commentsBtn);
+      });
+      buttonsContainer.appendChild(commentsBtn);
+    }
+
+    // Worklog button (only if enabled)
+    if (this.options.features.worklog) {
+      const worklogBtn = document.createElement("button");
+      worklogBtn.className = "hover-button worklog-button";
+      worklogBtn.setAttribute("data-type", "worklog");
+      worklogBtn.tabIndex = -1; // Remove from tab navigation
+      worklogBtn.innerHTML = "<u>w</u>orklog";
+      worklogBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.showWorklogPopup(li, worklogBtn);
+      });
+      buttonsContainer.appendChild(worklogBtn);
+    }
+
+
+    // Remove button (only if enabled)
+    if (this.options.features.remove) {
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "hover-button remove-button";
+      removeBtn.setAttribute("data-type", "remove");
+      removeBtn.tabIndex = -1; // Remove from tab navigation
+      removeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.showRemovePopup(li, removeBtn);
+      });
+      buttonsContainer.appendChild(removeBtn);
+    }
+
+
+    // Edit button - always enabled
+    const editBtn = document.createElement("button");
+    editBtn.className = "hover-button edit-button";
+    editBtn.setAttribute("data-type", "edit");
+    editBtn.textContent = "edit";
+    editBtn.tabIndex = -1; // Remove from tab navigation
+    editBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(!this.isItemEditable(li)) {
+        this.showPermissionDeniedFeedback(li);
+        return;
+      }
+      this.enterEditMode(li);
+    });
+    buttonsContainer.appendChild(editBtn);
+
+    // Open button (for opening item) - always enabled
+    const openBtn = document.createElement("button");
+    openBtn.className = "hover-button open-button";
+    openBtn.setAttribute("data-type", "open");
+    openBtn.innerHTML = "<u>o</u>pen";
+    openBtn.tabIndex = -1; // Remove from tab navigation
+    openBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.openItem(li);
+    });
+    buttonsContainer.appendChild(openBtn);
+
+    // Reorder buttons: open, edit, remove, then others
+    const desiredOrder = [
+      '.open-button',
+      '.edit-button',
+      '.remove-button',
+      '.schedule-button',
+      '.due-button',
+      '.priority-button',
+      '.blocked-button',
+      '.assign-button',
+      '.tags-button',
+      '.comments-button',
+      '.worklog-button'
+    ];
+    desiredOrder.forEach(selector => {
+      const btn = buttonsContainer.querySelector(selector);
+      if (btn) {
+        buttonsContainer.appendChild(btn);
+      }
+    });
 
     // Insert after the child-count if it exists, otherwise after the text span
     const childCount = li.querySelector(".child-count");
@@ -3143,251 +3340,6 @@ class Outline {
   }
 
   emit(name,detail){ this.el.dispatchEvent(new CustomEvent(name,{detail})); }
-}
-
-// Helper class for creating and managing task item buttons
-class TaskItemButtons {
-  constructor(outlineInstance, li, features) {
-    this.outline = outlineInstance;
-    this.li = li;
-    this.features = features;
-  }
-
-  // Create the buttons container with all buttons
-  createButtonsContainer() {
-    // Don't add buttons if they already exist
-    if (this.li.querySelector(".outline-hover-buttons")) return null;
-
-    const buttonsContainer = document.createElement("div");
-    buttonsContainer.className = "outline-hover-buttons";
-
-    // Create all buttons based on enabled features
-    this.createPriorityButton(buttonsContainer);
-    this.createBlockedButton(buttonsContainer);
-    this.createDueButton(buttonsContainer);
-    this.createScheduleButton(buttonsContainer);
-    this.createAssignButton(buttonsContainer);
-    this.createTagsButton(buttonsContainer);
-    this.createCommentsButton(buttonsContainer);
-    this.createWorklogButton(buttonsContainer);
-    this.createRemoveButton(buttonsContainer);
-    this.createEditButton(buttonsContainer); // Always enabled
-    this.createOpenButton(buttonsContainer); // Always enabled
-
-    // Reorder buttons according to desired order
-    this.reorderButtons(buttonsContainer);
-
-    return buttonsContainer;
-  }
-
-  createPriorityButton(container) {
-    if (!this.features.priority) return;
-
-    const priorityBtn = document.createElement("button");
-    priorityBtn.className = "hover-button priority-button";
-    priorityBtn.setAttribute("data-type", "priority");
-    priorityBtn.tabIndex = -1;
-    priorityBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.togglePriority(this.li);
-    });
-    container.appendChild(priorityBtn);
-  }
-
-  createBlockedButton(container) {
-    if (!this.features.blocked) return;
-
-    const blockedBtn = document.createElement("button");
-    blockedBtn.className = "hover-button blocked-button";
-    blockedBtn.setAttribute("data-type", "blocked");
-    blockedBtn.tabIndex = -1;
-    blockedBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.toggleBlocked(this.li);
-    });
-    container.appendChild(blockedBtn);
-  }
-
-  createDueButton(container) {
-    if (!this.features.due) return;
-
-    const dueBtn = document.createElement("button");
-    dueBtn.className = "hover-button due-button";
-    dueBtn.setAttribute("data-type", "due");
-    dueBtn.tabIndex = -1;
-    dueBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.showDuePopup(this.li, dueBtn);
-    });
-    container.appendChild(dueBtn);
-  }
-
-  createScheduleButton(container) {
-    if (!this.features.schedule) return;
-
-    const scheduleBtn = document.createElement("button");
-    scheduleBtn.className = "hover-button schedule-button";
-    scheduleBtn.setAttribute("data-type", "schedule");
-    scheduleBtn.tabIndex = -1;
-    scheduleBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.showSchedulePopup(this.li, scheduleBtn);
-    });
-    container.appendChild(scheduleBtn);
-  }
-
-  createAssignButton(container) {
-    if (!this.features.assign) return;
-
-    const assignBtn = document.createElement("button");
-    assignBtn.className = "hover-button assign-button";
-    assignBtn.setAttribute("data-type", "assign");
-    assignBtn.tabIndex = -1;
-    assignBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.showAssignPopup(this.li, assignBtn);
-    });
-    container.appendChild(assignBtn);
-  }
-
-  createTagsButton(container) {
-    if (!this.features.tags) return;
-
-    const tagsBtn = document.createElement("button");
-    tagsBtn.className = "hover-button tags-button";
-    tagsBtn.setAttribute("data-type", "tags");
-    tagsBtn.tabIndex = -1;
-    tagsBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.showTagsPopup(this.li, tagsBtn);
-    });
-    container.appendChild(tagsBtn);
-  }
-
-  createCommentsButton(container) {
-    if (!this.features.comments) return;
-
-    const commentsBtn = document.createElement("button");
-    commentsBtn.className = "hover-button comments-button";
-    commentsBtn.setAttribute("data-type", "comments");
-    commentsBtn.tabIndex = -1;
-    commentsBtn.innerHTML = "<u>c</u>omment";
-    commentsBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.outline.showCommentsPopup(this.li, commentsBtn);
-    });
-    container.appendChild(commentsBtn);
-  }
-
-  createWorklogButton(container) {
-    if (!this.features.worklog) return;
-
-    const worklogBtn = document.createElement("button");
-    worklogBtn.className = "hover-button worklog-button";
-    worklogBtn.setAttribute("data-type", "worklog");
-    worklogBtn.tabIndex = -1;
-    worklogBtn.innerHTML = "<u>w</u>orklog";
-    worklogBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.outline.showWorklogPopup(this.li, worklogBtn);
-    });
-    container.appendChild(worklogBtn);
-  }
-
-  createRemoveButton(container) {
-    if (!this.features.remove) return;
-
-    const removeBtn = document.createElement("button");
-    removeBtn.className = "hover-button remove-button";
-    removeBtn.setAttribute("data-type", "remove");
-    removeBtn.tabIndex = -1;
-    removeBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.showRemovePopup(this.li, removeBtn);
-    });
-    container.appendChild(removeBtn);
-  }
-
-  createEditButton(container) {
-    const editBtn = document.createElement("button");
-    editBtn.className = "hover-button edit-button";
-    editBtn.setAttribute("data-type", "edit");
-    editBtn.textContent = "edit";
-    editBtn.tabIndex = -1;
-    editBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.enterEditMode(this.li);
-    });
-    container.appendChild(editBtn);
-  }
-
-  createOpenButton(container) {
-    const openBtn = document.createElement("button");
-    openBtn.className = "hover-button open-button";
-    openBtn.setAttribute("data-type", "open");
-    openBtn.innerHTML = "<u>o</u>pen";
-    openBtn.tabIndex = -1;
-    openBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.outline.openItem(this.li);
-    });
-    container.appendChild(openBtn);
-  }
-
-  reorderButtons(container) {
-    const desiredOrder = [
-      '.open-button',
-      '.edit-button',
-      '.remove-button',
-      '.schedule-button',
-      '.due-button',
-      '.priority-button',
-      '.blocked-button',
-      '.assign-button',
-      '.tags-button',
-      '.comments-button',
-      '.worklog-button'
-    ];
-    
-    desiredOrder.forEach(selector => {
-      const btn = container.querySelector(selector);
-      if (btn) {
-        container.appendChild(btn);
-      }
-    });
-  }
 }
 
 // Web Component Wrapper
