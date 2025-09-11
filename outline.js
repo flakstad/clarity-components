@@ -27,34 +27,18 @@ class Outline {
   }
 
   init() {
+    // Initialize all existing li elements as TaskItems
     this.el.querySelectorAll("li").forEach(li => {
-      li.tabIndex = 0;
-      this.addHoverButtons(li);
-      
-      // Add click handler to existing status labels
-      const statusLabel = li.querySelector(".outline-label");
-      if (statusLabel) {
-        statusLabel.style.cursor = "pointer";
-        statusLabel.addEventListener("click", (e) => {
-          e.stopPropagation();
-          if(!this.isItemEditable(li)) {
-            this.showPermissionDeniedFeedback(li);
-            return;
-          }
-          this.showStatusPopup(li, statusLabel);
-        });
-      }
+      const taskItem = TaskItem.fromElement(li, this);
+      // TaskItem initialization handles tabIndex, buttons, and status label click handler
     });
+    
     this.bindEvents();
     this.initNewTodoButton();
 
-    // Initialize child counts for existing items
+    // Initialize child counts and button visibility for existing items
     this.el.querySelectorAll("li").forEach(li => {
       this.updateChildCount(li);
-    });
-
-    // Initialize hover button visibility for all items
-    this.el.querySelectorAll("li").forEach(li => {
       this.updateHoverButtonsVisibility(li);
     });
   }
@@ -102,47 +86,19 @@ class Outline {
   }
 
   createNewTodo() {
-    // Create a new todo item and enter edit mode immediately
-    const newLi = document.createElement("li");
-    newLi.tabIndex = 0;
-    newLi.dataset.id = crypto.randomUUID();
-
-    // Create the label span
-    const labelSpan = document.createElement("span");
-    labelSpan.className = "outline-label";
-    labelSpan.textContent = "TODO";
-    labelSpan.style.cursor = "pointer";
-    labelSpan.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if(!this.isItemEditable(newLi)) {
-        this.showPermissionDeniedFeedback(newLi);
-        return;
-      }
-      this.showStatusPopup(newLi, labelSpan);
-    });
-
-    // Create the text span
-    const textSpan = document.createElement("span");
-    textSpan.className = "outline-text";
-    textSpan.textContent = "New todo";
-
-    newLi.appendChild(labelSpan);
-    newLi.appendChild(document.createTextNode(" "));
-    newLi.appendChild(textSpan);
-
-    // Add hover buttons
-    this.addHoverButtons(newLi);
-
+    // Create a new TaskItem and enter edit mode immediately
+    const taskItem = TaskItem.create(this, "New todo", "TODO");
+    
     // Add to the list
-    this.el.appendChild(newLi);
+    this.el.appendChild(taskItem.li);
 
     // Enter edit mode immediately
-    this.enterEditMode(newLi);
+    taskItem.enterEditMode();
 
     // Emit add event
     this.emit("outline:add", {
-      text: "New todo",
-      id: newLi.dataset.id,
+      text: taskItem.text,
+      id: taskItem.id,
       parentId: null
     });
   }
@@ -1324,31 +1280,9 @@ class Outline {
   }
 
   addHoverButtons(li) {
-    // Create buttons using the TaskItemButtons helper class
-    const buttonManager = new TaskItemButtons(this, li, this.options.features);
-    const buttonsContainer = buttonManager.createButtonsContainer();
-    
-    // If buttons already exist, return early
-    if (!buttonsContainer) return;
-
-    // Insert after the child-count if it exists, otherwise after the text span
-    const childCount = li.querySelector(".child-count");
-    if (childCount) {
-      childCount.after(buttonsContainer);
-    } else {
-      const textSpan = li.querySelector(".outline-text");
-      if (textSpan) {
-        textSpan.after(buttonsContainer);
-      } else {
-        li.appendChild(buttonsContainer);
-      }
-    }
-
-    // Add hover delay functionality
-    this.addHoverDelayHandlers(li, buttonsContainer);
-
-    // Update button text based on current data
-    this.updateHoverButtons(li);
+    // Use TaskItem to handle button creation and setup
+    const taskItem = TaskItem.fromElement(li, this);
+    // TaskItem.initialize() handles all the button setup automatically
   }
 
   addHoverDelayHandlers(li, buttonsContainer) {
@@ -3387,6 +3321,161 @@ class TaskItemButtons {
         container.appendChild(btn);
       }
     });
+  }
+}
+
+// TaskItem class - wraps <li> elements with task-specific behavior
+class TaskItem {
+  constructor(li, outlineInstance) {
+    this.li = li;
+    this.outline = outlineInstance;
+    this.buttonManager = null;
+    
+    // Initialize if this is a new task item
+    if (!li.dataset.taskItemInitialized) {
+      this.initialize();
+    }
+  }
+
+  initialize() {
+    // Mark as initialized to prevent double initialization
+    this.li.dataset.taskItemInitialized = 'true';
+    
+    // Set up basic properties
+    this.li.tabIndex = 0;
+    
+    // Add hover buttons using our TaskItemButtons helper
+    this.addButtons();
+    
+    // Set up status label click handler
+    this.setupStatusLabelHandler();
+  }
+
+  addButtons() {
+    this.buttonManager = new TaskItemButtons(this.outline, this.li, this.outline.options.features);
+    const buttonsContainer = this.buttonManager.createButtonsContainer();
+    
+    if (!buttonsContainer) return; // Buttons already exist
+    
+    // Insert buttons in the correct position
+    this.insertButtonsContainer(buttonsContainer);
+    
+    // Set up hover behavior
+    this.outline.addHoverDelayHandlers(this.li, buttonsContainer);
+    
+    // Update button states
+    this.updateButtons();
+  }
+
+  insertButtonsContainer(buttonsContainer) {
+    // Insert after the child-count if it exists, otherwise after the text span
+    const childCount = this.li.querySelector(".child-count");
+    if (childCount) {
+      childCount.after(buttonsContainer);
+    } else {
+      const textSpan = this.li.querySelector(".outline-text");
+      if (textSpan) {
+        textSpan.after(buttonsContainer);
+      } else {
+        this.li.appendChild(buttonsContainer);
+      }
+    }
+  }
+
+  setupStatusLabelHandler() {
+    const statusLabel = this.li.querySelector(".outline-label");
+    if (statusLabel && !statusLabel.dataset.handlerAdded) {
+      statusLabel.style.cursor = "pointer";
+      statusLabel.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (!this.isEditable()) {
+          this.showPermissionDeniedFeedback();
+          return;
+        }
+        this.outline.showStatusPopup(this.li, statusLabel);
+      });
+      statusLabel.dataset.handlerAdded = 'true';
+    }
+  }
+
+  // Delegate key methods to outline instance for now
+  // (In future steps, we can move more logic into this class)
+  
+  isEditable() {
+    return this.outline.isItemEditable(this.li);
+  }
+
+  showPermissionDeniedFeedback() {
+    return this.outline.showPermissionDeniedFeedback(this.li);
+  }
+
+  enterEditMode() {
+    return this.outline.enterEditMode(this.li);
+  }
+
+  togglePriority() {
+    return this.outline.togglePriority(this.li);
+  }
+
+  toggleBlocked() {
+    return this.outline.toggleBlocked(this.li);
+  }
+
+  updateButtons() {
+    return this.outline.updateHoverButtons(this.li);
+  }
+
+  updateChildCount() {
+    return this.outline.updateChildCount(this.li);
+  }
+
+  updateButtonsVisibility() {
+    return this.outline.updateHoverButtonsVisibility(this.li);
+  }
+
+  // Getters for common properties
+  get id() {
+    return this.li.dataset.id;
+  }
+
+  get text() {
+    const textSpan = this.li.querySelector(".outline-text");
+    return textSpan ? textSpan.textContent : '';
+  }
+
+  get status() {
+    const labelSpan = this.li.querySelector(".outline-label");
+    return labelSpan ? labelSpan.textContent : 'TODO';
+  }
+
+  // Static method to create a TaskItem from an existing li element
+  static fromElement(li, outlineInstance) {
+    return new TaskItem(li, outlineInstance);
+  }
+
+  // Static method to create a new TaskItem with basic structure
+  static create(outlineInstance, text = "New todo", status = "TODO") {
+    const li = document.createElement("li");
+    li.tabIndex = 0;
+    li.dataset.id = crypto.randomUUID();
+
+    // Create the label span
+    const labelSpan = document.createElement("span");
+    labelSpan.className = "outline-label";
+    labelSpan.textContent = status;
+
+    // Create the text span
+    const textSpan = document.createElement("span");
+    textSpan.className = "outline-text";
+    textSpan.textContent = text;
+
+    // Assemble the structure
+    li.appendChild(labelSpan);
+    li.appendChild(document.createTextNode(" "));
+    li.appendChild(textSpan);
+
+    // Return a new TaskItem instance
+    return new TaskItem(li, outlineInstance);
   }
 }
 
