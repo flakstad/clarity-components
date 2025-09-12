@@ -205,17 +205,10 @@ global.getAllTodos = (outlineList) => {
     return [];
   }
   
-  // Get li elements - either direct children or inside task-item web components
-  const directLiElements = Array.from(listElement.children).filter(child => child.tagName === 'LI');
-  const taskItemElements = Array.from(listElement.children).filter(child => child.tagName === 'TASK-ITEM');
-  const taskItemLiElements = taskItemElements.map(taskItem => taskItem.querySelector('li')).filter(Boolean);
+  // Get li elements - direct children only (no task-item web components)
+  const allLiElements = Array.from(listElement.children).filter(child => child.tagName === 'LI');
   
-  const allLiElements = [...directLiElements, ...taskItemLiElements];
-  
-  console.log('directLiElements found:', directLiElements.length);
-  console.log('taskItemElements found:', taskItemElements.length);
-  console.log('taskItemLiElements found:', taskItemLiElements.length);
-  console.log('total liElements:', allLiElements.length);
+  console.log('liElements found:', allLiElements.length);
   console.log('allLiElements:', allLiElements.map(el => ({
     tagName: el.tagName,
     textContent: el.querySelector('.outline-text')?.textContent
