@@ -2111,7 +2111,8 @@ class Outline {
     noneItem.setAttribute('tabindex', '0');
     if (!currentAssignee) noneItem.classList.add('selected');
 
-    noneItem.addEventListener('click', () => {
+    noneItem.addEventListener('click', (e) => {
+      e.stopPropagation();
       this.removeAssignee(li);
       this.closeAllPopups();
     });
@@ -2133,7 +2134,8 @@ class Outline {
       item.setAttribute('tabindex', '0');
       if (currentAssignee === assignee) item.classList.add('selected');
 
-      item.addEventListener('click', () => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
         this.setAssignee(li, assignee);
         this.closeAllPopups();
       });
@@ -2160,12 +2162,36 @@ class Outline {
 
     // Close on outside click
     setTimeout(() => {
-      document.addEventListener('click', (e) => {
-        if (!popup.contains(e.target)) {
-          this.closeAllPopups(li);
+      const handleOutsideClick = (e) => {
+        // Don't close if clicking inside the popup, on any popup element, or within the web component
+        const isInsidePopup = popup.contains(e.target);
+        const isInOutlineList = e.target.closest('outline-list');
+        const isPopupElement = e.target.closest('.outline-popup');
+        
+        // For shadow DOM: check if the actual clicked element (using composedPath) is inside the popup
+        let isInsideShadowPopup = false;
+        if (e.composedPath) {
+          const path = e.composedPath();
+          isInsideShadowPopup = path.some(element => 
+            element.nodeType === Node.ELEMENT_NODE && 
+            (element.classList?.contains('outline-popup') || popup.contains(element))
+          );
         }
-      }, { once: true });
-    }, 0);
+        
+        if (isInsidePopup || isInOutlineList || isPopupElement || isInsideShadowPopup) {
+          return;
+        }
+        
+        // Close popup and remove listener
+        this.closeAllPopups(li);
+        document.removeEventListener('click', handleOutsideClick);
+      };
+
+      document.addEventListener('click', handleOutsideClick);
+      
+      // Store reference to remove listener when popup closes
+      popup._outsideClickHandler = handleOutsideClick;
+    }, 100);
   }
 
   handleDropdownKeydown(e, item, selectCallback, li) {
@@ -2352,14 +2378,28 @@ class Outline {
     // Store reference for cleanup
     this.currentPopup = popup;
 
-    // Close on outside click - simplified approach
+    // Close on outside click
     setTimeout(() => {
       const handleOutsideClick = (e) => {
-        // Don't close if clicking inside the popup or within the web component
-        if (popup.contains(e.target) || e.target.closest('outline-list')) {
+        // Don't close if clicking inside the popup, on any popup element, or within the web component
+        const isInsidePopup = popup.contains(e.target);
+        const isInOutlineList = e.target.closest('outline-list');
+        const isPopupElement = e.target.closest('.outline-popup');
+        
+        // For shadow DOM: check if the actual clicked element (using composedPath) is inside the popup
+        let isInsideShadowPopup = false;
+        if (e.composedPath) {
+          const path = e.composedPath();
+          isInsideShadowPopup = path.some(element => 
+            element.nodeType === Node.ELEMENT_NODE && 
+            (element.classList?.contains('outline-popup') || popup.contains(element))
+          );
+        }
+        
+        if (isInsidePopup || isInOutlineList || isPopupElement || isInsideShadowPopup) {
           return;
         }
-
+        
         // Close popup and remove listener
         this.closeAllPopups(li);
         document.removeEventListener('click', handleOutsideClick);
@@ -2466,7 +2506,21 @@ class Outline {
 
     setTimeout(() => {
       const handleOutsideClick = (e) => {
-        if (popup.contains(e.target) || e.target.closest('outline-list')) return;
+        const isInsidePopup = popup.contains(e.target);
+        const isInOutlineList = e.target.closest('outline-list');
+        const isPopupElement = e.target.closest('.outline-popup');
+        
+        // For shadow DOM: check if the actual clicked element (using composedPath) is inside the popup
+        let isInsideShadowPopup = false;
+        if (e.composedPath) {
+          const path = e.composedPath();
+          isInsideShadowPopup = path.some(element => 
+            element.nodeType === Node.ELEMENT_NODE && 
+            (element.classList?.contains('outline-popup') || popup.contains(element))
+          );
+        }
+        
+        if (isInsidePopup || isInOutlineList || isPopupElement || isInsideShadowPopup) return;
         this.closeAllPopups(li);
         document.removeEventListener('click', handleOutsideClick);
       };
@@ -2569,7 +2623,21 @@ class Outline {
 
     setTimeout(() => {
       const handleOutsideClick = (e) => {
-        if (popup.contains(e.target) || e.target.closest('outline-list')) return;
+        const isInsidePopup = popup.contains(e.target);
+        const isInOutlineList = e.target.closest('outline-list');
+        const isPopupElement = e.target.closest('.outline-popup');
+        
+        // For shadow DOM: check if the actual clicked element (using composedPath) is inside the popup
+        let isInsideShadowPopup = false;
+        if (e.composedPath) {
+          const path = e.composedPath();
+          isInsideShadowPopup = path.some(element => 
+            element.nodeType === Node.ELEMENT_NODE && 
+            (element.classList?.contains('outline-popup') || popup.contains(element))
+          );
+        }
+        
+        if (isInsidePopup || isInOutlineList || isPopupElement || isInsideShadowPopup) return;
         this.closeAllPopups(li);
         document.removeEventListener('click', handleOutsideClick);
       };
@@ -2690,7 +2758,21 @@ class Outline {
 
     setTimeout(() => {
       const handleOutsideClick = (e) => {
-        if (popup.contains(e.target) || e.target.closest('outline-list')) return;
+        const isInsidePopup = popup.contains(e.target);
+        const isInOutlineList = e.target.closest('outline-list');
+        const isPopupElement = e.target.closest('.outline-popup');
+        
+        // For shadow DOM: check if the actual clicked element (using composedPath) is inside the popup
+        let isInsideShadowPopup = false;
+        if (e.composedPath) {
+          const path = e.composedPath();
+          isInsideShadowPopup = path.some(element => 
+            element.nodeType === Node.ELEMENT_NODE && 
+            (element.classList?.contains('outline-popup') || popup.contains(element))
+          );
+        }
+        
+        if (isInsidePopup || isInOutlineList || isPopupElement || isInsideShadowPopup) return;
         this.closeAllPopups(li);
         document.removeEventListener('click', handleOutsideClick);
       };
@@ -2912,12 +2994,36 @@ class Outline {
 
     // Close on outside click
     setTimeout(() => {
-      document.addEventListener('click', (e) => {
-        if (!popup.contains(e.target)) {
-          this.closeAllPopups(li);
+      const handleOutsideClick = (e) => {
+        // Don't close if clicking inside the popup, on any popup element, or within the web component
+        const isInsidePopup = popup.contains(e.target);
+        const isInOutlineList = e.target.closest('outline-list');
+        const isPopupElement = e.target.closest('.outline-popup');
+        
+        // For shadow DOM: check if the actual clicked element (using composedPath) is inside the popup
+        let isInsideShadowPopup = false;
+        if (e.composedPath) {
+          const path = e.composedPath();
+          isInsideShadowPopup = path.some(element => 
+            element.nodeType === Node.ELEMENT_NODE && 
+            (element.classList?.contains('outline-popup') || popup.contains(element))
+          );
         }
-      }, { once: true });
-    }, 0);
+        
+        if (isInsidePopup || isInOutlineList || isPopupElement || isInsideShadowPopup) {
+          return;
+        }
+        
+        // Close popup and remove listener
+        this.closeAllPopups(li);
+        document.removeEventListener('click', handleOutsideClick);
+      };
+
+      document.addEventListener('click', handleOutsideClick);
+      
+      // Store reference to remove listener when popup closes
+      popup._outsideClickHandler = handleOutsideClick;
+    }, 100);
   }
 
   setTodoStatus(li, status) {

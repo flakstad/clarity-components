@@ -297,12 +297,15 @@ CLOSED: [2025-09-12 Fri 11:51]
 * DONE unify color usage for popups: borders, focus, selection - and fix broken dark mode
 CLOSED: [2025-09-12 Fri 13:14]
 There are different blues and grays used..
-* TODO update blogpost js - dark mode is broken
-* TODO clicking in the comment or worklog popups closes them
+* DONE update blogpost js - dark mode is broken
+CLOSED: [2025-09-12 Fri 13:16]
+* DONE clicking in the comment or worklog popups closes them
+CLOSED: [2025-09-12 Fri 14:37]
 Clicking on a tag closes the popup. Would be best that clicking only toggles a tag. You click outside or hit Escape to close. Works as expected with Space or Enter, just toggling.
 * TODO clicking status label console logs error
 outline.js:3803 Uncaught TypeError: this.isItemEditable is not a function
 (anonymous)	@	outline.js:3803
+* TODO archive popup does not open from archive action button
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.
