@@ -302,10 +302,11 @@ CLOSED: [2025-09-12 Fri 13:16]
 * DONE clicking in the comment or worklog popups closes them
 CLOSED: [2025-09-12 Fri 14:37]
 Clicking on a tag closes the popup. Would be best that clicking only toggles a tag. You click outside or hit Escape to close. Works as expected with Space or Enter, just toggling.
-* TODO clicking status label console logs error
+* DONE clicking status label console logs error
+CLOSED: [2025-09-12 Fri 14:47]
 outline.js:3803 Uncaught TypeError: this.isItemEditable is not a function
 (anonymous)	@	outline.js:3803
-* TODO archive popup does not open from archive action button
+* TODO "archive" popup does not open from the archive action button location like the others actions do
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.

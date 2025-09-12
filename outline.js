@@ -3909,15 +3909,6 @@ class OutlineElement extends HTMLElement {
     const labelSpan = document.createElement('span');
     labelSpan.className = 'outline-label';
     labelSpan.textContent = todo.status || 'TODO';
-    labelSpan.style.cursor = "pointer";
-    labelSpan.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if(!this.isItemEditable(li)) {
-        this.showPermissionDeniedFeedback(li);
-        return;
-      }
-      this.showStatusPopup(li, labelSpan);
-    });
     if (todo.status === 'none' || todo.noLabel) {
       labelSpan.style.display = 'none';
     }
