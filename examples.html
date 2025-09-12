@@ -190,15 +190,13 @@
 
     <clarity-outline
       id="empty-outline"
-      options='{
-        "assignees": ["alice", "bob", "charlie"],
-        "tags": ["urgent", "bug", "feature", "docs"],
-        "statusLabels": [
-          {"label": "TODO", "isEndState": false},
-          {"label": "IN PROGRESS", "isEndState": false},
-          {"label": "DONE", "isEndState": true}
-        ]
-      }'>
+      data-assignees='["alice", "bob", "charlie"]'
+      data-tags='["urgent", "bug", "feature", "docs"]'
+      data-status-labels='[
+        {"label": "TODO", "isEndState": false},
+        {"label": "IN PROGRESS", "isEndState": false},
+        {"label": "DONE", "isEndState": true}
+      ]'>
     </clarity-outline>
   </div>
 
@@ -282,16 +280,14 @@
           "tags": ["readonly"]
         }
       ]'
-      options='{
-        "assignees": ["alice", "bob", "charlie", "diana", "eve", "frank"],
-        "tags": ["urgent", "bug", "feature", "docs", "review", "ui", "backend", "testing", "readonly", "completed"],
-        "statusLabels": [
-          {"label": "TODO", "isEndState": false},
-          {"label": "IN PROGRESS", "isEndState": false},
-          {"label": "DONE", "isEndState": true},
-          {"label": "CANCELLED", "isEndState": true}
-        ]
-      }'>
+      data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank"]'
+      data-tags='["urgent", "bug", "feature", "docs", "review", "ui", "backend", "testing", "readonly", "completed"]'
+      data-status-labels='[
+        {"label": "TODO", "isEndState": false},
+        {"label": "IN PROGRESS", "isEndState": false},
+        {"label": "DONE", "isEndState": true},
+        {"label": "CANCELLED", "isEndState": true}
+      ]'>
     </clarity-outline>
     
   </div>
@@ -318,12 +314,10 @@
           "editable": false,
           "assign": "john@example.com"
         }]'
-        options='{
-          "features": {
-            "addButton": false,
-            "navigation": false,
-            "reorder": false
-          }
+        data-features='{
+          "addButton": false,
+          "navigation": false,
+          "reorder": false
         }'>
       </clarity-outline>
       
@@ -339,12 +333,10 @@
           "blocked": true,
           "assign": "sarah@example.com"
         }]'
-        options='{
-          "features": {
-            "addButton": false,
-            "navigation": false,
-            "reorder": false
-          }
+        data-features='{
+          "addButton": false,
+          "navigation": false,
+          "reorder": false
         }'>
       </clarity-outline>
       
@@ -359,12 +351,10 @@
           "status": "TODO",
           "tags": ["ui", "ux", "frontend"]
         }]'
-        options='{
-          "features": {
-            "addButton": false,
-            "navigation": false,
-            "reorder": false
-          }
+        data-features='{
+          "addButton": false,
+          "navigation": false,
+          "reorder": false
         }'>
       </clarity-outline>
       

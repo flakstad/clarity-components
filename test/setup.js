@@ -65,19 +65,36 @@ global.createTestOutlineList = (options = {}) => {
   // Create the web component with test options
   const outlineList = document.createElement('clarity-outline');
   
-  // Set options as JSON string
-  const testOptions = {
+  // Set default options
+  const defaultOptions = {
     assignees: ['alice', 'bob', 'charlie'],
     tags: ['urgent', 'bug', 'feature'],
     statusLabels: [
       { label: 'TODO', isEndState: false },
       { label: 'IN PROGRESS', isEndState: false },
       { label: 'DONE', isEndState: true }
-    ],
-    ...options
+    ]
   };
   
-  outlineList.setAttribute('options', JSON.stringify(testOptions));
+  // Merge with provided options
+  const testOptions = { ...defaultOptions, ...options };
+  
+  // Set individual data-* attributes
+  if (testOptions.assignees) {
+    outlineList.setAttribute('data-assignees', JSON.stringify(testOptions.assignees));
+  }
+  if (testOptions.tags) {
+    outlineList.setAttribute('data-tags', JSON.stringify(testOptions.tags));
+  }
+  if (testOptions.statusLabels) {
+    outlineList.setAttribute('data-status-labels', JSON.stringify(testOptions.statusLabels));
+  }
+  if (testOptions.features) {
+    outlineList.setAttribute('data-features', JSON.stringify(testOptions.features));
+  }
+  if (testOptions.currentUser) {
+    outlineList.setAttribute('data-current-user', testOptions.currentUser);
+  }
   container.appendChild(outlineList);
   
   // Wait for the component to be connected

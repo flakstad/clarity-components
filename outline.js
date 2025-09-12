@@ -3647,6 +3647,12 @@ class OutlineElement extends HTMLElement {
       }
     }
 
+    // Parse current user from data-current-user attribute
+    const currentUser = this.getAttribute('data-current-user');
+    if (currentUser) {
+      options.currentUser = currentUser;
+    }
+
     // Parse feature options from data-features attribute
     const features = this.getAttribute('data-features');
     if (features) {
@@ -3657,16 +3663,6 @@ class OutlineElement extends HTMLElement {
       }
     }
 
-    // Parse options from options attribute (JSON)
-    const optionsAttr = this.getAttribute('options');
-    if (optionsAttr) {
-      try {
-        const parsedOptions = JSON.parse(optionsAttr);
-        Object.assign(options, parsedOptions);
-      } catch (e) {
-        console.warn('Invalid options JSON, using individual attributes');
-      }
-    }
 
     return options;
   }
