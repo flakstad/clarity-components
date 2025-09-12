@@ -75,7 +75,7 @@ describe('Feature Options', () => {
     container.innerHTML = `
       <clarity-outline 
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
-        data-features='{"priority": false, "blocked": false, "due": false, "schedule": false, "assign": false, "tags": false}'
+        data-features='{"priority": false, "blocked": false, "due": false, "schedule": false, "assign": false, "tags": false, "archive": false}'
         options='{"assignees": ["alice"], "tags": ["urgent"]}'>
       </clarity-outline>
     `;
@@ -102,6 +102,7 @@ describe('Feature Options', () => {
     expect(buttonTypes).not.toContain('schedule');
     expect(buttonTypes).not.toContain('assign');
     expect(buttonTypes).not.toContain('tags');
+    expect(buttonTypes).not.toContain('archive');
   });
 
   test('should enable only selected features', async () => {

@@ -682,7 +682,7 @@ class Agenda {
         tags: true,
         comments: true,
         worklog: true,
-        remove: false, // Usually don't want to remove from agenda
+        archive: true,
         // Disable outline-specific features
         addButton: false,
         navigation: false,

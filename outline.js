@@ -11,7 +11,7 @@ class Outline {
       tags: true,
       comments: true,
       worklog: true,
-      remove: true,
+      archive: true,
       addButton: true,
       navigation: true,
       reorder: true
@@ -412,16 +412,16 @@ class Outline {
         return;
       }
 
-      // Remove item with 'r' key (only if enabled)
-      if(e.key==="r" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.remove) {
+      // Archive item with 'r' key or Del key (only if enabled)
+      if((e.key==="r" || e.key==="Delete") && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.archive) {
         e.preventDefault();
         if(!this.isItemEditable(li)) {
           this.showPermissionDeniedFeedback(li);
           return;
         }
-        const removeBtn = li.querySelector(".remove-button");
-        if (removeBtn) {
-          this.showRemovePopup(li, removeBtn);
+        const archiveBtn = li.querySelector(".archive-button");
+        if (archiveBtn) {
+          this.showArchivePopup(li, archiveBtn);
         }
         return;
       }
@@ -1402,7 +1402,7 @@ class Outline {
     const tagsBtn = li.querySelector(".tags-button");
     const commentsBtn = li.querySelector(".comments-button");
     const worklogBtn = li.querySelector(".worklog-button");
-    const removeBtn = li.querySelector(".remove-button");
+    const archiveBtn = li.querySelector(".archive-button");
     const editBtn = li.querySelector(".edit-button");
     const openBtn = li.querySelector(".open-button");
 
@@ -1503,11 +1503,11 @@ class Outline {
     }
 
 
-    // Update remove button (if enabled)
-    if (removeBtn) {
+    // Update archive button (if enabled)
+    if (archiveBtn) {
       const hasChildren = !!li.querySelector("ul > li");
-      removeBtn.innerHTML = hasChildren ? "<u>r</u>emove…" : "<u>r</u>emove";
-      removeBtn.classList.remove("has-data");
+      archiveBtn.innerHTML = hasChildren ? "a<u>r</u>chive…" : "a<u>r</u>chive";
+      archiveBtn.classList.remove("has-data");
     }
 
 
@@ -2623,17 +2623,17 @@ class Outline {
     });
   }
 
-  showRemovePopup(li, button) {
+  showArchivePopup(li, button) {
     this.closeAllPopups();
     li.classList.add('popup-active');
     this.updateHoverButtonsVisibility(li);
 
     const popup = document.createElement('div');
-    popup.className = 'outline-popup date-popup remove-popup';
+    popup.className = 'outline-popup date-popup archive-popup';
 
     const hasChildren = !!li.querySelector('ul > li');
     const heading = document.createElement('div');
-    heading.textContent = hasChildren ? 'Remove this and all nested items?' : 'Remove?';
+    heading.textContent = hasChildren ? 'Archive this and all nested items?' : 'Archive?';
     popup.appendChild(heading);
 
     const buttonContainer = document.createElement('div');
@@ -2642,7 +2642,7 @@ class Outline {
     buttonContainer.style.marginTop = '0.5rem';
 
     const confirmBtn = document.createElement('button');
-    confirmBtn.textContent = 'Remove';
+    confirmBtn.textContent = 'Archive';
     confirmBtn.className = 'hover-button';
     confirmBtn.style.padding = '0.3rem 0.6rem';
     confirmBtn.style.flex = '1';
@@ -2655,10 +2655,10 @@ class Outline {
     cancelBtn.style.flex = '1';
     cancelBtn.type = 'button';
 
-    const handleRemove = (e) => {
+    const handleArchive = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      this.removeItem(li);
+      this.archiveItem(li);
       this.closeAllPopups();
     };
     const handleCancel = (e) => {
@@ -2666,7 +2666,7 @@ class Outline {
       e.stopPropagation();
       this.closeAllPopups(li);
     };
-    confirmBtn.addEventListener('click', handleRemove);
+    confirmBtn.addEventListener('click', handleArchive);
     cancelBtn.addEventListener('click', handleCancel);
 
     buttonContainer.appendChild(confirmBtn);
@@ -2675,7 +2675,7 @@ class Outline {
 
     confirmBtn.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') { this.closeAllPopups(li); }
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleRemove(e); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleArchive(e); }
       // Allow natural Tab/Shift+Tab to move focus
     });
     cancelBtn.addEventListener('keydown', (e) => {
@@ -2699,14 +2699,14 @@ class Outline {
     }, 0);
   }
 
-  removeItem(li) {
+  archiveItem(li) {
     const id = li.dataset.id;
     const textSpan = li.querySelector('.outline-text');
     const detailText = textSpan ? textSpan.textContent : '';
     const parentLi = li.parentNode.closest('li');
     const parentUl = li.parentNode;
 
-    // Find the next element to focus on before removing the current one
+    // Find the next element to focus on before archiving the current one
     const nextElement = this.findNextFocusableElement(li);
 
     li.remove();
@@ -2727,7 +2727,7 @@ class Outline {
       nextElement.focus();
     }
 
-    this.emit('outline:remove', { id, text: detailText });
+    this.emit('outline:archive', { id, text: detailText });
   }
 
   findNextFocusableElement(li) {
@@ -3122,7 +3122,7 @@ class Outline {
         tags: true,
         comments: true,
         worklog: true,
-        remove: true,
+        archive: true,
         // Disable outline-specific features
         addButton: false,
         navigation: false,
@@ -3153,7 +3153,7 @@ class Outline {
         tags: true,
         comments: true,
         worklog: true,
-        remove: false, // Usually don't want to remove from agenda
+        archive: false, // Usually don't want to archive from agenda
         // Disable outline-specific features
         addButton: false,
         navigation: false,
@@ -3192,7 +3192,7 @@ class TaskItemButtons {
     this.createTagsButton(buttonsContainer);
     this.createCommentsButton(buttonsContainer);
     this.createWorklogButton(buttonsContainer);
-    this.createRemoveButton(buttonsContainer);
+    this.createArchiveButton(buttonsContainer);
     this.createEditButton(buttonsContainer); // Always enabled
     this.createOpenButton(buttonsContainer); // Always enabled
 
@@ -3340,22 +3340,22 @@ class TaskItemButtons {
     container.appendChild(worklogBtn);
   }
 
-  createRemoveButton(container) {
-    if (!this.features.remove) return;
+  createArchiveButton(container) {
+    if (!this.features.archive) return;
 
-    const removeBtn = document.createElement("button");
-    removeBtn.className = "hover-button remove-button";
-    removeBtn.setAttribute("data-type", "remove");
-    removeBtn.tabIndex = -1;
-    removeBtn.addEventListener("click", (e) => {
+    const archiveBtn = document.createElement("button");
+    archiveBtn.className = "hover-button archive-button";
+    archiveBtn.setAttribute("data-type", "archive");
+    archiveBtn.tabIndex = -1;
+    archiveBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (!this.outline.isItemEditable(this.li)) {
         this.outline.showPermissionDeniedFeedback(this.li);
         return;
       }
-      this.outline.showRemovePopup(this.li, removeBtn);
+      this.outline.showArchivePopup(this.li, archiveBtn);
     });
-    container.appendChild(removeBtn);
+    container.appendChild(archiveBtn);
   }
 
   createEditButton(container) {
@@ -3392,7 +3392,7 @@ class TaskItemButtons {
     const desiredOrder = [
       '.open-button',
       '.edit-button',
-      '.remove-button',
+      '.archive-button',
       '.schedule-button',
       '.due-button',
       '.priority-button',
@@ -4542,7 +4542,7 @@ class OutlineElement extends HTMLElement {
       'outline:collapse', 'outline:expand', 'outline:edit:start', 'outline:edit:save',
       'outline:edit:cancel', 'outline:due', 'outline:assign', 'outline:tags',
               'outline:priority', 'outline:blocked', 'outline:open', 'outline:select',
-      'outline:comment', 'outline:worklog', 'outline:remove', 'outline:permission-denied'
+      'outline:comment', 'outline:worklog', 'outline:archive', 'outline:permission-denied'
     ];
 
     // Get the list element where events are dispatched

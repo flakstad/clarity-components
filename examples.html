@@ -490,6 +490,10 @@
       console.log('New worklog entry added:', e.detail);
     });
 
+    outline.addEventListener('outline:archive', e => {
+      console.log('Item archived:', e.detail);
+    });
+
     // Listen for permission denied events
     outline.addEventListener('outline:permission-denied', e => {
       console.log('Permission denied for item:', e.detail.id, 'action:', e.detail.action);

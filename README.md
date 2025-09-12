@@ -108,7 +108,7 @@ See `agenda-demo.html` for comprehensive examples and usage patterns.
 - **C**: Add comment (public discussion)
 - **W**: Add worklog entry (private notes)
 - **A**: Assign to user
-- **R**: Remove item
+- **R** or **Del**: Archive item
 - **Space**: Change status
 - **O**: Open solo view
 
@@ -144,7 +144,7 @@ const outline = new Outline(document.querySelector('.outline-list'), {
     assign: true,
     tags: true,
     notes: true,
-    remove: true
+    archive: true
   }
 });
 ```
@@ -176,7 +176,7 @@ features: {
   tags: true,          // Show tags management
   comments: true,      // Show comments (public discussion)
   worklog: true,       // Show worklog (private notes)
-  remove: true         // Show remove button
+  remove: true         // Show archive button
 }
 ```
 
@@ -278,7 +278,7 @@ The component emits various events for integration:
 - `outline:assign` - Assignee set/cleared
 - `outline:tags` - Tags updated
 - `outline:notes` - Notes updated
-- `outline:remove` - Item removed
+- `outline:archive` - Item archived
 
 ## Examples
 

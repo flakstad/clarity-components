@@ -2143,8 +2143,8 @@ describe('Outline Web Component', () => {
     });
   });
 
-  describe('Focus Management After Removal', () => {
-    test('should remove item and maintain focus on next available element', () => {
+  describe('Focus Management After Archive', () => {
+    test('should archive item and maintain focus on next available element', () => {
       todoList.addItem('First todo');
       todoList.addItem('Second todo');
       todoList.addItem('Third todo');
@@ -2155,10 +2155,10 @@ describe('Outline Web Component', () => {
       // Focus on first todo
       firstTodo.focus();
 
-      // Remove first todo
-      todoList.removeItem(firstTodo);
+      // Archive first todo
+      todoList.archiveItem(firstTodo);
 
-      // Verify that the first todo was removed
+      // Verify that the first todo was archived
       const remainingTodos = getAllTodos(outlineList);
       expect(remainingTodos.length).toBe(2);
       expect(remainingTodos.find(todo =>
@@ -2171,7 +2171,7 @@ describe('Outline Web Component', () => {
       )).toBeDefined();
     });
 
-    test('should remove last item and maintain focus on previous sibling', () => {
+    test('should archive last item and maintain focus on previous sibling', () => {
       todoList.addItem('First todo');
       todoList.addItem('Second todo');
       todoList.addItem('Third todo');
@@ -2182,10 +2182,10 @@ describe('Outline Web Component', () => {
       // Focus on third todo
       thirdTodo.focus();
 
-      // Remove third todo
-      todoList.removeItem(thirdTodo);
+      // Archive third todo
+      todoList.archiveItem(thirdTodo);
 
-      // Verify that the third todo was removed
+      // Verify that the third todo was archived
       const remainingTodos = getAllTodos(outlineList);
       expect(remainingTodos.length).toBe(2);
       expect(remainingTodos.find(todo =>
@@ -2208,10 +2208,10 @@ describe('Outline Web Component', () => {
       // Focus on child todo
       childTodo.focus();
 
-      // Remove child todo
-      todoList.removeItem(childTodo);
+      // Archive child todo
+      todoList.archiveItem(childTodo);
 
-      // Verify that the child todo was removed
+      // Verify that the child todo was archived
       const remainingTodos = getAllTodos(outlineList);
       expect(remainingTodos.length).toBe(1);
       expect(remainingTodos.find(todo =>
@@ -2231,10 +2231,10 @@ describe('Outline Web Component', () => {
       // Focus on the only todo
       onlyTodo.focus();
 
-      // Remove the only todo
-      todoList.removeItem(onlyTodo);
+      // Archive the only todo
+      todoList.archiveItem(onlyTodo);
 
-      // Verify that the only todo was removed
+      // Verify that the only todo was archived
       const remainingTodos = getAllTodos(outlineList);
       expect(remainingTodos.length).toBe(0);
     });

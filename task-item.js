@@ -26,7 +26,7 @@ class TaskItemButtons {
     this.createTagsButton(buttonsContainer);
     this.createCommentsButton(buttonsContainer);
     this.createWorklogButton(buttonsContainer);
-    this.createRemoveButton(buttonsContainer);
+    this.createArchiveButton(buttonsContainer);
     this.createEditButton(buttonsContainer); // Always enabled
     this.createOpenButton(buttonsContainer); // Always enabled
 
@@ -174,22 +174,22 @@ class TaskItemButtons {
     container.appendChild(worklogBtn);
   }
 
-  createRemoveButton(container) {
-    if (!this.features.remove) return;
+  createArchiveButton(container) {
+    if (!this.features.archive) return;
 
-    const removeBtn = document.createElement("button");
-    removeBtn.className = "hover-button remove-button";
-    removeBtn.setAttribute("data-type", "remove");
-    removeBtn.tabIndex = -1;
-    removeBtn.addEventListener("click", (e) => {
+    const archiveBtn = document.createElement("button");
+    archiveBtn.className = "hover-button archive-button";
+    archiveBtn.setAttribute("data-type", "archive");
+    archiveBtn.tabIndex = -1;
+    archiveBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (!this.taskItem.isEditable()) {
         this.taskItem.showPermissionDeniedFeedback();
         return;
       }
-      this.taskItem.showRemovePopup(removeBtn);
+      this.taskItem.showArchivePopup(archiveBtn);
     });
-    container.appendChild(removeBtn);
+    container.appendChild(archiveBtn);
   }
 
   createEditButton(container) {
@@ -226,7 +226,7 @@ class TaskItemButtons {
     const desiredOrder = [
       '.open-button',
       '.edit-button',
-      '.remove-button',
+      '.archive-button',
       '.schedule-button',
       '.due-button',
       '.priority-button',
@@ -264,7 +264,7 @@ class TaskItemElement extends HTMLElement {
       tags: true,
       comments: true,
       worklog: true,
-      remove: true
+      archive: true
     };
   }
 
@@ -568,12 +568,12 @@ class TaskItemElement extends HTMLElement {
     console.warn('showWorklogPopup called but no outline instance available for delegation');
   }
 
-  showRemovePopup(button) {
-    if (this.outlineInstance && this.outlineInstance.showRemovePopup) {
-      return this.outlineInstance.showRemovePopup(this.li, button);
+  showArchivePopup(button) {
+    if (this.outlineInstance && this.outlineInstance.showArchivePopup) {
+      return this.outlineInstance.showArchivePopup(this.li, button);
     }
     
-    console.warn('showRemovePopup called but no outline instance available for delegation');
+    console.warn('showArchivePopup called but no outline instance available for delegation');
   }
 
   openItem() {
