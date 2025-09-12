@@ -311,7 +311,8 @@ CLOSED: [2025-09-12 Fri 15:05]
 * DONE bug: counter for nested parent without status label
 CLOSED: [2025-09-12 Fri 21:48]
 indenting an item under an item that is already a parent and which does not have a status label, does not add the counter
-* TODO prevent setting a parent to done if it has unfinished children
+* DONE prevent setting a parent to done if it has unfinished children
+CLOSED: [2025-09-12 Fri 22:16]
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.

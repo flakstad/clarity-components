@@ -61,7 +61,7 @@ class Outline {
     return li.dataset.editable !== 'false';
   }
 
-  showPermissionDeniedFeedback(li) {
+  showPermissionDeniedFeedback(li, action = 'edit') {
     // Add a subtle visual feedback that the action is not permitted
     li.classList.add('permission-denied');
     
@@ -73,8 +73,46 @@ class Outline {
     // Emit a permission denied event for external handling
     this.emit('outline:permission-denied', {
       id: li.dataset.id,
-      action: 'edit'
+      action: action
     });
+  }
+
+  hasIncompleteChildren(li) {
+    // Check if this todo has children that are not completed
+    const sublist = li.querySelector("ul");
+    if (!sublist || sublist.children.length === 0) {
+      return false; // No children, so no incomplete children
+    }
+
+    // Get direct children only (not nested descendants)
+    const directChildren = Array.from(sublist.children).filter(c => c.tagName === "LI");
+    // Only count items with labels as "completable" - exclude header-like (no-label) children
+    const completableChildren = directChildren.filter(c => !c.classList.contains("no-label"));
+    
+    if (completableChildren.length === 0) {
+      return false; // No completable children
+    }
+
+    // Check if any completable children are not completed
+    const incompleteChildren = completableChildren.filter(c => !c.classList.contains("completed"));
+    return incompleteChildren.length > 0;
+  }
+
+  canCompleteParent(li, targetStatus) {
+    // Only apply this restriction when trying to set to a completed state
+    if (!targetStatus.startsWith('status-')) {
+      return true; // Allow non-status changes (like 'none')
+    }
+
+    const statusIndex = parseInt(targetStatus.split('-')[1]);
+    const statusLabel = this.options.statusLabels[statusIndex];
+    
+    if (!statusLabel || !statusLabel.isEndState) {
+      return true; // Not trying to set to completed state
+    }
+
+    // Check if this todo has incomplete children
+    return !this.hasIncompleteChildren(li);
   }
 
   initNewTodoButton() {
@@ -1186,12 +1224,26 @@ class Outline {
     if (li.classList.contains("no-label")) {
       // no label → first status
       nextState = `status-0`;
+      
+      // Check if we can complete this parent
+      if (!this.canCompleteParent(li, nextState)) {
+        this.showPermissionDeniedFeedback(li, 'complete-with-incomplete-children');
+        return;
+      }
+      
       li.classList.remove("no-label");
       label.style.display = "";
       label.textContent = this.options.statusLabels[0].label;
     } else if (currentIndex >= 0 && currentIndex < this.options.statusLabels.length - 1 && !this.options.statusLabels[currentIndex].isEndState) {
       // current status → next status
       nextState = `status-${currentIndex + 1}`;
+      
+      // Check if we can complete this parent
+      if (!this.canCompleteParent(li, nextState)) {
+        this.showPermissionDeniedFeedback(li, 'complete-with-incomplete-children');
+        return;
+      }
+      
       label.textContent = this.options.statusLabels[currentIndex + 1].label;
 
               // Check if this should be treated as completed
@@ -1212,6 +1264,13 @@ class Outline {
           index > currentIndex && status.isEndState
         );
         nextState = `status-${nextEndStateIndex}`;
+        
+        // Check if we can complete this parent
+        if (!this.canCompleteParent(li, nextState)) {
+          this.showPermissionDeniedFeedback(li, 'complete-with-incomplete-children');
+          return;
+        }
+        
         label.textContent = this.options.statusLabels[nextEndStateIndex].label;
         li.classList.add("completed");
       } else {
@@ -1224,6 +1283,13 @@ class Outline {
     } else {
       // fallback: no label → first status
       nextState = `status-0`;
+      
+      // Check if we can complete this parent
+      if (!this.canCompleteParent(li, nextState)) {
+        this.showPermissionDeniedFeedback(li, 'complete-with-incomplete-children');
+        return;
+      }
+      
       li.classList.remove("no-label");
       label.style.display = "";
       label.textContent = this.options.statusLabels[0].label;
@@ -1264,6 +1330,13 @@ class Outline {
         .filter(index => index !== -1);
       const lastEndStateIndex = endStateIndices[endStateIndices.length - 1];
       nextState = `status-${lastEndStateIndex}`;
+      
+      // Check if we can complete this parent
+      if (!this.canCompleteParent(li, nextState)) {
+        this.showPermissionDeniedFeedback(li, 'complete-with-incomplete-children');
+        return;
+      }
+      
       li.classList.remove("no-label");
       li.classList.add("completed");
       label.style.display = "";
@@ -1271,6 +1344,13 @@ class Outline {
     } else if (currentIndex > 0) {
       // current status → previous status
       nextState = `status-${currentIndex - 1}`;
+      
+      // Check if we can complete this parent
+      if (!this.canCompleteParent(li, nextState)) {
+        this.showPermissionDeniedFeedback(li, 'complete-with-incomplete-children');
+        return;
+      }
+      
       label.textContent = this.options.statusLabels[currentIndex - 1].label;
 
               // Check if this should be treated as completed
@@ -1292,6 +1372,13 @@ class Outline {
         .filter(index => index !== -1);
       const lastEndStateIndex = endStateIndices[endStateIndices.length - 1];
       nextState = `status-${lastEndStateIndex}`;
+      
+      // Check if we can complete this parent
+      if (!this.canCompleteParent(li, nextState)) {
+        this.showPermissionDeniedFeedback(li, 'complete-with-incomplete-children');
+        return;
+      }
+      
       li.classList.remove("no-label");
       li.classList.add("completed");
       label.style.display = "";
@@ -2970,16 +3057,20 @@ class Outline {
 
       // Handle click
       item.addEventListener('click', () => {
-        this.setTodoStatus(li, option.value);
-        this.closeAllPopups();
+        const success = this.setTodoStatus(li, option.value);
+        if (success) {
+          this.closeAllPopups();
+        }
       });
 
       // Handle keyboard
       item.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          this.setTodoStatus(li, option.value);
-          this.closeAllPopups();
+          const success = this.setTodoStatus(li, option.value);
+          if (success) {
+            this.closeAllPopups();
+          }
         } else if (e.key === 'ArrowDown') {
           e.preventDefault();
           const nextItem = item.nextElementSibling;
@@ -3042,7 +3133,13 @@ class Outline {
 
   setTodoStatus(li, status) {
     const label = li.querySelector(".outline-label");
-    if (!label) return;
+    if (!label) return false;
+
+    // Check if we can complete this parent
+    if (!this.canCompleteParent(li, status)) {
+      this.showPermissionDeniedFeedback(li, 'complete-with-incomplete-children');
+      return false;
+    }
 
     // Remove existing state classes
     li.classList.remove("completed", "no-label");
@@ -3090,6 +3187,8 @@ class Outline {
       completed: li.classList.contains("completed"),
       hasLabel: !li.classList.contains("no-label")
     });
+    
+    return true;
   }
 
   setTags(li, tags) {
