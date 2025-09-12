@@ -728,6 +728,10 @@ class Outline {
         this.updateChildCount(grandparentLi);
         grandparentLi = grandparentLi.parentNode.closest("li");
       }
+      
+      // Ensure the direct parent counter is correct after grandparent updates
+      // This fixes a bug where nested no-label parents don't get counters
+      this.updateChildCount(parentLi);
     }
   }
 
@@ -776,6 +780,10 @@ class Outline {
       // The moved item had children, so we need to update its count
       this.updateChildCount(li);
     }
+    
+    // FINAL FIX: Ensure the direct parent counter is correct after all other updates
+    // This fixes a bug where nested no-label parents don't get counters during indenting
+    this.updateChildCount(prev);
   }
 
   outdentItem(li){
@@ -819,6 +827,13 @@ class Outline {
     if (movedItemChildren.length > 0) {
       this.updateChildCount(li);
     }
+    
+    // FINAL FIX: Ensure all affected parents have correct counters after outdenting
+    // This fixes a bug where parents lose counters during outdenting operations
+    this.updateChildCount(parentLi);
+    if (newParentLi) {
+      this.updateChildCount(newParentLi);
+    }
   }
 
   collapseItem(li){
@@ -859,21 +874,24 @@ class Outline {
     const completableChildren = directChildren.filter(c => !c.classList.contains("no-label"));
     const doneCount = completableChildren.filter(c => c.classList.contains("completed")).length;
 
-    if (!countSpan) {
-        countSpan = document.createElement("span");
-        countSpan.className = "child-count";
-    }
-
-    // Always position the child-count correctly (whether new or existing)
-    this.positionChildCount(li, countSpan);
-
     // Show count only if there are completable children
     if (completableChildren.length > 0) {
+        // Create or reuse count span
+        if (!countSpan) {
+            countSpan = document.createElement("span");
+            countSpan.className = "child-count";
+        }
+        
+        // Always position the child-count correctly (whether new or existing)
+        this.positionChildCount(li, countSpan);
+        
         countSpan.textContent = `[${doneCount}/${completableChildren.length}]`;
         countSpan.style.display = "";
     } else {
         // Remove the count span entirely when no completable children
-        countSpan.remove();
+        if (countSpan) {
+            countSpan.remove();
+        }
     }
   }
 

@@ -308,6 +308,10 @@ outline.js:3803 Uncaught TypeError: this.isItemEditable is not a function
 (anonymous)	@	outline.js:3803
 * DONE "archive" popup does not open from the archive action button location like the others actions do
 CLOSED: [2025-09-12 Fri 15:05]
+* DONE bug: counter for nested parent without status label
+CLOSED: [2025-09-12 Fri 21:48]
+indenting an item under an item that is already a parent and which does not have a status label, does not add the counter
+* TODO prevent setting a parent to done if it has unfinished children
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.
@@ -336,5 +340,3 @@ Needs to be tested in a sort of agenda view, with a database query.
 Pass in override key bindings.
 First for movement only, i.e. moving focus, moving items
 * TODO bug: attempt again to fix issue with hover items showing on parents when hovering child
-* TODO bug: counter for nested parent without status label
-indenting an item under an item that is already a parent and which does not have a status label, does not add the counter
