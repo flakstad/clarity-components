@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clarity Agenda - HTML Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .demo-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .demo-header {
+      background: #2c3e50;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .demo-header h1 {
+      margin: 0 0 0.5rem 0;
+      font-size: 2.5rem;
+    }
+    
+    .demo-header p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+    
+    /* Agenda Header */
+    .agenda-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .agenda-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #2c3e50;
+    }
+    
+    .agenda-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: flex-end;
+    }
+    
+    .agenda-view-toggles {
+      display: flex;
+      gap: 0.25rem;
+      background: #e9ecef;
+      border-radius: 6px;
+      padding: 0.25rem;
+    }
+    
+    .agenda-view-btn {
+      background: none;
+      border: none;
+      color: #6c757d;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    
+    .agenda-view-btn:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: #212529;
+    }
+    
+    .agenda-view-btn.active {
+      background: #007bff;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .agenda-nav {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .agenda-nav-btn {
+      background: none;
+      border: 1px solid #dee2e6;
+      color: #6c757d;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: all 0.15s ease;
+    }
+    
+    .agenda-nav-btn:hover {
+      background: #f8f9fa;
+      color: #212529;
+      border-color: #adb5bd;
+    }
+    
+    .theme-controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .theme-btn {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+    
+    .theme-btn:hover {
+      background: #2980b9;
+    }
+    
+    /* View Containers */
+    .agenda-view {
+      display: none;
+      padding: 2rem;
+    }
+    
+    .agenda-view.active {
+      display: block;
+    }
+    
+    /* Day View */
+    .day-view-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .time-slot {
+      display: flex;
+      min-height: 2rem;
+      border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .time-label {
+      width: 5rem;
+      padding: 0.5rem;
+      background: #f8f9fa;
+      font-size: 0.9rem;
+      color: #6c757d;
+      text-align: right;
+      font-weight: 500;
+      border-right: 1px solid #dee2e6;
+    }
+    
+    .time-content {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      background: white;
+    }
+    
+    .time-content:empty::after {
+      content: "";
+      display: block;
+      height: 1rem;
+    }
+    
+    /* Week View */
+    .week-view-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .day-section {
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      overflow: hidden;
+      background: white;
+    }
+    
+    .day-header {
+      background: #f8f9fa;
+      padding: 0.75rem 1rem;
+      font-weight: bold;
+      color: #495057;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .day-header.today {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .day-tasks {
+      padding: 1rem;
+    }
+    
+    /* Month View */
+    .month-view-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    /* All Tasks View */
+    .all-tasks-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .project-section {
+      margin-bottom: 2rem;
+    }
+    
+    .project-header {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #3498db;
+    }
+    
+    /* Task Styling */
+    clarity-outline {
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    
+    .task-wrapper {
+      margin-bottom: 0.5rem;
+    }
+    
+    /* Now marker */
+    .now-marker {
+      position: relative;
+      background: #ff6b6b;
+      height: 2px;
+      margin: 0.5rem 0;
+    }
+    
+    .now-marker::before {
+      content: "Now";
+      position: absolute;
+      left: 0;
+      top: -1rem;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #ff6b6b;
+      background: white;
+      padding: 0 0.25rem;
+    }
+    
+    /* Theme variations */
+    body.theme-light {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --bg-tertiary: #e9ecef;
+      --text-primary: #212529;
+      --text-secondary: #6c757d;
+      --text-muted: #adb5bd;
+      --border: #dee2e6;
+      --hover: rgba(0, 0, 0, 0.05);
+    }
+    
+    body.theme-dark {
+      background: #1a1a1a;
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2d2d2d;
+      --bg-tertiary: #404040;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0b0;
+      --text-muted: #808080;
+      --border: #404040;
+      --hover: rgba(255, 255, 255, 0.05);
+    }
+    
+    body.theme-dark .demo-container {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    
+    body.theme-dark .agenda-header {
+      background: var(--bg-secondary);
+      border-bottom-color: var(--border);
+    }
+    
+    body.theme-dark .time-label {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      border-right-color: var(--border);
+    }
+    
+    body.theme-dark .time-content {
+      background: var(--bg-primary);
+    }
+    
+    body.theme-dark .day-section {
+      background: var(--bg-primary);
+      border-color: var(--border);
+    }
+    
+    body.theme-dark .day-header {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border-bottom-color: var(--border);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      body:not(.theme-light) {
+        background: #1a1a1a;
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-tertiary: #404040;
+        --text-primary: #ffffff;
+        --text-secondary: #b0b0b0;
+        --text-muted: #808080;
+        --border: #404040;
+        --hover: rgba(255, 255, 255, 0.05);
+      }
+      
+      body:not(.theme-light) .demo-container {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+      }
+      
+      body:not(.theme-light) .agenda-header {
+        background: var(--bg-secondary);
+        border-bottom-color: var(--border);
+      }
+      
+      body:not(.theme-light) .time-label {
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        border-right-color: var(--border);
+      }
+      
+      body:not(.theme-light) .time-content {
+        background: var(--bg-primary);
+      }
+      
+      body:not(.theme-light) .day-section {
+        background: var(--bg-primary);
+        border-color: var(--border);
+      }
+      
+      body:not(.theme-light) .day-header {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        border-bottom-color: var(--border);
+      }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .agenda-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .agenda-controls {
+        align-items: center;
+      }
+      
+      .time-label {
+        width: 3rem;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <div class="demo-header">
+      <h1>Clarity Agenda - HTML Demo</h1>
+      <p>Static HTML layout with individual clarity-outline components</p>
+    </div>
+    
+    <div class="theme-controls">
+      <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">Theme: Auto</button>
+    </div>
+    
+    <div class="agenda-header">
+      <h2 id="view-title">Week of Sep 9, 2024</h2>
+      <div class="agenda-controls">
+        <div class="agenda-view-toggles">
+          <button class="agenda-view-btn" data-view="day">Day</button>
+          <button class="agenda-view-btn active" data-view="week">Week</button>
+          <button class="agenda-view-btn" data-view="month">Month</button>
+          <button class="agenda-view-btn" data-view="all-tasks">All Tasks</button>
+        </div>
+        <div class="agenda-nav">
+          <button class="agenda-nav-btn" onclick="navigatePrevious()">‹ Previous</button>
+          <button class="agenda-nav-btn" onclick="goToToday()">Today</button>
+          <button class="agenda-nav-btn" onclick="navigateNext()">Next ›</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Day View -->
+    <div class="agenda-view" id="day-view">
+      <div class="day-view-container">
+        <!-- 9:00 AM -->
+        <div class="time-slot">
+          <div class="time-label">09:00</div>
+          <div class="time-content">
+            <clarity-outline 
+              data-items='[{"id":"1","text":"Team standup meeting","status":"TODO","assign":"team","tags":["meeting"],"schedule":"Sep 9 09:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+        
+        <!-- 10:00 AM -->
+        <div class="time-slot">
+          <div class="time-label">10:00</div>
+          <div class="time-content">
+            <clarity-outline 
+              data-items='[{"id":"2","text":"Review pull requests","status":"TODO","priority":true,"assign":"alice","tags":["review","code"],"schedule":"Sep 9 10:30"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+        
+        <!-- 11:00 AM -->
+        <div class="time-slot">
+          <div class="time-label">11:00</div>
+          <div class="time-content">
+            <clarity-outline 
+              data-items='[{"id":"p1-1","text":"Website Redesign: Create wireframes","status":"TODO","assign":"diana","tags":["design","wireframes"],"schedule":"Sep 9 11:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+        
+        <!-- 12:00 PM -->
+        <div class="time-slot">
+          <div class="time-label">12:00</div>
+          <div class="time-content"></div>
+        </div>
+        
+        <!-- Current time marker -->
+        <div class="now-marker"></div>
+        
+        <!-- 14:00 PM -->
+        <div class="time-slot">
+          <div class="time-label">14:00</div>
+          <div class="time-content">
+            <clarity-outline 
+              data-items='[{"id":"4","text":"Client presentation","status":"TODO","assign":"team","tags":["presentation","client"],"schedule":"Sep 10 14:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+        
+        <!-- 15:00 PM -->
+        <div class="time-slot">
+          <div class="time-label">15:00</div>
+          <div class="time-content"></div>
+        </div>
+        
+        <!-- 16:00 PM -->
+        <div class="time-slot">
+          <div class="time-label">16:00</div>
+          <div class="time-content"></div>
+        </div>
+        
+        <!-- Unscheduled Tasks -->
+        <div class="time-slot">
+          <div class="time-label">Due</div>
+          <div class="time-content">
+            <clarity-outline 
+              data-items='[{"id":"3","text":"Deploy to production","status":"TODO","assign":"alice","tags":["deployment","urgent"],"due":"Sep 9"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"8","text":"Database backup","status":"TODO","assign":"ops","tags":["maintenance"],"due":"Sep 13"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Week View -->
+    <div class="agenda-view active" id="week-view">
+      <div class="week-view-container">
+        <!-- Monday -->
+        <div class="day-section">
+          <div class="day-header today">Monday, Sep 9</div>
+          <div class="day-tasks">
+            <clarity-outline 
+              data-items='[{"id":"1","text":"Team standup meeting","status":"TODO","assign":"team","tags":["meeting"],"schedule":"Sep 9 09:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"2","text":"Review pull requests","status":"TODO","priority":true,"assign":"alice","tags":["review","code"],"schedule":"Sep 9 10:30"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"p1-1","text":"Website Redesign: Create wireframes","status":"TODO","assign":"diana","tags":["design","wireframes"],"schedule":"Sep 9 11:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"3","text":"Deploy to production","status":"TODO","assign":"alice","tags":["deployment","urgent"],"due":"Sep 9"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+        
+        <!-- Tuesday -->
+        <div class="day-section">
+          <div class="day-header">Tuesday, Sep 10</div>
+          <div class="day-tasks">
+            <clarity-outline 
+              data-items='[{"id":"4","text":"Client presentation","status":"TODO","assign":"team","tags":["presentation","client"],"schedule":"Sep 10 14:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"p2-2","text":"Mobile App: Implement user authentication","status":"TODO","assign":"frank","tags":["mobile","auth"],"schedule":"Sep 10 09:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+        
+        <!-- Wednesday -->
+        <div class="day-section">
+          <div class="day-header">Wednesday, Sep 11</div>
+          <div class="day-tasks">
+            <clarity-outline 
+              data-items='[{"id":"5","text":"Code review session","status":"TODO","assign":"bob","tags":["review"],"schedule":"Sep 11 15:30"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"p3-2","text":"Backend API: Implement REST endpoints","status":"TODO","assign":"alice","tags":["backend","api"],"schedule":"Sep 11 10:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+        
+        <!-- Thursday -->
+        <div class="day-section">
+          <div class="day-header">Thursday, Sep 12</div>
+          <div class="day-tasks">
+            <clarity-outline 
+              data-items='[{"id":"6","text":"Weekly planning","status":"TODO","assign":"team","tags":["planning"],"schedule":"Sep 12 10:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"p1-3","text":"Website Redesign: Implement responsive layout","status":"TODO","assign":"eve","tags":["frontend","responsive"],"due":"Sep 12"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+        
+        <!-- Friday -->
+        <div class="day-section">
+          <div class="day-header">Friday, Sep 13</div>
+          <div class="day-tasks">
+            <clarity-outline 
+              data-items='[{"id":"8","text":"Database backup","status":"TODO","assign":"ops","tags":["maintenance"],"due":"Sep 13"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"13","text":"Setup CI/CD pipeline","status":"TODO","priority":true,"assign":"bob","tags":["devops"],"schedule":"Sep 13 11:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+        
+        <!-- Weekend -->
+        <div class="day-section">
+          <div class="day-header">Saturday, Sep 14</div>
+          <div class="day-tasks">
+            <clarity-outline 
+              data-items='[{"id":"p2-3","text":"Mobile App: Design app icons","status":"TODO","assign":"diana","tags":["design","icons"],"due":"Sep 14"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"15","text":"Database migration","status":"TODO","blocked":true,"assign":"ops","tags":["database","migration"],"due":"Sep 14"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+        
+        <div class="day-section">
+          <div class="day-header">Sunday, Sep 15</div>
+          <div class="day-tasks">
+            <clarity-outline 
+              data-items='[{"id":"9","text":"Update documentation","status":"BLOCKED","blocked":true,"assign":"alice","tags":["docs"],"due":"Sep 15"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"19","text":"Prepare presentation for client meeting","status":"TODO","assign":"alice","tags":["presentation","client"],"due":"Sep 15"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Month View -->
+    <div class="agenda-view" id="month-view">
+      <div class="month-view-container">
+        <div class="day-section">
+          <div class="day-header">Sep 9 - Sep 15</div>
+          <div class="day-tasks">
+            <clarity-outline 
+              data-items='[{"id":"1","text":"Team standup meeting","status":"TODO","assign":"team","tags":["meeting"],"schedule":"Sep 9 09:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"4","text":"Client presentation","status":"TODO","assign":"team","tags":["presentation","client"],"schedule":"Sep 10 14:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"6","text":"Weekly planning","status":"TODO","assign":"team","tags":["planning"],"schedule":"Sep 12 10:00"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+        
+        <div class="day-section">
+          <div class="day-header">Sep 16 - Sep 22</div>
+          <div class="day-tasks">
+            <clarity-outline 
+              data-items='[{"id":"20","text":"Deploy to staging environment","status":"TODO","assign":"bob","tags":["deployment","staging"],"due":"Sep 16"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+            <clarity-outline 
+              data-items='[{"id":"21","text":"Final testing before production release","status":"TODO","assign":"diana","tags":["testing","production"],"due":"Sep 17"}]'
+              data-features='{
+                "addButton": false,
+                "navigation": false,
+                "reorder": false
+              }'>
+            </clarity-outline>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- All Tasks View -->
+    <div class="agenda-view" id="all-tasks-view">
+      <div class="all-tasks-container">
+        <!-- Backend API Project -->
+        <div class="project-section">
+          <div class="project-header">Backend API</div>
+          <clarity-outline 
+            data-items='[{"id":"p3-1","text":"Setup database schema","status":"DONE","assign":"alice","tags":["backend","database"],"completedAt":"2024-09-05T16:30:00Z"}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"p3-2","text":"Implement REST endpoints","status":"TODO","assign":"alice","tags":["backend","api"],"schedule":"Sep 11 10:00"}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"p3-3","text":"Add API documentation","status":"TODO","assign":"bob","tags":["backend","docs"],"due":"Sep 16"}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"p3-4","text":"Setup monitoring","status":"TODO","assign":"alice","tags":["backend","monitoring"]}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+        </div>
+        
+        <!-- Mobile App Project -->
+        <div class="project-section">
+          <div class="project-header">Mobile App</div>
+          <clarity-outline 
+            data-items='[{"id":"p2-1","text":"Setup React Native project","status":"DONE","assign":"frank","tags":["mobile","setup"],"completedAt":"2024-09-06T10:15:00Z"}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"p2-2","text":"Implement user authentication","status":"TODO","assign":"frank","tags":["mobile","auth"],"schedule":"Sep 10 09:00"}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"p2-3","text":"Design app icons","status":"TODO","assign":"diana","tags":["design","icons"],"due":"Sep 14"}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"p2-4","text":"Setup push notifications","status":"TODO","assign":"frank","tags":["mobile","notifications"]}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"p2-5","text":"Implement offline sync","status":"TODO","blocked":true,"assign":"frank","tags":["mobile","offline","sync"],"due":"Sep 16"}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+        </div>
+        
+        <!-- Website Redesign Project -->
+        <div class="project-section">
+          <div class="project-header">Website Redesign</div>
+          <clarity-outline 
+            data-items='[{"id":"p1-1","text":"Create wireframes","status":"TODO","assign":"diana","tags":["design","wireframes"],"schedule":"Sep 9 11:00"}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"p1-2","text":"Design mockups","status":"DONE","assign":"diana","tags":["design","mockups"],"completedAt":"2024-09-08T15:45:00Z"}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"p1-3","text":"Implement responsive layout","status":"TODO","assign":"eve","tags":["frontend","responsive"],"due":"Sep 12"}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"p1-4","text":"Optimize images","status":"TODO","assign":"eve","tags":["frontend","optimization"]}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"p1-5","text":"Fix critical layout bug","status":"TODO","priority":true,"assign":"eve","tags":["frontend","bug","critical"]}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+        </div>
+        
+        <!-- Individual Tasks -->
+        <div class="project-section">
+          <div class="project-header">Individual Tasks</div>
+          <clarity-outline 
+            data-items='[{"id":"7","text":"Bug fix for login issue","status":"DONE","assign":"charlie","tags":["bug","login"],"completedAt":"2024-09-08T16:30:00Z"}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"10","text":"Performance optimization","status":"DONE","assign":"bob","tags":["performance"],"completedAt":"2024-09-07T14:20:00Z"}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"11","text":"Research new framework","status":"TODO","assign":"charlie","tags":["research"]}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"12","text":"Write unit tests","status":"TODO","assign":"diana","tags":["testing"]}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"14","text":"Critical security patch","status":"TODO","priority":true,"assign":"alice","tags":["security","urgent"]}]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="outline.js"></script>
+  <script>
+    let currentView = 'week';
+    let currentTheme = 'auto';
+    let currentDate = new Date(2024, 8, 9); // Sep 9, 2024
+    
+    // Common configuration for all clarity-outline components
+    const commonOutlineConfig = {
+      assignees: ["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"],
+      tags: ["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"],
+      statusLabels: [
+        {"label": "TODO", "isEndState": false},
+        {"label": "IN PROGRESS", "isEndState": false},
+        {"label": "BLOCKED", "isEndState": false},
+        {"label": "DONE", "isEndState": true}
+      ]
+    };
+    
+    // Initialize all clarity-outline components with common config
+    function initializeOutlineComponents() {
+      const outlines = document.querySelectorAll('clarity-outline');
+      outlines.forEach(outline => {
+        // Set common data attributes
+        outline.setAttribute('data-assignees', JSON.stringify(commonOutlineConfig.assignees));
+        outline.setAttribute('data-tags', JSON.stringify(commonOutlineConfig.tags));
+        outline.setAttribute('data-status-labels', JSON.stringify(commonOutlineConfig.statusLabels));
+        
+        // Set theme if current theme is not auto
+        if (currentTheme !== 'auto') {
+          outline.setAttribute('theme', currentTheme);
+        }
+      });
+    }
+    
+    // View switching functionality
+    function switchView(view) {
+      // Hide all views
+      document.querySelectorAll('.agenda-view').forEach(v => v.classList.remove('active'));
+      
+      // Show selected view
+      document.getElementById(view + '-view').classList.add('active');
+      
+      // Update button states
+      document.querySelectorAll('.agenda-view-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.view === view) {
+          btn.classList.add('active');
+        }
+      });
+      
+      currentView = view;
+      updateViewTitle();
+    }
+    
+    function updateViewTitle() {
+      const titleEl = document.getElementById('view-title');
+      const options = { month: 'short', day: 'numeric', year: 'numeric' };
+      
+      switch (currentView) {
+        case 'day':
+          titleEl.textContent = currentDate.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            month: 'short', 
+            day: 'numeric',
+            year: 'numeric' 
+          });
+          break;
+        case 'week':
+          const startOfWeek = new Date(currentDate);
+          startOfWeek.setDate(currentDate.getDate() - currentDate.getDay() + 1); // Monday
+          titleEl.textContent = `Week of ${startOfWeek.toLocaleDateString('en-US', options)}`;
+          break;
+        case 'month':
+          titleEl.textContent = currentDate.toLocaleDateString('en-US', { 
+            month: 'long', 
+            year: 'numeric' 
+          });
+          break;
+        case 'all-tasks':
+          titleEl.textContent = 'All Tasks';
+          break;
+      }
+    }
+    
+    function navigatePrevious() {
+      switch (currentView) {
+        case 'day':
+          currentDate.setDate(currentDate.getDate() - 1);
+          break;
+        case 'week':
+          currentDate.setDate(currentDate.getDate() - 7);
+          break;
+        case 'month':
+          currentDate.setMonth(currentDate.getMonth() - 1);
+          break;
+      }
+      updateViewTitle();
+    }
+    
+    function navigateNext() {
+      switch (currentView) {
+        case 'day':
+          currentDate.setDate(currentDate.getDate() + 1);
+          break;
+        case 'week':
+          currentDate.setDate(currentDate.getDate() + 7);
+          break;
+        case 'month':
+          currentDate.setMonth(currentDate.getMonth() + 1);
+          break;
+      }
+      updateViewTitle();
+    }
+    
+    function goToToday() {
+      currentDate = new Date();
+      updateViewTitle();
+    }
+    
+    // Theme switching functionality
+    function toggleTheme() {
+      const themes = ['auto', 'light', 'dark'];
+      const currentIndex = themes.indexOf(currentTheme);
+      const nextIndex = (currentIndex + 1) % themes.length;
+      currentTheme = themes[nextIndex];
+      
+      const root = document.documentElement;
+      const body = document.body;
+      
+      // Remove existing theme classes
+      body.classList.remove('theme-light', 'theme-dark');
+      
+      // Set theme on all clarity-outline components
+      const outlines = document.querySelectorAll('clarity-outline');
+      outlines.forEach(outline => {
+        if (currentTheme === 'auto') {
+          outline.removeAttribute('theme');
+        } else {
+          outline.setAttribute('theme', currentTheme);
+        }
+      });
+      
+      if (currentTheme === 'light') {
+        body.classList.add('theme-light');
+        setThemeProperties('light');
+      } else if (currentTheme === 'dark') {
+        body.classList.add('theme-dark');
+        setThemeProperties('dark');
+      } else {
+        // Auto theme - remove custom properties to let CSS handle it
+        removeThemeProperties();
+      }
+      
+      document.getElementById('theme-btn').textContent = `Theme: ${currentTheme}`;
+    }
+    
+    function setThemeProperties(theme) {
+      const root = document.documentElement;
+      
+      if (theme === 'light') {
+        root.style.setProperty('--clarity-outline-bg-primary', '#ffffff');
+        root.style.setProperty('--clarity-outline-bg-secondary', '#f8f9fa');
+        root.style.setProperty('--clarity-outline-bg-tertiary', '#e9ecef');
+        root.style.setProperty('--clarity-outline-text-primary', '#212529');
+        root.style.setProperty('--clarity-outline-text-secondary', '#6c757d');
+        root.style.setProperty('--clarity-outline-text-muted', '#adb5bd');
+        root.style.setProperty('--clarity-outline-border', '#dee2e6');
+        root.style.setProperty('--clarity-outline-border-focus', '#3498db');
+        root.style.setProperty('--clarity-outline-hover', 'rgba(0, 0, 0, 0.05)');
+        root.style.setProperty('--clarity-outline-focus', 'rgba(52, 152, 219, 0.1)');
+        root.style.setProperty('--clarity-outline-input-bg', '#ffffff');
+        root.style.setProperty('--clarity-outline-input-border', '#dee2e6');
+        root.style.setProperty('--clarity-outline-popup-bg', '#ffffff');
+        root.style.setProperty('--clarity-outline-popup-shadow', '0 4px 12px rgba(0, 0, 0, 0.15)');
+      } else if (theme === 'dark') {
+        root.style.setProperty('--clarity-outline-bg-primary', '#1a1a1a');
+        root.style.setProperty('--clarity-outline-bg-secondary', '#2d2d2d');
+        root.style.setProperty('--clarity-outline-bg-tertiary', '#404040');
+        root.style.setProperty('--clarity-outline-text-primary', '#ffffff');
+        root.style.setProperty('--clarity-outline-text-secondary', '#b0b0b0');
+        root.style.setProperty('--clarity-outline-text-muted', '#808080');
+        root.style.setProperty('--clarity-outline-border', '#404040');
+        root.style.setProperty('--clarity-outline-border-focus', '#3498db');
+        root.style.setProperty('--clarity-outline-hover', 'rgba(255, 255, 255, 0.05)');
+        root.style.setProperty('--clarity-outline-focus', 'rgba(52, 152, 219, 0.2)');
+        root.style.setProperty('--clarity-outline-input-bg', '#2d2d2d');
+        root.style.setProperty('--clarity-outline-input-border', '#404040');
+        root.style.setProperty('--clarity-outline-popup-bg', '#2d2d2d');
+        root.style.setProperty('--clarity-outline-popup-shadow', '0 4px 12px rgba(0, 0, 0, 0.3)');
+      }
+    }
+    
+    function removeThemeProperties() {
+      const root = document.documentElement;
+      const properties = [
+        '--clarity-outline-bg-primary', '--clarity-outline-bg-secondary', '--clarity-outline-bg-tertiary',
+        '--clarity-outline-text-primary', '--clarity-outline-text-secondary', '--clarity-outline-text-muted',
+        '--clarity-outline-border', '--clarity-outline-border-focus', '--clarity-outline-hover', '--clarity-outline-focus',
+        '--clarity-outline-input-bg', '--clarity-outline-input-border', '--clarity-outline-popup-bg', '--clarity-outline-popup-shadow'
+      ];
+      
+      properties.forEach(prop => {
+        root.style.removeProperty(prop);
+      });
+    }
+    
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize outline components with common config
+      initializeOutlineComponents();
+      
+      // Add click handlers to view buttons
+      document.querySelectorAll('.agenda-view-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          switchView(this.dataset.view);
+        });
+      });
+      
+      // Initialize view title
+      updateViewTitle();
+    });
+  </script>
+</body>
+</html>

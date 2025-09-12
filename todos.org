@@ -315,11 +315,6 @@ indenting an item under an item that is already a parent and which does not have
 CLOSED: [2025-09-12 Fri 22:16]
 * DONE must not be able to add a new item by alt+enter if add is disabled
 CLOSED: [2025-09-12 Fri 22:20]
-* TODO emit full json in events, option?
-Do I need this, or can I emit and store just the minimum amount of data?
-Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.
-* TODO double check that I'm happy with outline item data format
-..will at some point forever by locked to this structure
 * TODO agenda view rendering should not be a web component?
 I only need the web component to capture the complicated interactions. If each
 task item is a web component with it's own interaction, then the layout
@@ -328,6 +323,14 @@ views - those are new queries to the backend.
 
 We might need the agenda web component for navigation and shortcuts for queries.
 Or possibly datastar signals in the html is enough to detect this?
+* TODO emit full json in events, option?
+Do I need this, or can I emit and store just the minimum amount of data?
+Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.
+* TODO double check that I'm happy with outline item data format
+..will at some point forever by locked to this structure
+* TODO outline can take optional info about org/workspace and project
+If provided should be rendered in some subtle, but informative way.
+Workspace and project names can be long.
 * TODO supporting repeating tasks, schedules that reoccur
 Would need slightly different visuals when you complete a task - it will go back
 to being in "TODO" state, but you will have completed it as well. Org simply
