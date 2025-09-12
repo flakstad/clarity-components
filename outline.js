@@ -143,6 +143,14 @@ class Outline {
         return; // Let edit input handle its own clicks
       }
 
+      // Check for Ctrl/Cmd + click to open item
+      if (e.ctrlKey || e.metaKey) {
+        li.focus();
+        console.log("Todo item opened via Ctrl/Cmd+click", li.dataset.id);
+        this.openItem(li);
+        return;
+      }
+
       // Single click: just focus/select the item (no navigation)
       li.focus();
       console.log("Todo item selected", li.dataset.id);

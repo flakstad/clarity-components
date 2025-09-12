@@ -1059,6 +1059,42 @@ describe('Outline Web Component', () => {
       todo.click();
     });
 
+    test('should open todo on Ctrl+click', () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+
+      let openEventEmitted = false;
+      outlineList.addEventListener('outline:open', () => {
+        openEventEmitted = true;
+      });
+
+      // Simulate Ctrl+click
+      todo.dispatchEvent(new MouseEvent('click', { 
+        bubbles: true, 
+        ctrlKey: true 
+      }));
+
+      expect(openEventEmitted).toBe(true);
+    });
+
+    test('should open todo on Cmd+click (metaKey)', () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+
+      let openEventEmitted = false;
+      outlineList.addEventListener('outline:open', () => {
+        openEventEmitted = true;
+      });
+
+      // Simulate Cmd+click (Mac)
+      todo.dispatchEvent(new MouseEvent('click', { 
+        bubbles: true, 
+        metaKey: true 
+      }));
+
+      expect(openEventEmitted).toBe(true);
+    });
+
     test('should emit outline:edit:start event on double click', () => {
       todoList.addItem('Test todo');
       const todo = getTodoByText(outlineList, 'Test todo');

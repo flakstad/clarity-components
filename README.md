@@ -85,10 +85,15 @@ See `agenda-demo.html` for comprehensive examples and usage patterns.
 - **Alt + L**: Indent item
 - **Alt + H**: Outdent item
 
+### Mouse Interactions
+
+- **Single click**: Select/focus item
+- **Double-click**: Edit item text
+- **Ctrl/Cmd + click**: Open item in solo view
+
 ### Other Shortcuts
 
 - **E**: Edit item text
-- **Double-click**: Edit item text
 - **Enter**: Open item in solo view
 - **Alt + Enter**: Add new sibling todo
 - **Alt + T**: Toggle collapsed/expanded state (toggle hierarchy)

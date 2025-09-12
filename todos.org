@@ -272,15 +272,18 @@ We had this, perhaps it's only missing some example data. We need examples of ta
 * DONE agenda view: showing due tasks a few days in advance
 CLOSED: [2025-09-11 Thu 10:22]
 Tasks that are due within 3 days should show up in the bottom section of the current day view
-* TODO extract task item to a separate web-component, allowing use from both agenda and outline?
+* DONE extract task item to a separate web-component, allowing use from both agenda and outline?
+CLOSED: [2025-09-12 Fri 10:05]
 branch: refactoring
-* TODO agenda view rendering should not be a web component?
-I only need the web component to capture the complicated interactions. If each
-task item is a web component with it's own interaction, then the layout
-rendering of the agenda should be driven by the backend. Including changing
-views - those are new queries to the backend.
+* DONE split up options props into separate props
+CLOSED: [2025-09-12 Fri 10:06]
+* DONE make all props by data-*, allowing datastar signal use
+CLOSED: [2025-09-12 Fri 10:06]
+* DONE may need additionals for mouse usage?
+CLOSED: [2025-09-12 Fri 11:21]
+..or is it sufficient with the hover + click "open"
 
-We might need the agenda web component for navigation and shortcuts for queries. Or possibly datastar signals in the html is enough to detect this?
+Could also provide right click menus.
 * TODO datastar: testing driving with backend signals
 Setup backend with in-memory state.
 ** TODO handle new html reinit todolist script
@@ -297,15 +300,16 @@ Could have debounce on every specific event perhaps, so we save all changes to
 various fields, but delay a bit to catch temp changes.
 * TODO double check that I'm happy with outline item data format
 ..will at some point forever by locked to this structure
+* TODO agenda view rendering should not be a web component?
+I only need the web component to capture the complicated interactions. If each
+task item is a web component with it's own interaction, then the layout
+rendering of the agenda should be driven by the backend. Including changing
+views - those are new queries to the backend.
+
+We might need the agenda web component for navigation and shortcuts for queries. Or possibly datastar signals in the html is enough to detect this?
 * TODO emit full json in events, option?
 * TODO unify color usage for popups: borders, focus, selection
 There are different blues and grays used..
-* TODO split up options props into separate props
-* TODO make all props by data-*, allowing datastar signal use
-* TODO make all the features optional, including status, edit and open
-* TODO still a bug with counter for nested parent without status label
-indenting an item under an item that is already a parent and which does not have a status label, does not add the counter
-* TODO attempt again to fix issue with hover items showing on parents when hovering child
 * TODO using clarity outline instead of this org file
 * TODO supporting repeating tasks, schedules that reoccur
 Would need slightly different visuals when you complete a task - it will go back
@@ -314,15 +318,16 @@ logs this in text that you completed it, and resets the item. Could do something
 similar.
 * TODO archiving an item, instead of permanently removing?
 Useful for ongoing lists, local storage. Likely not that useful for the
-project-oriented use case I envision in Clarity. But how do you get it back? Out
+project-oriented use case I envision in Clarity. But how do you get an archived item back? Out
 of scope for the component. It would basically be the exact same as "remove",
 but emit a different event, allowing different persistence functionality.
-* TODO allow custom key bindings for movement of focus and items
+
+Perhaps we just replace "Remove" with "Archive" for now, still key "r" and underlined "r" in "archive".
+* TODO allow custom key bindings for all keyboard interactions?
 Pass in override key bindings.
 First for movement only, i.e. moving focus, moving items
-* TODO drag and drop?
 * TODO space to set status as well?
-* TODO may need additionals for mouse usage?
-..or is it sufficient with the hover + click "open"
-
-Could also provide right click menus.
+* TODO drag and drop?
+* TODO bug: attempt again to fix issue with hover items showing on parents when hovering child
+* TODO bug: counter for nested parent without status label
+indenting an item under an item that is already a parent and which does not have a status label, does not add the counter

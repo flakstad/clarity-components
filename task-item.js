@@ -428,7 +428,14 @@ class TaskItemElement extends HTMLElement {
         return;
       }
 
-      // Focus the item
+      // Check for Ctrl/Cmd + click to open item
+      if (e.ctrlKey || e.metaKey) {
+        this.li.focus();
+        this.openItem();
+        return;
+      }
+
+      // Single click: just focus/select the item
       this.li.focus();
       
       // Emit select event
@@ -441,6 +448,18 @@ class TaskItemElement extends HTMLElement {
         bubbles: true
       }));
     });
+
+    // Add double-click for edit mode
+    this.li.addEventListener('dblclick', (e) => {
+      // Don't handle clicks on buttons or inputs
+      if (e.target.tagName === 'BUTTON' || e.target.classList.contains('outline-edit-input')) {
+        return;
+      }
+
+      // Double click: enter edit mode
+      this.enterEditMode();
+    });
+
   }
 
   // Delegation methods - delegate to outline instance if available, otherwise provide basic functionality
