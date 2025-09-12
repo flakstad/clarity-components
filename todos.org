@@ -294,8 +294,15 @@ but emit a different event, allowing different persistence functionality.
 Perhaps we just replace "Remove" with "Archive" for now, still key "r" and underlined "r" in "archive".
 * DONE space to set status as well?
 CLOSED: [2025-09-12 Fri 11:51]
-* TODO unify color usage for popups: borders, focus, selection
+* DONE unify color usage for popups: borders, focus, selection - and fix broken dark mode
+CLOSED: [2025-09-12 Fri 13:14]
 There are different blues and grays used..
+* TODO update blogpost js - dark mode is broken
+* TODO clicking in the comment or worklog popups closes them
+Clicking on a tag closes the popup. Would be best that clicking only toggles a tag. You click outside or hit Escape to close. Works as expected with Space or Enter, just toggling.
+* TODO clicking status label console logs error
+outline.js:3803 Uncaught TypeError: this.isItemEditable is not a function
+(anonymous)	@	outline.js:3803
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.

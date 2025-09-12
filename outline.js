@@ -3601,8 +3601,14 @@ class OutlineElement extends HTMLElement {
     // Forward events from shadow DOM to light DOM
     this.forwardEvents();
 
-    // Apply theme from parent document
-    this.applyThemeFromParent();
+    // Apply initial theme from attribute if set
+    const initialTheme = this.getAttribute('theme');
+    if (initialTheme) {
+      this.applyTheme(initialTheme);
+    } else {
+      // Apply theme from parent document if no theme attribute
+      this.applyThemeFromParent();
+    }
 
     // Listen for theme changes
     this.setupThemeListener();
@@ -3924,12 +3930,15 @@ class OutlineElement extends HTMLElement {
     if (name === 'data-items' && oldValue !== newValue) {
       // Re-render when data-items attribute changes
       this.rerenderFromAttribute();
+    } else if (name === 'theme' && oldValue !== newValue) {
+      // Handle theme changes
+      this.applyTheme(newValue);
     }
   }
 
   // Static getter for observed attributes
   static get observedAttributes() {
-    return ['data-items'];
+    return ['data-items', 'theme'];
   }
 
   // Re-render the component when data-items attribute changes
@@ -3957,11 +3966,13 @@ class OutlineElement extends HTMLElement {
           --clarity-outline-light-text-secondary: #6c757d;
           --clarity-outline-light-text-muted: #adb5bd;
           --clarity-outline-light-border: #dee2e6;
-          --clarity-outline-light-border-focus: #007bff;
+          --clarity-outline-light-border-focus: #8a9ba8;
           --clarity-outline-light-hover: rgba(0, 0, 0, 0.05);
           --clarity-outline-light-focus: rgba(0, 0, 0, 0.1);
+          --clarity-outline-light-focus-shadow: rgba(138, 155, 168, 0.3);
+          --clarity-outline-light-focus-highlight: rgba(138, 155, 168, 0.15);
           --clarity-outline-light-input-bg: #ffffff;
-          --clarity-outline-light-input-border: #ced4da;
+          --clarity-outline-light-input-border: #e1e5e9;
           --clarity-outline-light-popup-bg: #ffffff;
           --clarity-outline-light-popup-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
@@ -3973,11 +3984,13 @@ class OutlineElement extends HTMLElement {
           --clarity-outline-dark-text-secondary: #ddd;
           --clarity-outline-dark-text-muted: #888;
           --clarity-outline-dark-border: #555;
-          --clarity-outline-dark-border-focus: #7aa2e3;
-          --clarity-outline-dark-hover: rgba(255, 255, 255, 0.05);
-          --clarity-outline-dark-focus: rgba(255, 255, 255, 0.1);
+          --clarity-outline-dark-border-focus: #b8c5d1;
+          --clarity-outline-dark-hover: rgba(255, 255, 255, 0.08);
+          --clarity-outline-dark-focus: rgba(255, 255, 255, 0.15);
+          --clarity-outline-dark-focus-shadow: rgba(184, 197, 209, 0.4);
+          --clarity-outline-dark-focus-highlight: rgba(184, 197, 209, 0.35);
           --clarity-outline-dark-input-bg: #2d2d2d;
-          --clarity-outline-dark-input-border: #555;
+          --clarity-outline-dark-input-border: #999;
           --clarity-outline-dark-popup-bg: #2d2d2d;
           --clarity-outline-dark-popup-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 
@@ -3987,21 +4000,23 @@ class OutlineElement extends HTMLElement {
           --clarity-outline-color-priority: #5f9fb0;
           --clarity-outline-color-blocked: #f39c12;
 
-          /* Theme variables - inherit from parent or use defaults */
-          --clarity-outline-bg-primary: var(--clarity-outline-bg-primary, #1e1e1e);
-          --clarity-outline-bg-secondary: var(--clarity-outline-bg-secondary, #2d2d2d);
-          --clarity-outline-bg-tertiary: var(--clarity-outline-bg-tertiary, #333333);
-          --clarity-outline-text-primary: var(--clarity-outline-text-primary, #f8f8f2);
-          --clarity-outline-text-secondary: var(--clarity-outline-text-secondary, #ddd);
-          --clarity-outline-text-muted: var(--clarity-outline-text-muted, #888);
-          --clarity-outline-border: var(--clarity-outline-border, #555);
-          --clarity-outline-border-focus: var(--clarity-outline-border-focus, #7aa2e3);
-          --clarity-outline-hover: var(--clarity-outline-hover, rgba(255, 255, 255, 0.05));
-          --clarity-outline-focus: var(--clarity-outline-focus, rgba(255, 255, 255, 0.1));
-          --clarity-outline-input-bg: var(--clarity-outline-input-bg, #2d2d2d);
-          --clarity-outline-input-border: var(--clarity-outline-input-border, #555);
-          --clarity-outline-popup-bg: var(--clarity-outline-popup-bg, #2d2d2d);
-          --clarity-outline-popup-shadow: var(--clarity-outline-popup-shadow, 0 4px 12px rgba(0, 0, 0, 0.3));
+          /* Active theme variables - default to dark theme */
+          --clarity-outline-bg-primary: var(--clarity-outline-dark-bg-primary);
+          --clarity-outline-bg-secondary: var(--clarity-outline-dark-bg-secondary);
+          --clarity-outline-bg-tertiary: var(--clarity-outline-dark-bg-tertiary);
+          --clarity-outline-text-primary: var(--clarity-outline-dark-text-primary);
+          --clarity-outline-text-secondary: var(--clarity-outline-dark-text-secondary);
+          --clarity-outline-text-muted: var(--clarity-outline-dark-text-muted);
+          --clarity-outline-border: var(--clarity-outline-dark-border);
+          --clarity-outline-border-focus: var(--clarity-outline-dark-border-focus);
+          --clarity-outline-hover: var(--clarity-outline-dark-hover);
+          --clarity-outline-focus: var(--clarity-outline-dark-focus);
+          --clarity-outline-focus-shadow: var(--clarity-outline-dark-focus-shadow);
+          --clarity-outline-focus-highlight: var(--clarity-outline-dark-focus-highlight);
+          --clarity-outline-input-bg: var(--clarity-outline-dark-input-bg);
+          --clarity-outline-input-border: var(--clarity-outline-dark-input-border);
+          --clarity-outline-popup-bg: var(--clarity-outline-dark-popup-bg);
+          --clarity-outline-popup-shadow: var(--clarity-outline-dark-popup-shadow);
 
           /* Component-level customization properties */
           --clarity-outline-spacing: 0.3rem;
@@ -4019,6 +4034,29 @@ class OutlineElement extends HTMLElement {
           --clarity-outline-popup-padding: 0.5rem;
           --clarity-outline-input-border-radius: 2px;
           --clarity-outline-input-padding: 0.2rem 0.4rem;
+        }
+
+        /* Light theme support via media query */
+        @media (prefers-color-scheme: light) {
+          :host {
+            /* Switch to light theme */
+            --clarity-outline-bg-primary: var(--clarity-outline-light-bg-primary);
+            --clarity-outline-bg-secondary: var(--clarity-outline-light-bg-secondary);
+            --clarity-outline-bg-tertiary: var(--clarity-outline-light-bg-tertiary);
+            --clarity-outline-text-primary: var(--clarity-outline-light-text-primary);
+            --clarity-outline-text-secondary: var(--clarity-outline-light-text-secondary);
+            --clarity-outline-text-muted: var(--clarity-outline-light-text-muted);
+            --clarity-outline-border: var(--clarity-outline-light-border);
+            --clarity-outline-border-focus: var(--clarity-outline-light-border-focus);
+            --clarity-outline-hover: var(--clarity-outline-light-hover);
+            --clarity-outline-focus: var(--clarity-outline-light-focus);
+            --clarity-outline-focus-shadow: var(--clarity-outline-light-focus-shadow);
+            --clarity-outline-focus-highlight: var(--clarity-outline-light-focus-highlight);
+            --clarity-outline-input-bg: var(--clarity-outline-light-input-bg);
+            --clarity-outline-input-border: var(--clarity-outline-light-input-border);
+            --clarity-outline-popup-bg: var(--clarity-outline-light-popup-bg);
+            --clarity-outline-popup-shadow: var(--clarity-outline-light-popup-shadow);
+          }
         }
 
       /* Add todo button styling */
@@ -4051,6 +4089,12 @@ class OutlineElement extends HTMLElement {
       .outline-add-button:hover {
         color: var(--clarity-outline-text-primary);
         background: var(--clarity-outline-hover);
+      }
+
+      .outline-add-button:focus {
+        outline: none;
+        color: var(--clarity-outline-text-primary);
+        background: var(--clarity-outline-focus);
       }
 
       /* Todo List Package Styles - Scoped to .outline-list */
@@ -4329,16 +4373,16 @@ class OutlineElement extends HTMLElement {
           font-family: inherit;
           line-height: 1.4;
           box-sizing: border-box;
-          border: 1px solid var(--clarity-outline-border);
-          border-radius: 4px;
-          background: var(--clarity-outline-bg-tertiary);
+          border: 1px solid var(--clarity-outline-input-border);
+          border-radius: var(--clarity-outline-input-border-radius);
+          background: var(--clarity-outline-input-bg);
           color: var(--clarity-outline-text-primary);
         }
 
         .notes-popup .notes-textarea:focus {
           outline: none;
           border-color: var(--clarity-outline-border-focus);
-          box-shadow: 0 0 0 2px rgba(102, 217, 239, 0.2);
+          box-shadow: 0 0 0 2px var(--clarity-outline-focus-shadow);
         }
 
         /* Comments popup specific styling */
@@ -4360,16 +4404,16 @@ class OutlineElement extends HTMLElement {
           font-family: inherit;
           line-height: 1.4;
           box-sizing: border-box;
-          border: 1px solid var(--clarity-outline-border);
-          border-radius: 4px;
-          background: var(--clarity-outline-bg-tertiary);
+          border: 1px solid var(--clarity-outline-input-border);
+          border-radius: var(--clarity-outline-input-border-radius);
+          background: var(--clarity-outline-input-bg);
           color: var(--clarity-outline-text-primary);
         }
 
         .comments-popup .comments-textarea:focus {
           outline: none;
           border-color: var(--clarity-outline-border-focus);
-          box-shadow: 0 0 0 2px rgba(102, 217, 239, 0.2);
+          box-shadow: 0 0 0 2px var(--clarity-outline-focus-shadow);
         }
 
         /* Worklog popup specific styling */
@@ -4391,16 +4435,16 @@ class OutlineElement extends HTMLElement {
           font-family: inherit;
           line-height: 1.4;
           box-sizing: border-box;
-          border: 1px solid var(--clarity-outline-border);
-          border-radius: 4px;
-          background: var(--clarity-outline-bg-tertiary);
+          border: 1px solid var(--clarity-outline-input-border);
+          border-radius: var(--clarity-outline-input-border-radius);
+          background: var(--clarity-outline-input-bg);
           color: var(--clarity-outline-text-primary);
         }
 
         .worklog-popup .worklog-textarea:focus {
           outline: none;
           border-color: var(--clarity-outline-border-focus);
-          box-shadow: 0 0 0 2px rgba(102, 217, 239, 0.2);
+          box-shadow: 0 0 0 2px var(--clarity-outline-focus-shadow);
         }
 
         .date-popup button {
@@ -4449,7 +4493,7 @@ class OutlineElement extends HTMLElement {
 
         .dropdown-popup .dropdown-item:focus {
           outline: none;
-          background: rgba(102, 217, 239, 0.3);
+          background: var(--clarity-outline-focus-highlight);
         }
 
         .dropdown-popup .tag-item label {
@@ -4467,18 +4511,39 @@ class OutlineElement extends HTMLElement {
         .dropdown-popup .dropdown-input {
           width: 100%;
           box-sizing: border-box;
-          background: var(--clarity-outline-bg-tertiary);
-          border: 1px solid var(--clarity-outline-border);
+          background: var(--clarity-outline-input-bg);
+          border: 1px solid var(--clarity-outline-input-border);
           color: var(--clarity-outline-text-primary);
           padding: 0.4rem;
           margin-bottom: 0.5rem;
-          border-radius: 2px;
+          border-radius: var(--clarity-outline-input-border-radius);
           font-family: inherit;
         }
 
         .dropdown-popup .dropdown-input:focus {
           outline: none;
           border-color: var(--clarity-outline-border-focus);
+          box-shadow: 0 0 0 2px var(--clarity-outline-focus-shadow);
+        }
+
+        /* Specific styling for date/datetime inputs to override browser defaults */
+        input[type="date"].dropdown-input,
+        input[type="datetime-local"].dropdown-input {
+          -webkit-appearance: none;
+          -moz-appearance: textfield;
+          appearance: none;
+        }
+
+        input[type="date"].dropdown-input:focus,
+        input[type="datetime-local"].dropdown-input:focus,
+        .outline-popup input[type="date"]:focus,
+        .outline-popup input[type="datetime-local"]:focus {
+          outline: none !important;
+          border: 1px solid var(--clarity-outline-border-focus) !important;
+          box-shadow: 0 0 0 2px var(--clarity-outline-focus-shadow) !important;
+          -webkit-appearance: none !important;
+          -moz-appearance: textfield !important;
+          appearance: none !important;
         }
 
         /* Permission denied feedback */
@@ -4518,6 +4583,61 @@ class OutlineElement extends HTMLElement {
         this.style.setProperty(prop, value);
       }
     });
+  }
+
+  applyTheme(theme) {
+    // Apply theme by setting CSS custom properties on the host element
+    const host = this;
+    
+    // Clear any existing theme overrides
+    const themeProperties = [
+      '--clarity-outline-bg-primary', '--clarity-outline-bg-secondary', '--clarity-outline-bg-tertiary',
+      '--clarity-outline-text-primary', '--clarity-outline-text-secondary', '--clarity-outline-text-muted',
+      '--clarity-outline-border', '--clarity-outline-border-focus', '--clarity-outline-hover', 
+      '--clarity-outline-focus', '--clarity-outline-focus-shadow', '--clarity-outline-focus-highlight',
+      '--clarity-outline-input-bg', '--clarity-outline-input-border', '--clarity-outline-popup-bg', '--clarity-outline-popup-shadow'
+    ];
+    
+    if (!theme || theme === 'auto') {
+      // Remove theme overrides and let CSS media queries handle it
+      themeProperties.forEach(prop => host.style.removeProperty(prop));
+    } else if (theme === 'light') {
+      // Apply light theme
+      host.style.setProperty('--clarity-outline-bg-primary', '#ffffff');
+      host.style.setProperty('--clarity-outline-bg-secondary', '#f8f9fa');
+      host.style.setProperty('--clarity-outline-bg-tertiary', '#e9ecef');
+      host.style.setProperty('--clarity-outline-text-primary', '#212529');
+      host.style.setProperty('--clarity-outline-text-secondary', '#6c757d');
+      host.style.setProperty('--clarity-outline-text-muted', '#adb5bd');
+      host.style.setProperty('--clarity-outline-border', '#dee2e6');
+      host.style.setProperty('--clarity-outline-border-focus', '#8a9ba8');
+      host.style.setProperty('--clarity-outline-hover', 'rgba(0, 0, 0, 0.05)');
+      host.style.setProperty('--clarity-outline-focus', 'rgba(0, 0, 0, 0.1)');
+      host.style.setProperty('--clarity-outline-focus-shadow', 'rgba(138, 155, 168, 0.3)');
+      host.style.setProperty('--clarity-outline-focus-highlight', 'rgba(138, 155, 168, 0.15)');
+      host.style.setProperty('--clarity-outline-input-bg', '#ffffff');
+      host.style.setProperty('--clarity-outline-input-border', '#e1e5e9');
+      host.style.setProperty('--clarity-outline-popup-bg', '#ffffff');
+      host.style.setProperty('--clarity-outline-popup-shadow', '0 4px 12px rgba(0, 0, 0, 0.15)');
+    } else if (theme === 'dark') {
+      // Apply dark theme with improved visibility
+      host.style.setProperty('--clarity-outline-bg-primary', '#1e1e1e');
+      host.style.setProperty('--clarity-outline-bg-secondary', '#2d2d2d');
+      host.style.setProperty('--clarity-outline-bg-tertiary', '#333333');
+      host.style.setProperty('--clarity-outline-text-primary', '#f8f8f2');
+      host.style.setProperty('--clarity-outline-text-secondary', '#ddd');
+      host.style.setProperty('--clarity-outline-text-muted', '#888');
+      host.style.setProperty('--clarity-outline-border', '#555');
+      host.style.setProperty('--clarity-outline-border-focus', '#b8c5d1');
+      host.style.setProperty('--clarity-outline-hover', 'rgba(255, 255, 255, 0.08)');
+      host.style.setProperty('--clarity-outline-focus', 'rgba(255, 255, 255, 0.15)');
+      host.style.setProperty('--clarity-outline-focus-shadow', 'rgba(184, 197, 209, 0.4)');
+      host.style.setProperty('--clarity-outline-focus-highlight', 'rgba(184, 197, 209, 0.35)');
+      host.style.setProperty('--clarity-outline-input-bg', '#2d2d2d');
+      host.style.setProperty('--clarity-outline-input-border', '#999');
+      host.style.setProperty('--clarity-outline-popup-bg', '#2d2d2d');
+      host.style.setProperty('--clarity-outline-popup-shadow', '0 4px 12px rgba(0, 0, 0, 0.3)');
+    }
   }
 
   setupThemeListener() {

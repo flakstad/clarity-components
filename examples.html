@@ -25,21 +25,7 @@
       --border: #555;
       --hover: rgba(255, 255, 255, 0.05);
 
-      /* Web component theme variables */
-      --clarity-outline-bg-primary: #1e1e1e;
-      --clarity-outline-bg-secondary: #2d2d2d;
-      --clarity-outline-bg-tertiary: #333333;
-      --clarity-outline-text-primary: #f8f8f2;
-      --clarity-outline-text-secondary: #ddd;
-      --clarity-outline-text-muted: #888;
-      --clarity-outline-border: #555;
-      --clarity-outline-border-focus: #f92672;
-      --clarity-outline-hover: rgba(255, 255, 255, 0.05);
-      --clarity-outline-focus: rgba(255, 255, 255, 0.1);
-      --clarity-outline-input-bg: #2d2d2d;
-      --clarity-outline-input-border: #555;
-      --clarity-outline-popup-bg: #2d2d2d;
-      --clarity-outline-popup-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      /* Web component will use its own defaults */
     }
 
     /* Light theme */
@@ -55,21 +41,7 @@
         --border: #dee2e6;
         --hover: rgba(0, 0, 0, 0.05);
 
-        /* Light theme for web components */
-        --clarity-outline-bg-primary: #ffffff;
-        --clarity-outline-bg-secondary: #f8f9fa;
-        --clarity-outline-bg-tertiary: #e9ecef;
-        --clarity-outline-text-primary: #212529;
-        --clarity-outline-text-secondary: #6c757d;
-        --clarity-outline-text-muted: #adb5bd;
-        --clarity-outline-border: #dee2e6;
-        --clarity-outline-border-focus: #007bff;
-        --clarity-outline-hover: rgba(0, 0, 0, 0.05);
-        --clarity-outline-focus: rgba(0, 0, 0, 0.1);
-        --clarity-outline-input-bg: #ffffff;
-        --clarity-outline-input-border: #ced4da;
-        --clarity-outline-popup-bg: #ffffff;
-        --clarity-outline-popup-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        /* Web component will use its own defaults */
       }
     }
 
@@ -81,10 +53,7 @@
 
     .demo-section {
       margin-bottom: 4rem;
-      padding: 2rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--bg-secondary);
+      padding: 2rem 0;
     }
 
     .demo-section h2 {
@@ -130,51 +99,7 @@
       background: var(--hover);
     }
 
-    /* Custom theme examples */
-    .custom-theme {
-      --clarity-outline-bg-primary: #2c3e50;
-      --clarity-outline-bg-secondary: #34495e;
-      --clarity-outline-bg-tertiary: #3a4a5c;
-      --clarity-outline-text-primary: #ecf0f1;
-      --clarity-outline-text-secondary: #bdc3c7;
-      --clarity-outline-text-muted: #95a5a6;
-      --clarity-outline-border: #4a5a6c;
-      --clarity-outline-hover: rgba(236, 240, 241, 0.1);
-      --clarity-outline-color-todo: #e74c3c;
-      --clarity-outline-color-done: #27ae60;
-      --clarity-outline-color-priority: #f39c12;
-              --clarity-outline-color-blocked: #e67e22;
-    }
-
-    .minimal-theme {
-      --clarity-outline-bg-primary: #ffffff;
-      --clarity-outline-bg-secondary: #f8f9fa;
-      --clarity-outline-bg-tertiary: #e9ecef;
-      --clarity-outline-text-primary: #212529;
-      --clarity-outline-text-secondary: #6c757d;
-      --clarity-outline-text-muted: #adb5bd;
-      --clarity-outline-border: #dee2e6;
-      --clarity-outline-hover: rgba(0, 0, 0, 0.05);
-      --clarity-outline-color-todo: #dc3545;
-      --clarity-outline-color-done: #28a745;
-      --clarity-outline-color-priority: #fd7e14;
-              --clarity-outline-color-blocked: #ffc107;
-    }
-
-    .dark-theme {
-      --clarity-outline-bg-primary: #1a1a1a;
-      --clarity-outline-bg-secondary: #2d2d2d;
-      --clarity-outline-bg-tertiary: #404040;
-      --clarity-outline-text-primary: #ffffff;
-      --clarity-outline-text-secondary: #cccccc;
-      --clarity-outline-text-muted: #999999;
-      --clarity-outline-border: #555555;
-      --clarity-outline-hover: rgba(255, 255, 255, 0.1);
-      --clarity-outline-color-todo: #ff6b6b;
-      --clarity-outline-color-done: #4ecdc4;
-      --clarity-outline-color-priority: #ffa726;
-              --clarity-outline-color-blocked: #ffcc02;
-    }
+    /* Custom theme examples removed - using component defaults */
   </style>
 </head>
 <body>
@@ -294,11 +219,7 @@
 
   <!-- Rich Text Editor Demo -->
   <div class="demo-section">
-    <h2>Rich Text Editor Integration</h2>
-    <p>Individual task items can be embedded directly in rich text content, perfect for documentation and notes.</p>
-    
-    <div style="background: var(--bg-tertiary); padding: 2rem; border-radius: 8px; border: 1px solid var(--border); line-height: 1.8;">
-      <h3 style="margin-top: 0; color: var(--text-primary);">Project Planning Document</h3>
+    <div style="padding: 2rem; border: 1px solid var(--border); line-height: 1.8;">
       
       <p style="margin: 1rem 0; color: var(--text-primary);">
         This quarter we need to focus on several key initiatives. Here are the main tasks:
@@ -382,24 +303,23 @@
 
     const root = document.documentElement;
 
+    // Set theme attribute on all clarity-outline components
+    const outlines = document.querySelectorAll('clarity-outline');
+    outlines.forEach(outline => {
+      outline.setAttribute('theme', currentTheme);
+    });
+
     if (currentTheme === 'auto') {
       // Remove any forced theme and let CSS media queries handle it
       root.removeAttribute('data-theme');
-      // Remove all custom properties to let CSS handle them
+      // Remove page theme properties
       const properties = [
-        // Page theme properties
-        '--bg-primary', '--bg-secondary', '--bg-tertiary', '--text-primary', '--text-secondary', '--text-muted', '--border', '--hover',
-        // Web component properties
-        '--clarity-outline-bg-primary', '--clarity-outline-bg-secondary', '--clarity-outline-bg-tertiary',
-        '--clarity-outline-text-primary', '--clarity-outline-text-secondary', '--clarity-outline-text-muted',
-        '--clarity-outline-border', '--clarity-outline-border-focus', '--clarity-outline-hover', '--clarity-outline-focus',
-        '--clarity-outline-input-bg', '--clarity-outline-input-border', '--clarity-outline-popup-bg', '--clarity-outline-popup-shadow'
+        '--bg-primary', '--bg-secondary', '--bg-tertiary', '--text-primary', '--text-secondary', '--text-muted', '--border', '--hover'
       ];
       properties.forEach(prop => root.style.removeProperty(prop));
     } else if (currentTheme === 'light') {
-      // Force light theme
+      // Force light theme for page
       root.setAttribute('data-theme', 'light');
-      // Page theme
       root.style.setProperty('--bg-primary', '#ffffff');
       root.style.setProperty('--bg-secondary', '#f8f9fa');
       root.style.setProperty('--bg-tertiary', '#e9ecef');
@@ -408,27 +328,9 @@
       root.style.setProperty('--text-muted', '#adb5bd');
       root.style.setProperty('--border', '#dee2e6');
       root.style.setProperty('--hover', 'rgba(0, 0, 0, 0.05)');
-      // Web component theme
-      root.style.setProperty('--clarity-outline-bg-primary', '#ffffff');
-      root.style.setProperty('--clarity-outline-bg-secondary', '#f8f9fa');
-      root.style.setProperty('--clarity-outline-bg-tertiary', '#e9ecef');
-      root.style.setProperty('--clarity-outline-text-primary', '#212529');
-      root.style.setProperty('--clarity-outline-text-secondary', '#6c757d');
-      root.style.setProperty('--clarity-outline-text-muted', '#adb5bd');
-      root.style.setProperty('--clarity-outline-border', '#dee2e6');
-      root.style.setProperty('--clarity-outline-border-focus', '#007bff');
-      root.style.setProperty('--clarity-outline-hover', 'rgba(0, 0, 0, 0.05)');
-      root.style.setProperty('--clarity-outline-focus', 'rgba(0, 0, 0, 0.1)');
-      root.style.setProperty('--clarity-outline-input-bg', '#ffffff');
-      root.style.setProperty('--clarity-outline-input-border', '#ced4da');
-      root.style.setProperty('--clarity-outline-popup-bg', '#ffffff');
-      root.style.setProperty('--clarity-outline-popup-shadow', '0 4px 12px rgba(0, 0, 0, 0.15)');
-
-      console.log('Set light theme properties. Current bg-primary:', getComputedStyle(root).getPropertyValue('--clarity-outline-bg-primary'));
     } else if (currentTheme === 'dark') {
-      // Force dark theme
+      // Force dark theme for page
       root.setAttribute('data-theme', 'dark');
-      // Page theme
       root.style.setProperty('--bg-primary', '#1e1e1e');
       root.style.setProperty('--bg-secondary', '#2d2d2d');
       root.style.setProperty('--bg-tertiary', '#333333');
@@ -437,21 +339,6 @@
       root.style.setProperty('--text-muted', '#888');
       root.style.setProperty('--border', '#555');
       root.style.setProperty('--hover', 'rgba(255, 255, 255, 0.05)');
-      // Web component theme
-      root.style.setProperty('--clarity-outline-bg-primary', '#1e1e1e');
-      root.style.setProperty('--clarity-outline-bg-secondary', '#2d2d2d');
-      root.style.setProperty('--clarity-outline-bg-tertiary', '#333333');
-      root.style.setProperty('--clarity-outline-text-primary', '#f8f8f2');
-      root.style.setProperty('--clarity-outline-text-secondary', '#ddd');
-      root.style.setProperty('--clarity-outline-text-muted', '#888');
-      root.style.setProperty('--clarity-outline-border', '#555');
-      root.style.setProperty('--clarity-outline-border-focus', '#f92672');
-      root.style.setProperty('--clarity-outline-hover', 'rgba(255, 255, 255, 0.05)');
-      root.style.setProperty('--clarity-outline-focus', 'rgba(255, 255, 255, 0.1)');
-      root.style.setProperty('--clarity-outline-input-bg', '#2d2d2d');
-      root.style.setProperty('--clarity-outline-input-border', '#555');
-      root.style.setProperty('--clarity-outline-popup-bg', '#2d2d2d');
-      root.style.setProperty('--clarity-outline-popup-shadow', '0 4px 12px rgba(0, 0, 0, 0.3)');
     }
 
     // Update button text
