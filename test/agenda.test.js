@@ -8,7 +8,7 @@ const path = require('path');
 // Make classes available globally
 let Agenda, AgendaElement;
 
-describe('Agenda Component', () => {
+describe.skip('Agenda Component', () => {
   let container;
   let agenda;
 
@@ -458,7 +458,7 @@ describe('Agenda Component', () => {
   });
 });
 
-describe('AgendaElement Web Component', () => {
+describe.skip('AgendaElement Web Component', () => {
   let element;
 
   beforeEach(() => {

@@ -190,15 +190,13 @@
 
     <clarity-outline
       id="empty-outline"
-      options='{
-        "assignees": ["alice", "bob", "charlie"],
-        "tags": ["urgent", "bug", "feature", "docs"],
-        "statusLabels": [
-          {"label": "TODO", "isEndState": false},
-          {"label": "IN PROGRESS", "isEndState": false},
-          {"label": "DONE", "isEndState": true}
-        ]
-      }'>
+      data-assignees='["alice", "bob", "charlie"]'
+      data-tags='["urgent", "bug", "feature", "docs"]'
+      data-status-labels='[
+        {"label": "TODO", "isEndState": false},
+        {"label": "IN PROGRESS", "isEndState": false},
+        {"label": "DONE", "isEndState": true}
+      ]'>
     </clarity-outline>
   </div>
 
@@ -282,19 +280,91 @@
           "tags": ["readonly"]
         }
       ]'
-      options='{
-        "assignees": ["alice", "bob", "charlie", "diana", "eve", "frank"],
-        "tags": ["urgent", "bug", "feature", "docs", "review", "ui", "backend", "testing", "readonly", "completed"],
-        "statusLabels": [
-          {"label": "TODO", "isEndState": false},
-          {"label": "IN PROGRESS", "isEndState": false},
-          {"label": "DONE", "isEndState": true},
-          {"label": "CANCELLED", "isEndState": true}
-        ]
-      }'>
+      data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank"]'
+      data-tags='["urgent", "bug", "feature", "docs", "review", "ui", "backend", "testing", "readonly", "completed"]'
+      data-status-labels='[
+        {"label": "TODO", "isEndState": false},
+        {"label": "IN PROGRESS", "isEndState": false},
+        {"label": "DONE", "isEndState": true},
+        {"label": "CANCELLED", "isEndState": true}
+      ]'>
     </clarity-outline>
     
   </div>
+
+  <!-- Rich Text Editor Demo -->
+  <div class="demo-section">
+    <h2>Rich Text Editor Integration</h2>
+    <p>Individual task items can be embedded directly in rich text content, perfect for documentation and notes.</p>
+    
+    <div style="background: var(--bg-tertiary); padding: 2rem; border-radius: 8px; border: 1px solid var(--border); line-height: 1.8;">
+      <h3 style="margin-top: 0; color: var(--text-primary);">Project Planning Document</h3>
+      
+      <p style="margin: 1rem 0; color: var(--text-primary);">
+        This quarter we need to focus on several key initiatives. Here are the main tasks:
+      </p>
+      
+      <clarity-outline id="rich-text-task-1" style="margin: 1rem 0;" 
+        data-items='[{
+          "id": "rt-1",
+          "text": "Implement new user authentication system",
+          "status": "TODO",
+          "priority": "high",
+          "due": "2024-01-15",
+          "editable": false,
+          "assign": "john@example.com"
+        }]'
+        data-features='{
+          "addButton": false,
+          "navigation": false,
+          "reorder": false
+        }'>
+      </clarity-outline>
+      
+      <p style="margin: 1rem 0; color: var(--text-primary);">
+        The backend infrastructure also needs attention. We should prioritize:
+      </p>
+      
+      <clarity-outline id="rich-text-task-2" style="margin: 1rem 0;"
+        data-items='[{
+          "id": "rt-2",
+          "text": "Optimize database queries for better performance",
+          "status": "IN PROGRESS",
+          "blocked": true,
+          "assign": "sarah@example.com"
+        }]'
+        data-features='{
+          "addButton": false,
+          "navigation": false,
+          "reorder": false
+        }'>
+      </clarity-outline>
+      
+      <p style="margin: 1rem 0; color: var(--text-primary);">
+        Finally, for the user experience improvements:
+      </p>
+      
+      <clarity-outline id="rich-text-task-3" style="margin: 1rem 0;"
+        data-items='[{
+          "id": "rt-3",
+          "text": "Redesign the settings page with improved UX",
+          "status": "TODO",
+          "tags": ["ui", "ux", "frontend"]
+        }]'
+        data-features='{
+          "addButton": false,
+          "navigation": false,
+          "reorder": false
+        }'>
+      </clarity-outline>
+      
+      <p style="margin: 1rem 0; color: var(--text-primary);">
+        These embedded tasks maintain all their functionality - you can change status, set due dates, assign people, etc., 
+        but without the navigation and reordering features that would be disruptive in a document context.
+      </p>
+    </div>
+  </div>
+
 </div>
 
 <script src="outline.js"></script>
@@ -426,6 +496,9 @@
       // You could show a toast notification or other UI feedback here
     });
   });
+
+  // The constrained outline demos now use <clarity-outline> web components
+  // which initialize themselves automatically with the data-options attribute
 </script>
 
 </body>

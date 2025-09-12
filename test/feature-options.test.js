@@ -192,11 +192,13 @@ describe('Feature Options', () => {
     expect(tagsSpy).toHaveBeenCalled();
   });
 
-  test('should handle feature options via options attribute', async () => {
+  test('should handle feature options via data-* attributes', async () => {
     container.innerHTML = `
       <clarity-outline 
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
-        options='{"features": {"priority": true, "blocked": false, "due": true, "schedule": true, "assign": false, "tags": true}, "assignees": ["alice"], "tags": ["urgent"]}'>
+        data-features='{"priority": true, "blocked": false, "due": true, "schedule": true, "assign": false, "tags": true}'
+        data-assignees='["alice"]'
+        data-tags='["urgent"]'>
       </clarity-outline>
     `;
 

@@ -1,25 +1,6 @@
 class Outline {
   constructor(el, options = {}) {
     this.el = el;
-    // Set up default features
-    const defaultFeatures = {
-      priority: true,
-      blocked: true,
-      due: true,
-      schedule: true,
-      assign: true,
-      tags: true,
-      comments: true,
-      worklog: true,
-      remove: true,
-      addButton: true,
-      navigation: true,
-      reorder: true
-    };
-
-    // Merge user features with defaults
-    const features = { ...defaultFeatures, ...options.features };
-
     this.options = {
       assignees: options.assignees || [],
       tags: options.tags || [],
@@ -28,27 +9,52 @@ class Outline {
         { label: 'TODO', isEndState: false },
         { label: 'DONE', isEndState: true }
       ],
-      features: features,
-      ...options,
-      // Ensure features don't get overridden by ...options
-      features: features
+      features: {
+        priority: options.features?.priority !== false, // default: true
+        blocked: options.features?.blocked !== false, // default: true
+        due: (options.features?.due !== undefined ? options.features.due !== false : (options.features?.dueDate !== undefined ? options.features.dueDate !== false : true)), // default: true (backward compatibility with dueDate)
+        schedule: options.features?.schedule !== false, // default: true
+        assign: options.features?.assign !== false, // default: true
+        tags: options.features?.tags !== false, // default: true
+        comments: options.features?.comments !== false, // default: true
+        worklog: options.features?.worklog !== false, // default: true
+        remove: options.features?.remove !== false, // default: true
+        // status, edit, and open are always enabled (non-customizable)
+      },
+      ...options
     };
     this.init();
   }
 
   init() {
-    // Initialize all existing li elements as TaskItems
     this.el.querySelectorAll("li").forEach(li => {
-      const taskItem = TaskItem.fromElement(li, this);
-      // TaskItem initialization handles tabIndex, buttons, and status label click handler
+      li.tabIndex = 0;
+      this.addHoverButtons(li);
+      
+      // Add click handler to existing status labels
+      const statusLabel = li.querySelector(".outline-label");
+      if (statusLabel) {
+        statusLabel.style.cursor = "pointer";
+        statusLabel.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if(!this.isItemEditable(li)) {
+            this.showPermissionDeniedFeedback(li);
+            return;
+          }
+          this.showStatusPopup(li, statusLabel);
+        });
+      }
     });
-    
     this.bindEvents();
     this.initNewTodoButton();
 
-    // Initialize child counts and button visibility for existing items
+    // Initialize child counts for existing items
     this.el.querySelectorAll("li").forEach(li => {
       this.updateChildCount(li);
+    });
+
+    // Initialize hover button visibility for all items
+    this.el.querySelectorAll("li").forEach(li => {
       this.updateHoverButtonsVisibility(li);
     });
   }
@@ -78,11 +84,6 @@ class Outline {
   }
 
   initNewTodoButton() {
-    // Skip if addButton feature is disabled
-    if (!this.options.features.addButton) {
-      return;
-    }
-
     // Check if button already exists
     if (this.addButton) {
       return; // Button already exists, don't create another one
@@ -101,19 +102,47 @@ class Outline {
   }
 
   createNewTodo() {
-    // Create a new TaskItem and enter edit mode immediately
-    const taskItem = TaskItem.create(this, "New todo", "TODO");
-    
+    // Create a new todo item and enter edit mode immediately
+    const newLi = document.createElement("li");
+    newLi.tabIndex = 0;
+    newLi.dataset.id = crypto.randomUUID();
+
+    // Create the label span
+    const labelSpan = document.createElement("span");
+    labelSpan.className = "outline-label";
+    labelSpan.textContent = "TODO";
+    labelSpan.style.cursor = "pointer";
+    labelSpan.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(!this.isItemEditable(newLi)) {
+        this.showPermissionDeniedFeedback(newLi);
+        return;
+      }
+      this.showStatusPopup(newLi, labelSpan);
+    });
+
+    // Create the text span
+    const textSpan = document.createElement("span");
+    textSpan.className = "outline-text";
+    textSpan.textContent = "New todo";
+
+    newLi.appendChild(labelSpan);
+    newLi.appendChild(document.createTextNode(" "));
+    newLi.appendChild(textSpan);
+
+    // Add hover buttons
+    this.addHoverButtons(newLi);
+
     // Add to the list
-    this.el.appendChild(taskItem.li);
+    this.el.appendChild(newLi);
 
     // Enter edit mode immediately
-    taskItem.enterEditMode();
+    this.enterEditMode(newLi);
 
     // Emit add event
     this.emit("outline:add", {
-      text: taskItem.text,
-      id: taskItem.id,
+      text: "New todo",
+      id: newLi.dataset.id,
       parentId: null
     });
   }
@@ -229,7 +258,7 @@ class Outline {
       }
 
       // Handle Alt key combinations FIRST (before single-key shortcuts)
-      if(e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.reorder) {
+      if(e.altKey && !e.ctrlKey && !e.metaKey) {
         console.log('Alt key detected:', e.code, 'idx:', idx, 'siblings:', siblings.length, 'e.altKey:', e.altKey, 'e.key:', e.key);
 
         // Move item down (Alt+N, Alt+J, Alt+ArrowDown)
@@ -501,9 +530,8 @@ class Outline {
       }
 
       // Focus Navigation - Move Down (ArrowDown, Ctrl+N, J)
-      if(this.options.features.navigation) {
-        const moveDownKeys = ['ArrowDown', 'n', 'j'];
-        if(moveDownKeys.includes(e.key) &&
+      const moveDownKeys = ['ArrowDown', 'n', 'j'];
+      if(moveDownKeys.includes(e.key) &&
          ((e.key === 'ArrowDown' && !e.altKey && !e.ctrlKey && !e.metaKey) ||
           (e.key === 'n' && e.ctrlKey && !e.altKey && !e.metaKey) ||
           (e.key === 'j' && !e.altKey && !e.ctrlKey && !e.metaKey))) {
@@ -570,7 +598,6 @@ class Outline {
         }
         return;
       }
-      } // End navigation feature check
 
 
 
@@ -1297,9 +1324,228 @@ class Outline {
   }
 
   addHoverButtons(li) {
-    // Use TaskItem to handle button creation and setup
-    const taskItem = TaskItem.fromElement(li, this);
-    // TaskItem.initialize() handles all the button setup automatically
+    // Don't add buttons if they already exist
+    if (li.querySelector(".outline-hover-buttons")) return;
+
+    const buttonsContainer = document.createElement("div");
+    buttonsContainer.className = "outline-hover-buttons";
+
+    // Priority button (only if enabled)
+    if (this.options.features.priority) {
+      const priorityBtn = document.createElement("button");
+      priorityBtn.className = "hover-button priority-button";
+      priorityBtn.setAttribute("data-type", "priority");
+      priorityBtn.tabIndex = -1; // Remove from tab navigation
+      priorityBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.togglePriority(li);
+      });
+      buttonsContainer.appendChild(priorityBtn);
+    }
+
+          // Blocked button (only if enabled)
+      if (this.options.features.blocked) {
+        const blockedBtn = document.createElement("button");
+        blockedBtn.className = "hover-button blocked-button";
+        blockedBtn.setAttribute("data-type", "blocked");
+        blockedBtn.tabIndex = -1; // Remove from tab navigation
+        blockedBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if(!this.isItemEditable(li)) {
+            this.showPermissionDeniedFeedback(li);
+            return;
+          }
+          this.toggleBlocked(li);
+        });
+        buttonsContainer.appendChild(blockedBtn);
+      }
+
+    // Due button (only if enabled)
+    if (this.options.features.due) {
+      const dueBtn = document.createElement("button");
+      dueBtn.className = "hover-button due-button";
+      dueBtn.setAttribute("data-type", "due");
+      dueBtn.tabIndex = -1; // Remove from tab navigation
+      dueBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.showDuePopup(li, dueBtn);
+      });
+      buttonsContainer.appendChild(dueBtn);
+    }
+
+    // Schedule button (only if enabled)
+    if (this.options.features.schedule) {
+      const scheduleBtn = document.createElement("button");
+      scheduleBtn.className = "hover-button schedule-button";
+      scheduleBtn.setAttribute("data-type", "schedule");
+      scheduleBtn.tabIndex = -1; // Remove from tab navigation
+      scheduleBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.showSchedulePopup(li, scheduleBtn);
+      });
+      buttonsContainer.appendChild(scheduleBtn);
+    }
+
+    // Assign button (only if enabled)
+    if (this.options.features.assign) {
+      const assignBtn = document.createElement("button");
+      assignBtn.className = "hover-button assign-button";
+      assignBtn.setAttribute("data-type", "assign");
+      assignBtn.tabIndex = -1; // Remove from tab navigation
+      assignBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.showAssignPopup(li, assignBtn);
+      });
+      buttonsContainer.appendChild(assignBtn);
+    }
+
+    // Tags button (only if enabled)
+    if (this.options.features.tags) {
+      const tagsBtn = document.createElement("button");
+      tagsBtn.className = "hover-button tags-button";
+      tagsBtn.setAttribute("data-type", "tags");
+      tagsBtn.tabIndex = -1; // Remove from tab navigation
+      tagsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.showTagsPopup(li, tagsBtn);
+      });
+      buttonsContainer.appendChild(tagsBtn);
+    }
+
+    // Comments button (only if enabled)
+    if (this.options.features.comments) {
+      const commentsBtn = document.createElement("button");
+      commentsBtn.className = "hover-button comments-button";
+      commentsBtn.setAttribute("data-type", "comments");
+      commentsBtn.tabIndex = -1; // Remove from tab navigation
+      commentsBtn.innerHTML = "<u>c</u>omment";
+      commentsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.showCommentsPopup(li, commentsBtn);
+      });
+      buttonsContainer.appendChild(commentsBtn);
+    }
+
+    // Worklog button (only if enabled)
+    if (this.options.features.worklog) {
+      const worklogBtn = document.createElement("button");
+      worklogBtn.className = "hover-button worklog-button";
+      worklogBtn.setAttribute("data-type", "worklog");
+      worklogBtn.tabIndex = -1; // Remove from tab navigation
+      worklogBtn.innerHTML = "<u>w</u>orklog";
+      worklogBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.showWorklogPopup(li, worklogBtn);
+      });
+      buttonsContainer.appendChild(worklogBtn);
+    }
+
+
+    // Remove button (only if enabled)
+    if (this.options.features.remove) {
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "hover-button remove-button";
+      removeBtn.setAttribute("data-type", "remove");
+      removeBtn.tabIndex = -1; // Remove from tab navigation
+      removeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.showRemovePopup(li, removeBtn);
+      });
+      buttonsContainer.appendChild(removeBtn);
+    }
+
+
+    // Edit button - always enabled
+    const editBtn = document.createElement("button");
+    editBtn.className = "hover-button edit-button";
+    editBtn.setAttribute("data-type", "edit");
+    editBtn.textContent = "edit";
+    editBtn.tabIndex = -1; // Remove from tab navigation
+    editBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(!this.isItemEditable(li)) {
+        this.showPermissionDeniedFeedback(li);
+        return;
+      }
+      this.enterEditMode(li);
+    });
+    buttonsContainer.appendChild(editBtn);
+
+    // Open button (for opening item) - always enabled
+    const openBtn = document.createElement("button");
+    openBtn.className = "hover-button open-button";
+    openBtn.setAttribute("data-type", "open");
+    openBtn.innerHTML = "<u>o</u>pen";
+    openBtn.tabIndex = -1; // Remove from tab navigation
+    openBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.openItem(li);
+    });
+    buttonsContainer.appendChild(openBtn);
+
+    // Reorder buttons: open, edit, remove, then others
+    const desiredOrder = [
+      '.open-button',
+      '.edit-button',
+      '.remove-button',
+      '.schedule-button',
+      '.due-button',
+      '.priority-button',
+      '.blocked-button',
+      '.assign-button',
+      '.tags-button',
+      '.comments-button',
+      '.worklog-button'
+    ];
+    desiredOrder.forEach(selector => {
+      const btn = buttonsContainer.querySelector(selector);
+      if (btn) {
+        buttonsContainer.appendChild(btn);
+      }
+    });
+
+    // Insert after the child-count if it exists, otherwise after the text span
+    const childCount = li.querySelector(".child-count");
+    if (childCount) {
+      childCount.after(buttonsContainer);
+    } else {
+      const textSpan = li.querySelector(".outline-text");
+      if (textSpan) {
+        textSpan.after(buttonsContainer);
+      } else {
+        li.appendChild(buttonsContainer);
+      }
+    }
+
+    // Add hover delay functionality
+    this.addHoverDelayHandlers(li, buttonsContainer);
+
+    // Update button text based on current data
+    this.updateHoverButtons(li);
   }
 
   addHoverDelayHandlers(li, buttonsContainer) {
@@ -3094,469 +3340,6 @@ class Outline {
   }
 
   emit(name,detail){ this.el.dispatchEvent(new CustomEvent(name,{detail})); }
-
-  // Static helper methods for creating constrained outlines
-  static createSingleItemOutline(container, options = {}) {
-    // Create a ul element for the single item
-    const ul = document.createElement('ul');
-    ul.className = 'outline-list';
-    container.appendChild(ul);
-    
-    // Configure for single item use (disable navigation and add button)
-    const constrainedOptions = {
-      features: {
-        // Keep task-specific features
-        priority: true,
-        blocked: true,
-        due: true,
-        schedule: true,
-        assign: true,
-        tags: true,
-        comments: true,
-        worklog: true,
-        remove: true,
-        // Disable outline-specific features
-        addButton: false,
-        navigation: false,
-        reorder: false,
-        ...options.features // Allow overrides
-      },
-      ...options
-    };
-    
-    return new Outline(ul, constrainedOptions);
-  }
-
-  static createAgendaItemOutline(container, options = {}) {
-    // Create a ul element for the agenda item
-    const ul = document.createElement('ul');
-    ul.className = 'outline-list';
-    container.appendChild(ul);
-    
-    // Configure for agenda use (allow some interaction but no navigation)
-    const agendaOptions = {
-      features: {
-        // Keep task-specific features
-        priority: true,
-        blocked: true,
-        due: true,
-        schedule: true,
-        assign: true,
-        tags: true,
-        comments: true,
-        worklog: true,
-        remove: false, // Usually don't want to remove from agenda
-        // Disable outline-specific features
-        addButton: false,
-        navigation: false,
-        reorder: false,
-        ...options.features // Allow overrides
-      },
-      ...options
-    };
-    
-    return new Outline(ul, agendaOptions);
-  }
-}
-
-// Helper class for creating and managing task item buttons
-class TaskItemButtons {
-  constructor(outlineInstance, li, features) {
-    this.outline = outlineInstance;
-    this.li = li;
-    this.features = features;
-  }
-
-  // Create the buttons container with all buttons
-  createButtonsContainer() {
-    // Don't add buttons if they already exist
-    if (this.li.querySelector(".outline-hover-buttons")) return null;
-
-    const buttonsContainer = document.createElement("div");
-    buttonsContainer.className = "outline-hover-buttons";
-
-    // Create all buttons based on enabled features
-    this.createPriorityButton(buttonsContainer);
-    this.createBlockedButton(buttonsContainer);
-    this.createDueButton(buttonsContainer);
-    this.createScheduleButton(buttonsContainer);
-    this.createAssignButton(buttonsContainer);
-    this.createTagsButton(buttonsContainer);
-    this.createCommentsButton(buttonsContainer);
-    this.createWorklogButton(buttonsContainer);
-    this.createRemoveButton(buttonsContainer);
-    this.createEditButton(buttonsContainer); // Always enabled
-    this.createOpenButton(buttonsContainer); // Always enabled
-
-    // Reorder buttons according to desired order
-    this.reorderButtons(buttonsContainer);
-
-    return buttonsContainer;
-  }
-
-  createPriorityButton(container) {
-    if (!this.features.priority) return;
-
-    const priorityBtn = document.createElement("button");
-    priorityBtn.className = "hover-button priority-button";
-    priorityBtn.setAttribute("data-type", "priority");
-    priorityBtn.tabIndex = -1;
-    priorityBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.togglePriority(this.li);
-    });
-    container.appendChild(priorityBtn);
-  }
-
-  createBlockedButton(container) {
-    if (!this.features.blocked) return;
-
-    const blockedBtn = document.createElement("button");
-    blockedBtn.className = "hover-button blocked-button";
-    blockedBtn.setAttribute("data-type", "blocked");
-    blockedBtn.tabIndex = -1;
-    blockedBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.toggleBlocked(this.li);
-    });
-    container.appendChild(blockedBtn);
-  }
-
-  createDueButton(container) {
-    if (!this.features.due) return;
-
-    const dueBtn = document.createElement("button");
-    dueBtn.className = "hover-button due-button";
-    dueBtn.setAttribute("data-type", "due");
-    dueBtn.tabIndex = -1;
-    dueBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.showDuePopup(this.li, dueBtn);
-    });
-    container.appendChild(dueBtn);
-  }
-
-  createScheduleButton(container) {
-    if (!this.features.schedule) return;
-
-    const scheduleBtn = document.createElement("button");
-    scheduleBtn.className = "hover-button schedule-button";
-    scheduleBtn.setAttribute("data-type", "schedule");
-    scheduleBtn.tabIndex = -1;
-    scheduleBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.showSchedulePopup(this.li, scheduleBtn);
-    });
-    container.appendChild(scheduleBtn);
-  }
-
-  createAssignButton(container) {
-    if (!this.features.assign) return;
-
-    const assignBtn = document.createElement("button");
-    assignBtn.className = "hover-button assign-button";
-    assignBtn.setAttribute("data-type", "assign");
-    assignBtn.tabIndex = -1;
-    assignBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.showAssignPopup(this.li, assignBtn);
-    });
-    container.appendChild(assignBtn);
-  }
-
-  createTagsButton(container) {
-    if (!this.features.tags) return;
-
-    const tagsBtn = document.createElement("button");
-    tagsBtn.className = "hover-button tags-button";
-    tagsBtn.setAttribute("data-type", "tags");
-    tagsBtn.tabIndex = -1;
-    tagsBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.showTagsPopup(this.li, tagsBtn);
-    });
-    container.appendChild(tagsBtn);
-  }
-
-  createCommentsButton(container) {
-    if (!this.features.comments) return;
-
-    const commentsBtn = document.createElement("button");
-    commentsBtn.className = "hover-button comments-button";
-    commentsBtn.setAttribute("data-type", "comments");
-    commentsBtn.tabIndex = -1;
-    commentsBtn.innerHTML = "<u>c</u>omment";
-    commentsBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.outline.showCommentsPopup(this.li, commentsBtn);
-    });
-    container.appendChild(commentsBtn);
-  }
-
-  createWorklogButton(container) {
-    if (!this.features.worklog) return;
-
-    const worklogBtn = document.createElement("button");
-    worklogBtn.className = "hover-button worklog-button";
-    worklogBtn.setAttribute("data-type", "worklog");
-    worklogBtn.tabIndex = -1;
-    worklogBtn.innerHTML = "<u>w</u>orklog";
-    worklogBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.outline.showWorklogPopup(this.li, worklogBtn);
-    });
-    container.appendChild(worklogBtn);
-  }
-
-  createRemoveButton(container) {
-    if (!this.features.remove) return;
-
-    const removeBtn = document.createElement("button");
-    removeBtn.className = "hover-button remove-button";
-    removeBtn.setAttribute("data-type", "remove");
-    removeBtn.tabIndex = -1;
-    removeBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.showRemovePopup(this.li, removeBtn);
-    });
-    container.appendChild(removeBtn);
-  }
-
-  createEditButton(container) {
-    const editBtn = document.createElement("button");
-    editBtn.className = "hover-button edit-button";
-    editBtn.setAttribute("data-type", "edit");
-    editBtn.textContent = "edit";
-    editBtn.tabIndex = -1;
-    editBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (!this.outline.isItemEditable(this.li)) {
-        this.outline.showPermissionDeniedFeedback(this.li);
-        return;
-      }
-      this.outline.enterEditMode(this.li);
-    });
-    container.appendChild(editBtn);
-  }
-
-  createOpenButton(container) {
-    const openBtn = document.createElement("button");
-    openBtn.className = "hover-button open-button";
-    openBtn.setAttribute("data-type", "open");
-    openBtn.innerHTML = "<u>o</u>pen";
-    openBtn.tabIndex = -1;
-    openBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.outline.openItem(this.li);
-    });
-    container.appendChild(openBtn);
-  }
-
-  reorderButtons(container) {
-    const desiredOrder = [
-      '.open-button',
-      '.edit-button',
-      '.remove-button',
-      '.schedule-button',
-      '.due-button',
-      '.priority-button',
-      '.blocked-button',
-      '.assign-button',
-      '.tags-button',
-      '.comments-button',
-      '.worklog-button'
-    ];
-    
-    desiredOrder.forEach(selector => {
-      const btn = container.querySelector(selector);
-      if (btn) {
-        container.appendChild(btn);
-      }
-    });
-  }
-}
-
-// TaskItem class - wraps <li> elements with task-specific behavior
-class TaskItem {
-  constructor(li, outlineInstance) {
-    this.li = li;
-    this.outline = outlineInstance;
-    this.buttonManager = null;
-    
-    // Initialize if this is a new task item
-    if (!li.dataset.taskItemInitialized) {
-      this.initialize();
-    }
-  }
-
-  initialize() {
-    // Mark as initialized to prevent double initialization
-    this.li.dataset.taskItemInitialized = 'true';
-    
-    // Set up basic properties
-    this.li.tabIndex = 0;
-    
-    // Add hover buttons using our TaskItemButtons helper
-    this.addButtons();
-    
-    // Set up status label click handler
-    this.setupStatusLabelHandler();
-  }
-
-  addButtons() {
-    this.buttonManager = new TaskItemButtons(this.outline, this.li, this.outline.options.features);
-    const buttonsContainer = this.buttonManager.createButtonsContainer();
-    
-    if (!buttonsContainer) return; // Buttons already exist
-    
-    // Insert buttons in the correct position
-    this.insertButtonsContainer(buttonsContainer);
-    
-    // Set up hover behavior
-    this.outline.addHoverDelayHandlers(this.li, buttonsContainer);
-    
-    // Update button states
-    this.updateButtons();
-  }
-
-  insertButtonsContainer(buttonsContainer) {
-    // Insert after the child-count if it exists, otherwise after the text span
-    const childCount = this.li.querySelector(".child-count");
-    if (childCount) {
-      childCount.after(buttonsContainer);
-    } else {
-      const textSpan = this.li.querySelector(".outline-text");
-      if (textSpan) {
-        textSpan.after(buttonsContainer);
-      } else {
-        this.li.appendChild(buttonsContainer);
-      }
-    }
-  }
-
-  setupStatusLabelHandler() {
-    const statusLabel = this.li.querySelector(".outline-label");
-    if (statusLabel && !statusLabel.dataset.handlerAdded) {
-      statusLabel.style.cursor = "pointer";
-      statusLabel.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (!this.isEditable()) {
-          this.showPermissionDeniedFeedback();
-          return;
-        }
-        this.outline.showStatusPopup(this.li, statusLabel);
-      });
-      statusLabel.dataset.handlerAdded = 'true';
-    }
-  }
-
-  // Delegate key methods to outline instance for now
-  // (In future steps, we can move more logic into this class)
-  
-  isEditable() {
-    return this.outline.isItemEditable(this.li);
-  }
-
-  showPermissionDeniedFeedback() {
-    return this.outline.showPermissionDeniedFeedback(this.li);
-  }
-
-  enterEditMode() {
-    return this.outline.enterEditMode(this.li);
-  }
-
-  togglePriority() {
-    return this.outline.togglePriority(this.li);
-  }
-
-  toggleBlocked() {
-    return this.outline.toggleBlocked(this.li);
-  }
-
-  updateButtons() {
-    return this.outline.updateHoverButtons(this.li);
-  }
-
-  updateChildCount() {
-    return this.outline.updateChildCount(this.li);
-  }
-
-  updateButtonsVisibility() {
-    return this.outline.updateHoverButtonsVisibility(this.li);
-  }
-
-  // Getters for common properties
-  get id() {
-    return this.li.dataset.id;
-  }
-
-  get text() {
-    const textSpan = this.li.querySelector(".outline-text");
-    return textSpan ? textSpan.textContent : '';
-  }
-
-  get status() {
-    const labelSpan = this.li.querySelector(".outline-label");
-    return labelSpan ? labelSpan.textContent : 'TODO';
-  }
-
-  // Static method to create a TaskItem from an existing li element
-  static fromElement(li, outlineInstance) {
-    return new TaskItem(li, outlineInstance);
-  }
-
-  // Static method to create a new TaskItem with basic structure
-  static create(outlineInstance, text = "New todo", status = "TODO") {
-    const li = document.createElement("li");
-    li.tabIndex = 0;
-    li.dataset.id = crypto.randomUUID();
-
-    // Create the label span
-    const labelSpan = document.createElement("span");
-    labelSpan.className = "outline-label";
-    labelSpan.textContent = status;
-
-    // Create the text span
-    const textSpan = document.createElement("span");
-    textSpan.className = "outline-text";
-    textSpan.textContent = text;
-
-    // Assemble the structure
-    li.appendChild(labelSpan);
-    li.appendChild(document.createTextNode(" "));
-    li.appendChild(textSpan);
-
-    // Return a new TaskItem instance
-    return new TaskItem(li, outlineInstance);
-  }
 }
 
 // Web Component Wrapper
@@ -3647,12 +3430,6 @@ class OutlineElement extends HTMLElement {
       }
     }
 
-    // Parse current user from data-current-user attribute
-    const currentUser = this.getAttribute('data-current-user');
-    if (currentUser) {
-      options.currentUser = currentUser;
-    }
-
     // Parse feature options from data-features attribute
     const features = this.getAttribute('data-features');
     if (features) {
@@ -3663,6 +3440,16 @@ class OutlineElement extends HTMLElement {
       }
     }
 
+    // Parse options from options attribute (JSON)
+    const optionsAttr = this.getAttribute('options');
+    if (optionsAttr) {
+      try {
+        const parsedOptions = JSON.parse(optionsAttr);
+        Object.assign(options, parsedOptions);
+      } catch (e) {
+        console.warn('Invalid options JSON, using individual attributes');
+      }
+    }
 
     return options;
   }

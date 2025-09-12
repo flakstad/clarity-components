@@ -215,7 +215,7 @@ describe('Outline Web Component', () => {
       document.body.appendChild(container);
 
       const outlineList = document.createElement('clarity-outline');
-      outlineList.setAttribute('options', JSON.stringify(customOptions));
+      outlineList.setAttribute('data-status-labels', JSON.stringify(customOptions.statusLabels));
       outlineList.setAttribute('data-items', JSON.stringify([
         {
           id: '1',
