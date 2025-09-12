@@ -306,7 +306,8 @@ Clicking on a tag closes the popup. Would be best that clicking only toggles a t
 CLOSED: [2025-09-12 Fri 14:47]
 outline.js:3803 Uncaught TypeError: this.isItemEditable is not a function
 (anonymous)	@	outline.js:3803
-* TODO "archive" popup does not open from the archive action button location like the others actions do
+* DONE "archive" popup does not open from the archive action button location like the others actions do
+CLOSED: [2025-09-12 Fri 15:05]
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.

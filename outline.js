@@ -1613,6 +1613,8 @@ class Outline {
 
     // Check if button is visible and has proper dimensions
     const buttonRect = button.getBoundingClientRect();
+    
+    
     if (buttonRect.width === 0 || buttonRect.height === 0) {
       // Button is not visible (hidden), position relative to the todo text instead
       const li = button.closest('li');
@@ -1634,6 +1636,7 @@ class Outline {
     const positionedLeft = this.calculateCenterOrientedPosition(popup, left, containerRect.width);
     popup.style.left = `${positionedLeft}px`;
     popup.style.top = `${top}px`;
+    
   }
 
   /**
@@ -1653,23 +1656,16 @@ class Outline {
       popupWidth = 200; // Default width
     }
 
-    const centerX = containerWidth / 2;
-
-    // If the button is on the right side of the screen, open popup to the left
-    if (buttonLeft > centerX) {
-      // Position popup to the left of the button, ensuring it doesn't go off-screen
-      const popupLeft = Math.max(0, buttonLeft - popupWidth);
+    // Check if popup would go off the right edge if positioned at button location
+    const rightEdge = buttonLeft + popupWidth;
+    
+    if (rightEdge > containerWidth - 10) {
+      // Popup would go off-screen, position it to the left to keep it visible
+      const popupLeft = Math.max(0, containerWidth - popupWidth - 10);
       return popupLeft;
     } else {
-      // Button is on the left side, open popup to the right (default behavior)
-      const rightEdge = buttonLeft + popupWidth;
-      if (rightEdge > containerWidth) {
-        // Adjust left position to keep popup within container
-        const adjustedLeft = Math.max(0, containerWidth - popupWidth - 10);
-        return adjustedLeft;
-      } else {
-        return buttonLeft;
-      }
+      // Popup fits at button location, use button position
+      return buttonLeft;
     }
   }
 
@@ -3453,6 +3449,7 @@ class TaskItemButtons {
     archiveBtn.className = "hover-button archive-button";
     archiveBtn.setAttribute("data-type", "archive");
     archiveBtn.tabIndex = -1;
+    archiveBtn.innerHTML = "a<u>r</u>chive";
     archiveBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (!this.outline.isItemEditable(this.li)) {
