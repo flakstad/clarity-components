@@ -664,10 +664,44 @@ class Agenda {
   }
 
   createTaskElement(task) {
+    // Create a wrapper div for the agenda task
     const taskElement = document.createElement('div');
     taskElement.className = 'agenda-task';
     taskElement.dataset.id = task.id;
 
+    // Create constrained outline for this task
+    const outlineOptions = {
+      statusLabels: this.options.statusLabels,
+      features: {
+        // Enable task-specific features
+        priority: true,
+        blocked: true,
+        due: true,
+        schedule: true,
+        assign: true,
+        tags: true,
+        comments: true,
+        worklog: true,
+        remove: false, // Usually don't want to remove from agenda
+        // Disable outline-specific features
+        addButton: false,
+        navigation: false,
+        reorder: false
+      }
+    };
+
+    const taskOutline = Outline.createAgendaItemOutline(taskElement, outlineOptions);
+    
+    // Prepare task data for the outline
+    const outlineTask = {
+      ...task,
+      // Prepend project name to task text for better organization
+      text: task.project ? `${task.project.name}: ${task.text}` : task.text
+    };
+    
+    // The tasks are now pre-rendered in HTML, so we don't need to add them programmatically
+
+    // Add agenda-specific styling classes to the wrapper
     if (task.priority) {
       taskElement.classList.add('priority');
     }
@@ -685,85 +719,6 @@ class Agenda {
       taskElement.classList.add('completed');
     }
 
-    const taskContent = document.createElement('div');
-    taskContent.className = 'agenda-task-content';
-
-    // Status label (if not completed or if it should show)
-    if (task.status && (!task.noLabel || !isCompleted)) {
-      const statusLabel = document.createElement('span');
-      statusLabel.className = 'agenda-task-status';
-      statusLabel.textContent = task.status;
-      taskContent.appendChild(statusLabel);
-      taskContent.appendChild(document.createTextNode(' '));
-    }
-
-    // Task text with project name prepended
-    const taskText = document.createElement('span');
-    taskText.className = 'agenda-task-text';
-    
-    // Prepend project name to task text for better organization
-    let displayText = task.text;
-    if (task.project) {
-      displayText = `${task.project.name}: ${task.text}`;
-    }
-    taskText.textContent = displayText;
-    taskContent.appendChild(taskText);
-
-    // Priority indicator (after task text)
-    if (task.priority) {
-      const prioritySpan = document.createElement('span');
-      prioritySpan.className = 'agenda-task-priority';
-      prioritySpan.textContent = ' priority';
-      taskContent.appendChild(prioritySpan);
-    }
-
-    // Blocked indicator (after task text)
-    if (task.blocked) {
-      const blockedSpan = document.createElement('span');
-      blockedSpan.className = 'agenda-task-blocked';
-      blockedSpan.textContent = ' blocked';
-      taskContent.appendChild(blockedSpan);
-    }
-
-    // Schedule or due date display
-    if (task.schedule) {
-      const scheduleSpan = document.createElement('span');
-      scheduleSpan.className = 'agenda-task-schedule';
-      const timeStr = this.extractTimeFromTask(task) ? 
-        ` ${this.extractTimeFromTask(task).hour.toString().padStart(2, '0')}:${this.extractTimeFromTask(task).minute.toString().padStart(2, '0')}` : '';
-      scheduleSpan.textContent = ` on ${task.schedule.replace(timeStr, '')}${timeStr}`;
-      taskContent.appendChild(scheduleSpan);
-    } else if (task.due) {
-      const dueSpan = document.createElement('span');
-      dueSpan.className = 'agenda-task-due';
-      const timeStr = this.extractTimeFromTask(task) ? 
-        ` ${this.extractTimeFromTask(task).hour.toString().padStart(2, '0')}:${this.extractTimeFromTask(task).minute.toString().padStart(2, '0')}` : '';
-      dueSpan.textContent = ` due ${task.due.replace(timeStr, '')}${timeStr}`;
-      taskContent.appendChild(dueSpan);
-    }
-
-    // Completion timestamp for completed tasks
-    if (isCompleted && task.completedAt && this.options.showCompletedTasks) {
-      const completedSpan = document.createElement('span');
-      completedSpan.className = 'agenda-task-completed-at';
-      const completedDate = new Date(task.completedAt);
-      completedSpan.textContent = ` completed ${this.formatCompletionTime(completedDate)}`;
-      taskContent.appendChild(completedSpan);
-    }
-
-    // Metadata
-    const metadata = [];
-    if (task.assign) metadata.push(`@${task.assign}`);
-    if (task.tags && task.tags.length > 0) metadata.push(task.tags.map(tag => `#${tag}`).join(' '));
-    
-    if (metadata.length > 0) {
-      const metaSpan = document.createElement('span');
-      metaSpan.className = 'agenda-task-meta';
-      metaSpan.textContent = ` ${metadata.join(' ')}`;
-      taskContent.appendChild(metaSpan);
-    }
-
-    taskElement.appendChild(taskContent);
     return taskElement;
   }
 

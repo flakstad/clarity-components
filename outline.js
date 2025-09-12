@@ -1,6 +1,25 @@
 class Outline {
   constructor(el, options = {}) {
     this.el = el;
+    // Set up default features
+    const defaultFeatures = {
+      priority: true,
+      blocked: true,
+      due: true,
+      schedule: true,
+      assign: true,
+      tags: true,
+      comments: true,
+      worklog: true,
+      remove: true,
+      addButton: true,
+      navigation: true,
+      reorder: true
+    };
+
+    // Merge user features with defaults
+    const features = { ...defaultFeatures, ...options.features };
+
     this.options = {
       assignees: options.assignees || [],
       tags: options.tags || [],
@@ -9,19 +28,10 @@ class Outline {
         { label: 'TODO', isEndState: false },
         { label: 'DONE', isEndState: true }
       ],
-      features: {
-        priority: options.features?.priority !== false, // default: true
-        blocked: options.features?.blocked !== false, // default: true
-        due: (options.features?.due !== undefined ? options.features.due !== false : (options.features?.dueDate !== undefined ? options.features.dueDate !== false : true)), // default: true (backward compatibility with dueDate)
-        schedule: options.features?.schedule !== false, // default: true
-        assign: options.features?.assign !== false, // default: true
-        tags: options.features?.tags !== false, // default: true
-        comments: options.features?.comments !== false, // default: true
-        worklog: options.features?.worklog !== false, // default: true
-        remove: options.features?.remove !== false, // default: true
-        // status, edit, and open are always enabled (non-customizable)
-      },
-      ...options
+      features: features,
+      ...options,
+      // Ensure features don't get overridden by ...options
+      features: features
     };
     this.init();
   }
@@ -68,6 +78,11 @@ class Outline {
   }
 
   initNewTodoButton() {
+    // Skip if addButton feature is disabled
+    if (!this.options.features.addButton) {
+      return;
+    }
+
     // Check if button already exists
     if (this.addButton) {
       return; // Button already exists, don't create another one
@@ -214,7 +229,7 @@ class Outline {
       }
 
       // Handle Alt key combinations FIRST (before single-key shortcuts)
-      if(e.altKey && !e.ctrlKey && !e.metaKey) {
+      if(e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.reorder) {
         console.log('Alt key detected:', e.code, 'idx:', idx, 'siblings:', siblings.length, 'e.altKey:', e.altKey, 'e.key:', e.key);
 
         // Move item down (Alt+N, Alt+J, Alt+ArrowDown)
@@ -486,8 +501,9 @@ class Outline {
       }
 
       // Focus Navigation - Move Down (ArrowDown, Ctrl+N, J)
-      const moveDownKeys = ['ArrowDown', 'n', 'j'];
-      if(moveDownKeys.includes(e.key) &&
+      if(this.options.features.navigation) {
+        const moveDownKeys = ['ArrowDown', 'n', 'j'];
+        if(moveDownKeys.includes(e.key) &&
          ((e.key === 'ArrowDown' && !e.altKey && !e.ctrlKey && !e.metaKey) ||
           (e.key === 'n' && e.ctrlKey && !e.altKey && !e.metaKey) ||
           (e.key === 'j' && !e.altKey && !e.ctrlKey && !e.metaKey))) {
@@ -554,6 +570,7 @@ class Outline {
         }
         return;
       }
+      } // End navigation feature check
 
 
 
@@ -3077,6 +3094,69 @@ class Outline {
   }
 
   emit(name,detail){ this.el.dispatchEvent(new CustomEvent(name,{detail})); }
+
+  // Static helper methods for creating constrained outlines
+  static createSingleItemOutline(container, options = {}) {
+    // Create a ul element for the single item
+    const ul = document.createElement('ul');
+    ul.className = 'outline-list';
+    container.appendChild(ul);
+    
+    // Configure for single item use (disable navigation and add button)
+    const constrainedOptions = {
+      features: {
+        // Keep task-specific features
+        priority: true,
+        blocked: true,
+        due: true,
+        schedule: true,
+        assign: true,
+        tags: true,
+        comments: true,
+        worklog: true,
+        remove: true,
+        // Disable outline-specific features
+        addButton: false,
+        navigation: false,
+        reorder: false,
+        ...options.features // Allow overrides
+      },
+      ...options
+    };
+    
+    return new Outline(ul, constrainedOptions);
+  }
+
+  static createAgendaItemOutline(container, options = {}) {
+    // Create a ul element for the agenda item
+    const ul = document.createElement('ul');
+    ul.className = 'outline-list';
+    container.appendChild(ul);
+    
+    // Configure for agenda use (allow some interaction but no navigation)
+    const agendaOptions = {
+      features: {
+        // Keep task-specific features
+        priority: true,
+        blocked: true,
+        due: true,
+        schedule: true,
+        assign: true,
+        tags: true,
+        comments: true,
+        worklog: true,
+        remove: false, // Usually don't want to remove from agenda
+        // Disable outline-specific features
+        addButton: false,
+        navigation: false,
+        reorder: false,
+        ...options.features // Allow overrides
+      },
+      ...options
+    };
+    
+    return new Outline(ul, agendaOptions);
+  }
 }
 
 // Helper class for creating and managing task item buttons
