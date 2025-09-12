@@ -506,9 +506,13 @@ class Outline {
         return;
       }
 
-      // Create new sibling todo with Alt+Enter
+      // Create new sibling todo with Alt+Enter (only if enabled)
       if(e.key==="Enter" && e.altKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
+        if (!this.options.features.addButton) {
+          this.showPermissionDeniedFeedback(li, 'add-new-item');
+          return;
+        }
         this.addSiblingTodo(li);
         return;
       }
@@ -986,8 +990,12 @@ class Outline {
       if (e.key === "Enter") {
         e.preventDefault();
         if (e.altKey) {
-          // Alt+Enter: Save current edit and add new todo
+          // Alt+Enter: Save current edit and add new todo (only if enabled)
           this.saveEdit(li, input.value);
+          if (!this.options.features.addButton) {
+            this.showPermissionDeniedFeedback(li, 'add-new-item');
+            return;
+          }
           // Add new sibling todo after the current one and enter edit mode
           this.addSiblingTodo(li);
         } else {

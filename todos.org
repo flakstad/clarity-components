@@ -313,12 +313,13 @@ CLOSED: [2025-09-12 Fri 21:48]
 indenting an item under an item that is already a parent and which does not have a status label, does not add the counter
 * DONE prevent setting a parent to done if it has unfinished children
 CLOSED: [2025-09-12 Fri 22:16]
+* DONE must not be able to add a new item by alt+enter if add is disabled
+CLOSED: [2025-09-12 Fri 22:20]
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.
 * TODO double check that I'm happy with outline item data format
 ..will at some point forever by locked to this structure
-* TODO must not be able to add a new item by alt+enter if add is disabled
 * TODO agenda view rendering should not be a web component?
 I only need the web component to capture the complicated interactions. If each
 task item is a web component with it's own interaction, then the layout
