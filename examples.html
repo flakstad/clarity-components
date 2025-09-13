@@ -112,6 +112,8 @@
 
 
   <div class="demo-section">
+    <h2>Empty Outline</h2>
+    <p style="margin: 1rem 0; color: var(--text-primary);">Start with an empty outline and add tasks using the + button.</p>
 
     <clarity-outline
       id="empty-outline"
@@ -126,6 +128,8 @@
   </div>
 
   <div class="demo-section">
+    <h2>Sample Data</h2>
+    <p style="margin: 1rem 0; color: var(--text-primary);">An outline with various task types, priorities, assignments, and nested items.</p>
   
     <clarity-outline
       id="sample-outline"
@@ -219,6 +223,8 @@
 
   <!-- Rich Text Editor Demo -->
   <div class="demo-section">
+    <h2>Inline in Text Document</h2>
+    <p style="margin: 1rem 0; color: var(--text-primary);">Individual tasks embedded within rich text content, with navigation and reordering disabled.</p>
     <div style="padding: 2rem; border: 1px solid var(--border); line-height: 1.8;">
       
       <p style="margin: 1rem 0; color: var(--text-primary);">
@@ -284,6 +290,470 @@
         but without the navigation and reordering features that would be disruptive in a document context.
       </p>
     </div>
+  </div>
+
+  <!-- Agenda Demo Section -->
+  <div class="demo-section">
+    <h2>Agenda View</h2>
+    <p style="margin: 1rem 0; color: var(--text-primary);">Individual <code>&lt;clarity-outline&gt;</code> components arranged to create an org-agenda-style interface.</p>
+        
+      <div style="padding: 1rem; margin: 1rem 0;">
+      
+      <!-- Agenda Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; margin-bottom: 1rem;">
+        <h3 style="margin: 0; font-size: 1.2rem; color: var(--text-primary);" id="agenda-view-title">Week of Sep 9, 2024</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
+          <div style="display: flex; gap: 0.25rem; background: var(--bg-tertiary); border-radius: 6px; padding: 0.25rem;">
+            <button style="background: none; border: none; color: var(--text-secondary); padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem;" onclick="switchAgendaView('day')" id="agenda-day-btn">Day</button>
+            <button style="background: var(--bg-primary); color: var(--text-primary); font-weight: bold; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem;" onclick="switchAgendaView('week')" id="agenda-week-btn">Week</button>
+            <button style="background: none; border: none; color: var(--text-secondary); padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem;" onclick="switchAgendaView('all-tasks')" id="agenda-all-btn">All Tasks</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Day View -->
+      <div id="agenda-day-view" style="display: none;">
+        <div style="display: flex; flex-direction: column;">
+          <!-- 02:00 AM -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">02:00</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);"></div>
+          </div>
+          
+          <!-- 04:00 AM -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">04:00</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);"></div>
+          </div>
+          
+          <!-- 06:00 AM -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">06:00</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);"></div>
+          </div>
+          
+          <!-- 08:00 AM -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">08:00</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);"></div>
+          </div>
+          
+          <!-- 09:00 AM (Task-specific time) -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">09:00</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);">
+              <clarity-outline 
+                data-items='[{"id":"agenda-1","text":"Team standup meeting","status":"TODO","assign":"team","tags":["meeting"],"schedule":"Sep 9 09:00"}]'
+                data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+                data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+                data-status-labels='[
+                  {"label": "TODO", "isEndState": false},
+                  {"label": "IN PROGRESS", "isEndState": false},
+                  {"label": "BLOCKED", "isEndState": false},
+                  {"label": "DONE", "isEndState": true}
+                ]'
+                data-features='{
+                  "addButton": false,
+                  "navigation": false,
+                  "reorder": false
+                }'>
+              </clarity-outline>
+            </div>
+          </div>
+          
+          <!-- 10:00 AM -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">10:00</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);"></div>
+          </div>
+          
+          <!-- 10:30 AM (Task-specific time) -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">10:30</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);">
+              <clarity-outline 
+                data-items='[{"id":"agenda-2","text":"Review pull requests","status":"TODO","priority":true,"assign":"alice","tags":["review","code"],"schedule":"Sep 9 10:30"}]'
+                data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+                data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+                data-status-labels='[
+                  {"label": "TODO", "isEndState": false},
+                  {"label": "IN PROGRESS", "isEndState": false},
+                  {"label": "BLOCKED", "isEndState": false},
+                  {"label": "DONE", "isEndState": true}
+                ]'
+                data-features='{
+                  "addButton": false,
+                  "navigation": false,
+                  "reorder": false
+                }'>
+              </clarity-outline>
+            </div>
+          </div>
+          
+          <!-- 11:00 AM (Task-specific time) -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">11:00</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);">
+              <clarity-outline 
+                data-items='[{"id":"agenda-3","text":"Create wireframes","status":"TODO","assign":"diana","tags":["design","wireframes"],"schedule":"Sep 9 11:00"}]'
+                data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+                data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+                data-status-labels='[
+                  {"label": "TODO", "isEndState": false},
+                  {"label": "IN PROGRESS", "isEndState": false},
+                  {"label": "BLOCKED", "isEndState": false},
+                  {"label": "DONE", "isEndState": true}
+                ]'
+                data-features='{
+                  "addButton": false,
+                  "navigation": false,
+                  "reorder": false
+                }'>
+              </clarity-outline>
+            </div>
+          </div>
+          
+          <!-- 12:00 PM -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">12:00</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);"></div>
+          </div>
+          
+          <!-- Now marker -->
+          <div style="position: relative; background: #ff6b6b; height: 2px; margin: 0.5rem 0;">
+            <span style="position: absolute; left: 0; top: -1rem; font-size: 0.8rem; font-weight: bold; color: #ff6b6b; background: var(--bg-primary); padding: 0 0.25rem;">Now</span>
+          </div>
+          
+          <!-- 14:00 PM -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">14:00</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);">
+              <clarity-outline 
+                data-items='[{"id":"agenda-4","text":"Client presentation","status":"TODO","assign":"team","tags":["presentation","client"],"schedule":"Sep 10 14:00"}]'
+                data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+                data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+                data-status-labels='[
+                  {"label": "TODO", "isEndState": false},
+                  {"label": "IN PROGRESS", "isEndState": false},
+                  {"label": "BLOCKED", "isEndState": false},
+                  {"label": "DONE", "isEndState": true}
+                ]'
+                data-features='{
+                  "addButton": false,
+                  "navigation": false,
+                  "reorder": false
+                }'>
+              </clarity-outline>
+            </div>
+          </div>
+          
+          <!-- 15:30 PM (Task-specific time) -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">15:30</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);">
+              <clarity-outline 
+                data-items='[{"id":"agenda-5","text":"Code review session","status":"TODO","assign":"bob","tags":["review"],"schedule":"Sep 11 15:30"}]'
+                data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+                data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+                data-status-labels='[
+                  {"label": "TODO", "isEndState": false},
+                  {"label": "IN PROGRESS", "isEndState": false},
+                  {"label": "BLOCKED", "isEndState": false},
+                  {"label": "DONE", "isEndState": true}
+                ]'
+                data-features='{
+                  "addButton": false,
+                  "navigation": false,
+                  "reorder": false
+                }'>
+              </clarity-outline>
+            </div>
+          </div>
+          
+          <!-- 16:00 PM -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">16:00</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);"></div>
+          </div>
+          
+          <!-- Unscheduled Tasks -->
+          <div style="display: flex; min-height: 2rem;">
+            <div style="width: 4rem; padding: 0.25rem 0.5rem; background: var(--bg-tertiary); font-size: 0.8em; color: var(--text-muted); text-align: right;">Due</div>
+            <div style="flex: 1; padding: 0.25rem 0.5rem; background: var(--bg-primary);">
+              <clarity-outline 
+                data-items='[{"id":"agenda-6","text":"Deploy to production","status":"TODO","assign":"alice","tags":["deployment","urgent"],"due":"Sep 9"}]'
+                data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+                data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+                data-status-labels='[
+                  {"label": "TODO", "isEndState": false},
+                  {"label": "IN PROGRESS", "isEndState": false},
+                  {"label": "BLOCKED", "isEndState": false},
+                  {"label": "DONE", "isEndState": true}
+                ]'
+                data-features='{
+                  "addButton": false,
+                  "navigation": false,
+                  "reorder": false
+                }'>
+              </clarity-outline>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Week View -->
+      <div id="agenda-week-view" style="display: block;">
+        <div style="display: flex; flex-direction: column;">
+          <!-- Monday - Today (Expanded) -->
+          <div style="background: var(--bg-secondary); margin-bottom: 2rem; padding: 1rem; border-left: 3px solid #4a9eff;">
+            <div style="font-weight: bold; font-size: 1em; color: #4a9eff; margin-bottom: 1rem;">Monday, Sep 9 (Today)</div>
+            <div style="padding-left: 0.75rem;">
+              <!-- Time slots for today -->
+              <div style="display: flex; min-height: 2rem;">
+                <div style="width: 4rem; padding: 0.25rem 0.5rem; font-size: 0.8em; color: var(--text-muted); text-align: right;">09:00</div>
+                <div style="flex: 1; padding: 0.25rem 0.5rem;">
+                  <clarity-outline 
+                    data-items='[{"id":"agenda-w1","text":"Team standup meeting","status":"TODO","assign":"team","tags":["meeting"],"schedule":"Sep 9 09:00"}]'
+                    data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+                    data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+                    data-status-labels='[
+                      {"label": "TODO", "isEndState": false},
+                      {"label": "IN PROGRESS", "isEndState": false},
+                      {"label": "BLOCKED", "isEndState": false},
+                      {"label": "DONE", "isEndState": true}
+                    ]'
+                    data-features='{
+                      "addButton": false,
+                      "navigation": false,
+                      "reorder": false
+                    }'>
+                  </clarity-outline>
+                </div>
+              </div>
+              
+              <div style="display: flex; min-height: 2rem;">
+                <div style="width: 4rem; padding: 0.25rem 0.5rem; font-size: 0.8em; color: var(--text-muted); text-align: right;">10:30</div>
+                <div style="flex: 1; padding: 0.25rem 0.5rem;">
+                  <clarity-outline 
+                    data-items='[{"id":"agenda-w2","text":"Review pull requests","status":"TODO","priority":true,"assign":"alice","tags":["review","code"],"schedule":"Sep 9 10:30"}]'
+                    data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+                    data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+                    data-status-labels='[
+                      {"label": "TODO", "isEndState": false},
+                      {"label": "IN PROGRESS", "isEndState": false},
+                      {"label": "BLOCKED", "isEndState": false},
+                      {"label": "DONE", "isEndState": true}
+                    ]'
+                    data-features='{
+                      "addButton": false,
+                      "navigation": false,
+                      "reorder": false
+                    }'>
+                  </clarity-outline>
+                </div>
+              </div>
+              
+              <div style="display: flex; min-height: 2rem;">
+                <div style="width: 4rem; padding: 0.25rem 0.5rem; font-size: 0.8em; color: var(--text-muted); text-align: right;">11:00</div>
+                <div style="flex: 1; padding: 0.25rem 0.5rem;">
+                  <clarity-outline 
+                    data-items='[{"id":"agenda-w3","text":"Create wireframes","status":"TODO","assign":"diana","tags":["design","wireframes"],"schedule":"Sep 9 11:00"}]'
+                    data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+                    data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+                    data-status-labels='[
+                      {"label": "TODO", "isEndState": false},
+                      {"label": "IN PROGRESS", "isEndState": false},
+                      {"label": "BLOCKED", "isEndState": false},
+                      {"label": "DONE", "isEndState": true}
+                    ]'
+                    data-features='{
+                      "addButton": false,
+                      "navigation": false,
+                      "reorder": false
+                    }'>
+                  </clarity-outline>
+                </div>
+              </div>
+              
+              <div style="position: relative; background: #ff6b6b; height: 2px; margin: 0.5rem 0;">
+                <span style="position: absolute; left: 0; top: -1rem; font-size: 0.8rem; font-weight: bold; color: #ff6b6b; background: var(--bg-primary); padding: 0 0.25rem;">Now</span>
+              </div>
+              
+              <div style="display: flex; min-height: 2rem;">
+                <div style="width: 4rem; padding: 0.25rem 0.5rem; font-size: 0.8em; color: var(--text-muted); text-align: right;">Due</div>
+                <div style="flex: 1; padding: 0.25rem 0.5rem;">
+                  <clarity-outline 
+                    data-items='[{"id":"agenda-w4","text":"Deploy to production","status":"TODO","assign":"alice","tags":["deployment","urgent"],"due":"Sep 9"}]'
+                    data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+                    data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+                    data-status-labels='[
+                      {"label": "TODO", "isEndState": false},
+                      {"label": "IN PROGRESS", "isEndState": false},
+                      {"label": "BLOCKED", "isEndState": false},
+                      {"label": "DONE", "isEndState": true}
+                    ]'
+                    data-features='{
+                      "addButton": false,
+                      "navigation": false,
+                      "reorder": false
+                    }'>
+                  </clarity-outline>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tuesday -->
+          <div style="background: var(--bg-primary); padding: 0.5rem 0;">
+            <div style="font-weight: bold; font-size: 1em; color: var(--text-primary); margin-bottom: 0.25rem; padding: 0 0.75rem;">Tuesday, Sep 10</div>
+            <div style="padding-left: calc(0.75rem + 1rem);">
+              <clarity-outline 
+                data-items='[{"id":"agenda-w5","text":"Client presentation","status":"TODO","assign":"team","tags":["presentation","client"],"schedule":"Sep 10 14:00"}]'
+                data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+                data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+                data-status-labels='[
+                  {"label": "TODO", "isEndState": false},
+                  {"label": "IN PROGRESS", "isEndState": false},
+                  {"label": "BLOCKED", "isEndState": false},
+                  {"label": "DONE", "isEndState": true}
+                ]'
+                data-features='{
+                  "addButton": false,
+                  "navigation": false,
+                  "reorder": false
+                }'>
+              </clarity-outline>
+            </div>
+          </div>
+          
+          <!-- Wednesday -->
+          <div style="background: var(--bg-primary); padding: 0.5rem 0;">
+            <div style="font-weight: bold; font-size: 1em; color: var(--text-primary); margin-bottom: 0.25rem; padding: 0 0.75rem;">Wednesday, Sep 11</div>
+            <div style="padding-left: calc(0.75rem + 1rem);">
+              <clarity-outline 
+                data-items='[{"id":"agenda-w6","text":"Code review session","status":"TODO","assign":"bob","tags":["review"],"schedule":"Sep 11 15:30"}]'
+                data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+                data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+                data-status-labels='[
+                  {"label": "TODO", "isEndState": false},
+                  {"label": "IN PROGRESS", "isEndState": false},
+                  {"label": "BLOCKED", "isEndState": false},
+                  {"label": "DONE", "isEndState": true}
+                ]'
+                data-features='{
+                  "addButton": false,
+                  "navigation": false,
+                  "reorder": false
+                }'>
+              </clarity-outline>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- All Tasks View -->
+      <div id="agenda-all-view" style="display: none;">
+        <div style="display: flex; flex-direction: column;">
+          <clarity-outline 
+            data-items='[{"id":"agenda-a1","text":"Client presentation","status":"TODO","assign":"team","tags":["presentation","client"],"schedule":"Sep 10 14:00"}]'
+            data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+            data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+            data-status-labels='[
+              {"label": "TODO", "isEndState": false},
+              {"label": "IN PROGRESS", "isEndState": false},
+              {"label": "BLOCKED", "isEndState": false},
+              {"label": "DONE", "isEndState": true}
+            ]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"agenda-a2","text":"Code review session","status":"TODO","assign":"bob","tags":["review"],"schedule":"Sep 11 15:30"}]'
+            data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+            data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+            data-status-labels='[
+              {"label": "TODO", "isEndState": false},
+              {"label": "IN PROGRESS", "isEndState": false},
+              {"label": "BLOCKED", "isEndState": false},
+              {"label": "DONE", "isEndState": true}
+            ]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"agenda-a3","text":"Create wireframes","status":"TODO","assign":"diana","tags":["design","wireframes"],"schedule":"Sep 9 11:00"}]'
+            data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+            data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+            data-status-labels='[
+              {"label": "TODO", "isEndState": false},
+              {"label": "IN PROGRESS", "isEndState": false},
+              {"label": "BLOCKED", "isEndState": false},
+              {"label": "DONE", "isEndState": true}
+            ]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"agenda-a4","text":"Deploy to production","status":"TODO","assign":"alice","tags":["deployment","urgent"],"due":"Sep 9"}]'
+            data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+            data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+            data-status-labels='[
+              {"label": "TODO", "isEndState": false},
+              {"label": "IN PROGRESS", "isEndState": false},
+              {"label": "BLOCKED", "isEndState": false},
+              {"label": "DONE", "isEndState": true}
+            ]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"agenda-a5","text":"Review pull requests","status":"TODO","priority":true,"assign":"alice","tags":["review","code"],"schedule":"Sep 9 10:30"}]'
+            data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+            data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+            data-status-labels='[
+              {"label": "TODO", "isEndState": false},
+              {"label": "IN PROGRESS", "isEndState": false},
+              {"label": "BLOCKED", "isEndState": false},
+              {"label": "DONE", "isEndState": true}
+            ]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+          <clarity-outline 
+            data-items='[{"id":"agenda-a6","text":"Team standup meeting","status":"TODO","assign":"team","tags":["meeting"],"schedule":"Sep 9 09:00"}]'
+            data-assignees='["alice", "bob", "charlie", "diana", "eve", "frank", "team", "ops"]'
+            data-tags='["meeting", "review", "code", "design", "wireframes", "presentation", "client", "deployment", "urgent", "maintenance", "docs", "backend", "api", "mobile", "auth", "frontend", "responsive", "optimization", "bug", "critical", "setup", "icons", "notifications", "offline", "sync", "database", "monitoring", "planning", "devops", "security", "migration", "performance", "research", "testing", "staging", "production"]'
+            data-status-labels='[
+              {"label": "TODO", "isEndState": false},
+              {"label": "IN PROGRESS", "isEndState": false},
+              {"label": "BLOCKED", "isEndState": false},
+              {"label": "DONE", "isEndState": true}
+            ]'
+            data-features='{
+              "addButton": false,
+              "navigation": false,
+              "reorder": false
+            }'>
+          </clarity-outline>
+        </div>
+      </div>
+      
+    </div>        
   </div>
 
 </div>
@@ -390,6 +860,53 @@
 
   // The constrained outline demos now use <clarity-outline> web components
   // which initialize themselves automatically with the data-options attribute
+
+  // Agenda view switching functionality
+  function switchAgendaView(view) {
+    // Hide all agenda views
+    document.getElementById('agenda-day-view').style.display = 'none';
+    document.getElementById('agenda-week-view').style.display = 'none';
+    document.getElementById('agenda-all-view').style.display = 'none';
+    
+    // Show selected view
+    if (view === 'all-tasks') {
+      document.getElementById('agenda-all-view').style.display = 'block';
+    } else {
+      document.getElementById('agenda-' + view + '-view').style.display = 'block';
+    }
+    
+    // Update button states
+    document.getElementById('agenda-day-btn').style.background = 'none';
+    document.getElementById('agenda-day-btn').style.color = 'var(--text-secondary)';
+    document.getElementById('agenda-day-btn').style.fontWeight = 'normal';
+    
+    document.getElementById('agenda-week-btn').style.background = 'none';
+    document.getElementById('agenda-week-btn').style.color = 'var(--text-secondary)';
+    document.getElementById('agenda-week-btn').style.fontWeight = 'normal';
+    
+    document.getElementById('agenda-all-btn').style.background = 'none';
+    document.getElementById('agenda-all-btn').style.color = 'var(--text-secondary)';
+    document.getElementById('agenda-all-btn').style.fontWeight = 'normal';
+    
+    // Activate selected button
+    let activeBtn;
+    if (view === 'all-tasks') {
+      activeBtn = document.getElementById('agenda-all-btn');
+    } else {
+      activeBtn = document.getElementById('agenda-' + view + '-btn');
+    }
+    activeBtn.style.background = 'var(--bg-primary)';
+    activeBtn.style.color = 'var(--text-primary)';
+    activeBtn.style.fontWeight = 'bold';
+    
+    // Update title
+    const titles = {
+      'day': 'Monday, Sep 9, 2024',
+      'week': 'Week of Sep 9, 2024', 
+      'all-tasks': 'All Tasks'
+    };
+    document.getElementById('agenda-view-title').textContent = titles[view];
+  }
 </script>
 
 </body>
