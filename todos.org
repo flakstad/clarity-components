@@ -315,7 +315,8 @@ indenting an item under an item that is already a parent and which does not have
 CLOSED: [2025-09-12 Fri 22:16]
 * DONE must not be able to add a new item by alt+enter if add is disabled
 CLOSED: [2025-09-12 Fri 22:20]
-* TODO agenda view rendering should not be a web component?
+* DONE agenda view rendering should not be a web component?
+CLOSED: [2025-09-13 Sat 08:27]
 I only need the web component to capture the complicated interactions. If each
 task item is a web component with it's own interaction, then the layout
 rendering of the agenda should be driven by the backend. Including changing
@@ -323,6 +324,8 @@ views - those are new queries to the backend.
 
 We might need the agenda web component for navigation and shortcuts for queries.
 Or possibly datastar signals in the html is enough to detect this?
+* DONE bug: attempt again to fix issue with hover items showing on parents when hovering child
+CLOSED: [2025-09-13 Sat 08:27]
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.
@@ -344,4 +347,3 @@ Needs to be tested in a sort of agenda view, with a database query.
 * TODO allow custom key bindings for all keyboard interactions?
 Pass in override key bindings.
 First for movement only, i.e. moving focus, moving items
-* TODO bug: attempt again to fix issue with hover items showing on parents when hovering child

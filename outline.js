@@ -1427,7 +1427,34 @@ class Outline {
     let hoverTimeout;
     const delay = 600; // 600ms delay before showing buttons
 
-    li.addEventListener('mouseenter', () => {
+    // Use mouseover instead of mouseenter to get better control over event bubbling
+    li.addEventListener('mouseover', (e) => {
+      const targetLi = e.target.closest('li');
+      
+      // Check if the event target is a child li element
+      // If the target is a child li, don't show hover buttons for this parent
+      // AND clear any pending timeout to prevent showing buttons later
+      if (targetLi !== li) {
+        // Clear any pending timeout since we're now hovering a child
+        if (hoverTimeout) {
+          clearTimeout(hoverTimeout);
+          hoverTimeout = null;
+        }
+        // Also hide any currently visible hover buttons without data
+        const buttonsWithoutData = buttonsContainer.querySelectorAll('.hover-button:not(.has-data)');
+        buttonsWithoutData.forEach(btn => {
+          btn.style.display = 'none';
+        });
+        // Show the container only if there are buttons with data
+        const buttonsWithData = buttonsContainer.querySelectorAll('.hover-button.has-data');
+        if (buttonsWithData.length > 0) {
+          buttonsContainer.style.display = 'inline-flex';
+        } else {
+          buttonsContainer.style.display = 'none';
+        }
+        return;
+      }
+
       // Clear any existing timeout
       if (hoverTimeout) {
         clearTimeout(hoverTimeout);
@@ -1444,7 +1471,13 @@ class Outline {
       }, delay);
     });
 
-    li.addEventListener('mouseleave', () => {
+    li.addEventListener('mouseout', (e) => {
+      // Check if we're moving to a child element - if so, don't hide buttons yet
+      const relatedTarget = e.relatedTarget;
+      if (relatedTarget && li.contains(relatedTarget)) {
+        return;
+      }
+
       // Clear timeout and hide buttons without data immediately
       if (hoverTimeout) {
         clearTimeout(hoverTimeout);
