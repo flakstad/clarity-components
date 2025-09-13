@@ -328,6 +328,9 @@ Or possibly datastar signals in the html is enough to detect this?
 CLOSED: [2025-09-13 Sat 08:27]
 * DONE simple drag and drop
 CLOSED: [2025-09-13 Sat 08:55]
+* DONE drag and drop the whole thing, removing the drag handle
+CLOSED: [2025-09-13 Sat 18:05]
+Kan make drag and drop default on.
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.

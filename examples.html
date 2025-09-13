@@ -221,85 +221,6 @@
     
   </div>
 
-  <!-- Drag and Drop Demo -->
-  <div class="demo-section">
-    <h2>Drag and Drop Reordering</h2>
-    <p style="margin: 1rem 0; color: var(--text-primary);">Enable drag-and-drop reordering by setting the <code>dragAndDrop</code> feature to <code>true</code>. The sortable.js library will be loaded dynamically only when this feature is enabled.</p>
-    <p style="margin: 1rem 0; color: var(--text-primary);"><strong>Hierarchical Features:</strong></p>
-    <ul style="margin: 1rem 0; color: var(--text-primary); padding-left: 2rem;">
-      <li>Drag items to reorder them within the same level</li>
-      <li>Drag items into existing sublists to nest them</li>
-      <li>Drag nested items out to the main level to un-nest them</li>
-      <li>Drag handles appear on hover for all items, including nested ones</li>
-    </ul>
-    
-    <clarity-outline
-      id="drag-drop-outline"
-      data-items='[
-        {
-          "id": "dd-1",
-          "text": "First task - drag me around!",
-          "status": "TODO",
-          "priority": true
-        },
-        {
-          "id": "dd-2",
-          "text": "Project Planning",
-          "status": "TODO",
-          "children": [
-            {
-              "id": "dd-2a",
-              "text": "Define requirements - drag me out or into other items!",
-              "status": "TODO",
-              "assign": "alice"
-            },
-            {
-              "id": "dd-2b", 
-              "text": "Create wireframes",
-              "status": "IN PROGRESS",
-              "tags": ["design"]
-            }
-          ]
-        },
-        {
-          "id": "dd-3",
-          "text": "Third task - drop items on me to nest them!",
-          "status": "TODO",
-          "tags": ["urgent", "feature"]
-        },
-        {
-          "id": "dd-4",
-          "text": "Fourth task - completed",
-          "status": "DONE"
-        },
-        {
-          "id": "dd-5",
-          "text": "Fifth task with due date",
-          "status": "TODO",
-          "due": "Jan 15",
-          "blocked": true
-        }
-      ]'
-      data-assignees='["alice", "bob", "charlie", "diana"]'
-      data-tags='["urgent", "bug", "feature", "docs", "review"]'
-      data-status-labels='[
-        {"label": "TODO", "isEndState": false},
-        {"label": "IN PROGRESS", "isEndState": false},
-        {"label": "DONE", "isEndState": true}
-      ]'
-      data-features='{
-        "dragAndDrop": true
-      }'>
-    </clarity-outline>    
-    
-    <div class="code-block">
-      &lt;clarity-outline
-        data-features='{"dragAndDrop": true}'
-        data-items='[...]'&gt;
-      &lt;/clarity-outline&gt;
-    </div>
-  </div>
-
   <!-- Rich Text Editor Demo -->
   <div class="demo-section">
     <h2>Inline in Text Document</h2>
@@ -323,7 +244,8 @@
         data-features='{
           "addButton": false,
           "navigation": false,
-          "reorder": false
+          "reorder": false,
+          "dragAndDrop": false
         }'>
       </clarity-outline>
       
@@ -342,7 +264,8 @@
         data-features='{
           "addButton": false,
           "navigation": false,
-          "reorder": false
+          "reorder": false,
+          "dragAndDrop": false
         }'>
       </clarity-outline>
       
@@ -360,7 +283,8 @@
         data-features='{
           "addButton": false,
           "navigation": false,
-          "reorder": false
+          "reorder": false,
+          "dragAndDrop": false
         }'>
       </clarity-outline>
       
@@ -434,7 +358,8 @@
                 data-features='{
                   "addButton": false,
                   "navigation": false,
-                  "reorder": false
+                  "reorder": false,
+                  "dragAndDrop": false
                 }'>
               </clarity-outline>
             </div>
@@ -463,7 +388,8 @@
                 data-features='{
                   "addButton": false,
                   "navigation": false,
-                  "reorder": false
+                  "reorder": false,
+                  "dragAndDrop": false
                 }'>
               </clarity-outline>
             </div>
@@ -486,7 +412,8 @@
                 data-features='{
                   "addButton": false,
                   "navigation": false,
-                  "reorder": false
+                  "reorder": false,
+                  "dragAndDrop": false
                 }'>
               </clarity-outline>
             </div>
@@ -520,7 +447,8 @@
                 data-features='{
                   "addButton": false,
                   "navigation": false,
-                  "reorder": false
+                  "reorder": false,
+                  "dragAndDrop": false
                 }'>
               </clarity-outline>
             </div>
@@ -543,7 +471,8 @@
                 data-features='{
                   "addButton": false,
                   "navigation": false,
-                  "reorder": false
+                  "reorder": false,
+                  "dragAndDrop": false
                 }'>
               </clarity-outline>
             </div>
@@ -572,7 +501,8 @@
                 data-features='{
                   "addButton": false,
                   "navigation": false,
-                  "reorder": false
+                  "reorder": false,
+                  "dragAndDrop": false
                 }'>
               </clarity-outline>
             </div>
@@ -604,7 +534,8 @@
                     data-features='{
                       "addButton": false,
                       "navigation": false,
-                      "reorder": false
+                      "reorder": false,
+                      "dragAndDrop": false
                     }'>
                   </clarity-outline>
                 </div>
@@ -626,7 +557,8 @@
                     data-features='{
                       "addButton": false,
                       "navigation": false,
-                      "reorder": false
+                      "reorder": false,
+                      "dragAndDrop": false
                     }'>
                   </clarity-outline>
                 </div>
@@ -648,7 +580,8 @@
                     data-features='{
                       "addButton": false,
                       "navigation": false,
-                      "reorder": false
+                      "reorder": false,
+                      "dragAndDrop": false
                     }'>
                   </clarity-outline>
                 </div>
@@ -674,7 +607,8 @@
                     data-features='{
                       "addButton": false,
                       "navigation": false,
-                      "reorder": false
+                      "reorder": false,
+                      "dragAndDrop": false
                     }'>
                   </clarity-outline>
                 </div>
@@ -699,7 +633,8 @@
                 data-features='{
                   "addButton": false,
                   "navigation": false,
-                  "reorder": false
+                  "reorder": false,
+                  "dragAndDrop": false
                 }'>
               </clarity-outline>
             </div>
@@ -722,7 +657,8 @@
                 data-features='{
                   "addButton": false,
                   "navigation": false,
-                  "reorder": false
+                  "reorder": false,
+                  "dragAndDrop": false
                 }'>
               </clarity-outline>
             </div>
@@ -746,7 +682,8 @@
             data-features='{
               "addButton": false,
               "navigation": false,
-              "reorder": false
+              "reorder": false,
+              "dragAndDrop": false
             }'>
           </clarity-outline>
           <clarity-outline 
@@ -762,7 +699,8 @@
             data-features='{
               "addButton": false,
               "navigation": false,
-              "reorder": false
+              "reorder": false,
+              "dragAndDrop": false
             }'>
           </clarity-outline>
           <clarity-outline 
@@ -778,7 +716,8 @@
             data-features='{
               "addButton": false,
               "navigation": false,
-              "reorder": false
+              "reorder": false,
+              "dragAndDrop": false
             }'>
           </clarity-outline>
           <clarity-outline 
@@ -794,7 +733,8 @@
             data-features='{
               "addButton": false,
               "navigation": false,
-              "reorder": false
+              "reorder": false,
+              "dragAndDrop": false
             }'>
           </clarity-outline>
           <clarity-outline 
@@ -810,7 +750,8 @@
             data-features='{
               "addButton": false,
               "navigation": false,
-              "reorder": false
+              "reorder": false,
+              "dragAndDrop": false
             }'>
           </clarity-outline>
           <clarity-outline 
@@ -826,7 +767,8 @@
             data-features='{
               "addButton": false,
               "navigation": false,
-              "reorder": false
+              "reorder": false,
+              "dragAndDrop": false
             }'>
           </clarity-outline>
         </div>

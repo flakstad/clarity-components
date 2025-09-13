@@ -48,7 +48,7 @@ describe('Drag and Drop Feature', () => {
     jest.clearAllMocks();
   });
 
-  test('should have dragAndDrop feature disabled by default', () => {
+  test('should have dragAndDrop feature enabled by default', () => {
     container.innerHTML = `
       <clarity-outline
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'>
@@ -58,10 +58,10 @@ describe('Drag and Drop Feature', () => {
     const outline = container.querySelector('clarity-outline');
     const outlineInstance = outline.todoListInstance;
     
-    expect(outlineInstance.options.features.dragAndDrop).toBe(false);
+    expect(outlineInstance.options.features.dragAndDrop).toBe(true);
   });
 
-  test('should enable dragAndDrop feature when configured', () => {
+  test('should allow dragAndDrop feature to be explicitly enabled', () => {
     container.innerHTML = `
       <clarity-outline
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
@@ -75,7 +75,21 @@ describe('Drag and Drop Feature', () => {
     expect(outlineInstance.options.features.dragAndDrop).toBe(true);
   });
 
-  test('should add drag handles when dragAndDrop is enabled', async () => {
+  test('should allow dragAndDrop feature to be explicitly disabled', () => {
+    container.innerHTML = `
+      <clarity-outline
+        data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
+        data-features='{"dragAndDrop": false}'>
+      </clarity-outline>
+    `;
+
+    const outline = container.querySelector('clarity-outline');
+    const outlineInstance = outline.todoListInstance;
+    
+    expect(outlineInstance.options.features.dragAndDrop).toBe(false);
+  });
+
+  test('should make entire items draggable when dragAndDrop is enabled', async () => {
     container.innerHTML = `
       <clarity-outline
         data-items='[
@@ -91,16 +105,16 @@ describe('Drag and Drop Feature', () => {
     // Wait for component to initialize
     await new Promise(resolve => setTimeout(resolve, 100));
     
+    // Drag handles should no longer exist
     const dragHandles = outline.shadowRoot.querySelectorAll('.drag-handle');
-    expect(dragHandles.length).toBe(2);
+    expect(dragHandles.length).toBe(0);
     
-    // Check drag handle properties
-    const firstHandle = dragHandles[0];
-    expect(firstHandle.innerHTML).toBe('⋮⋮');
-    expect(firstHandle.title).toBe('Drag to reorder');
+    // But items should still be present
+    const items = outline.shadowRoot.querySelectorAll('li');
+    expect(items.length).toBe(2);
   });
 
-  test('should not add drag handles when dragAndDrop is disabled', async () => {
+  test('should not have drag handles regardless of dragAndDrop setting', async () => {
     container.innerHTML = `
       <clarity-outline
         data-items='[
@@ -116,6 +130,7 @@ describe('Drag and Drop Feature', () => {
     // Wait for component to initialize
     await new Promise(resolve => setTimeout(resolve, 100));
     
+    // Drag handles are no longer used
     const dragHandles = outline.shadowRoot.querySelectorAll('.drag-handle');
     expect(dragHandles.length).toBe(0);
   });
@@ -138,7 +153,7 @@ describe('Drag and Drop Feature', () => {
     const sortableCall = global.Sortable.create.mock.calls[0];
     const [element, options] = sortableCall;
     
-    expect(options.handle).toBe('.drag-handle');
+    expect(options.handle).toBeUndefined(); // No handle needed - entire item is draggable
     expect(options.animation).toBe(150);
     expect(options.ghostClass).toBe('sortable-ghost');
     expect(options.chosenClass).toBe('sortable-chosen');
@@ -216,7 +231,7 @@ describe('Drag and Drop Feature', () => {
     expect(moveEvent).toBeNull();
   });
 
-  test('should add drag handle to new items when dragAndDrop is enabled', async () => {
+  test('should not add drag handles to new items when dragAndDrop is enabled', async () => {
     container.innerHTML = `
       <clarity-outline
         data-features='{"dragAndDrop": true}'>
@@ -235,11 +250,16 @@ describe('Drag and Drop Feature', () => {
     // Wait for the new item to be added
     await new Promise(resolve => setTimeout(resolve, 50));
     
+    // Drag handles are no longer used
     const dragHandles = outline.shadowRoot.querySelectorAll('.drag-handle');
-    expect(dragHandles.length).toBe(1);
+    expect(dragHandles.length).toBe(0);
+    
+    // But the item should exist
+    const items = outline.shadowRoot.querySelectorAll('li');
+    expect(items.length).toBe(1);
   });
 
-  test('should add drag handle to sibling items when dragAndDrop is enabled', async () => {
+  test('should not add drag handles to sibling items when dragAndDrop is enabled', async () => {
     container.innerHTML = `
       <clarity-outline
         data-items='[{"id":"1","text":"First item","status":"TODO"}]'
@@ -261,11 +281,16 @@ describe('Drag and Drop Feature', () => {
     // Wait for the new item to be added
     await new Promise(resolve => setTimeout(resolve, 50));
     
+    // Drag handles are no longer used
     const dragHandles = outline.shadowRoot.querySelectorAll('.drag-handle');
-    expect(dragHandles.length).toBe(2); // Original item + new sibling
+    expect(dragHandles.length).toBe(0);
+    
+    // But both items should exist
+    const items = outline.shadowRoot.querySelectorAll('li');
+    expect(items.length).toBe(2); // Original item + new sibling
   });
 
-  test('should add drag handle to child items when dragAndDrop is enabled', async () => {
+  test('should not add drag handles to child items when dragAndDrop is enabled', async () => {
     container.innerHTML = `
       <clarity-outline
         data-items='[{"id":"1","text":"Parent item","status":"TODO"}]'
@@ -287,8 +312,13 @@ describe('Drag and Drop Feature', () => {
     // Wait for the new item to be added
     await new Promise(resolve => setTimeout(resolve, 50));
     
+    // Drag handles are no longer used
     const dragHandles = outline.shadowRoot.querySelectorAll('.drag-handle');
-    expect(dragHandles.length).toBe(2); // Parent item + new child
+    expect(dragHandles.length).toBe(0);
+    
+    // But both items should exist
+    const items = outline.shadowRoot.querySelectorAll('li');
+    expect(items.length).toBe(2); // Parent item + new child
   });
 
   test('should initialize sortable on nested lists', async () => {

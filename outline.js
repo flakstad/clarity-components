@@ -15,7 +15,7 @@ class Outline {
       addButton: true,
       navigation: true,
       reorder: true,
-      dragAndDrop: false
+      dragAndDrop: true
     };
 
     // Merge user features with defaults
@@ -750,12 +750,7 @@ class Outline {
     li.appendChild(spanText);
 
     // Add hover buttons
-    this.addHoverButtons(li);
-
-    // Add drag handle if drag and drop is enabled
-    if (this.options.features.dragAndDrop) {
-      this.addDragHandleToItem(li);
-    }
+    this.addHoverButtons(li);    
 
     if (parentLi) {
       let sublist = parentLi.querySelector("ul");
@@ -1161,10 +1156,7 @@ class Outline {
     // Add hover buttons
     this.addHoverButtons(newLi);
 
-    // Add drag handle if drag and drop is enabled
-    if (this.options.features.dragAndDrop) {
-      this.addDragHandleToItem(newLi);
-    }
+    // Drag handles are no longer needed - entire items are draggable
 
     // Insert after current li
     li.after(newLi);
@@ -3460,8 +3452,7 @@ class Outline {
         await this.loadSortableJS();
       }
 
-      // Add drag handles to existing items
-      this.addDragHandles();
+      // Drag handles are no longer needed - entire items are draggable
 
       // Initialize sortable on all lists (main and nested)
       this.initSortableOnAllLists();
@@ -3472,6 +3463,11 @@ class Outline {
   }
 
   initSortableOnAllLists() {
+    // Skip if Sortable is not available
+    if (typeof Sortable === 'undefined') {
+      return;
+    }
+
     // Store all sortable instances for cleanup
     this.sortableInstances = this.sortableInstances || [];
 
@@ -3486,7 +3482,6 @@ class Outline {
 
       const sortableInstance = Sortable.create(listEl, {
         group: 'outline-items', // Allow dragging between lists
-        handle: '.drag-handle',
         animation: 150,
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
@@ -3526,29 +3521,7 @@ class Outline {
     });
   }
 
-  addDragHandles() {
-    this.el.querySelectorAll('li').forEach(li => {
-      this.addDragHandleToItem(li);
-    });
-  }
-
-  addDragHandleToItem(li) {
-    // Skip if drag handle already exists
-    if (li.querySelector('.drag-handle')) {
-      return;
-    }
-
-    // Create drag handle
-    const dragHandle = document.createElement('span');
-    dragHandle.className = 'drag-handle';
-    dragHandle.innerHTML = '⋮⋮'; // Vertical dots
-    dragHandle.title = 'Drag to reorder';
-    
-    // The drag handle styling is handled by CSS
-
-    // Insert drag handle at the beginning of the li
-    li.insertBefore(dragHandle, li.firstChild);
-  }
+  // Drag handles are no longer needed - entire items are draggable
 
   handleDragMove(evt) {
     const { dragged, related, relatedRect, willInsertAfter } = evt;
@@ -3650,21 +3623,17 @@ class Outline {
       }
     });
 
-    // Remove drag handles
-    this.el.querySelectorAll('.drag-handle').forEach(handle => {
-      handle.remove();
-    });
+    // Drag handles are no longer used
   }
 
   // Method to reinitialize sortable on new sublists
   initSortableOnNewSublist(sublist) {
-    if (!this.options.features.dragAndDrop || sublist._sortableInstance) {
+    if (!this.options.features.dragAndDrop || sublist._sortableInstance || typeof Sortable === 'undefined') {
       return;
     }
 
     const sortableInstance = Sortable.create(sublist, {
       group: 'outline-items',
-      handle: '.drag-handle',
       animation: 150,
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
@@ -4084,10 +4053,7 @@ class TaskItem {
     // Create TaskItem instance
     const taskItem = new TaskItem(li, outlineInstance);
 
-    // Add drag handle if drag and drop is enabled
-    if (outlineInstance.options.features.dragAndDrop) {
-      outlineInstance.addDragHandleToItem(li);
-    }
+    // Drag handles are no longer needed - entire items are draggable
 
     // Return the TaskItem instance
     return taskItem;
@@ -4730,22 +4696,13 @@ class OutlineElement extends HTMLElement {
           min-height: 2rem;
         }
 
-        .drag-handle {
-          cursor: grab;
-          color: var(--clarity-outline-text-muted);
-          font-size: 12px;
-          margin-right: 8px;
-          user-select: none;
-          opacity: 0;
-          transition: opacity 0.2s;
+        /* Draggable items styling - only when drag and drop is enabled */
+        :host([data-features*="dragAndDrop"]) li {
+          cursor: move;
         }
-
-        .drag-handle:active {
+        
+        :host([data-features*="dragAndDrop"]) li:active {
           cursor: grabbing;
-        }
-
-        li:hover .drag-handle {
-          opacity: 1;
         }
 
         /* Label and text inline */
