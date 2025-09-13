@@ -290,4 +290,71 @@ describe('Drag and Drop Feature', () => {
     const dragHandles = outline.shadowRoot.querySelectorAll('.drag-handle');
     expect(dragHandles.length).toBe(2); // Parent item + new child
   });
+
+  test('should initialize sortable on nested lists', async () => {
+    container.innerHTML = `
+      <clarity-outline
+        data-items='[{
+          "id":"1",
+          "text":"Parent item",
+          "status":"TODO",
+          "children":[{"id":"2","text":"Child item","status":"TODO"}]
+        }]'
+        data-features='{"dragAndDrop": true}'>
+      </clarity-outline>
+    `;
+
+    const outline = container.querySelector('clarity-outline');
+    
+    // Wait for component to initialize
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Should have multiple sortable instances (main list + nested list)
+    const outlineInstance = outline.todoListInstance;
+    expect(outlineInstance.sortableInstances).toBeDefined();
+    expect(outlineInstance.sortableInstances.length).toBeGreaterThan(1);
+  });
+
+  test('should emit hierarchical move events', async () => {
+    container.innerHTML = `
+      <clarity-outline
+        data-items='[
+          {"id":"1","text":"Item 1","status":"TODO"},
+          {"id":"2","text":"Item 2","status":"TODO"}
+        ]'
+        data-features='{"dragAndDrop": true}'>
+      </clarity-outline>
+    `;
+
+    const outline = container.querySelector('clarity-outline');
+    let moveEvent = null;
+    
+    outline.addEventListener('outline:move', (e) => {
+      moveEvent = e;
+    });
+    
+    // Wait for component to initialize
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    const outlineInstance = outline.todoListInstance;
+    const mockFromList = outline.shadowRoot.querySelector('.outline-list');
+    const mockToList = outline.shadowRoot.querySelector('.outline-list');
+    
+    // Simulate hierarchical drag end event
+    const mockDragEvent = {
+      item: outline.shadowRoot.querySelector('li'),
+      from: mockFromList,
+      to: mockToList,
+      oldIndex: 0,
+      newIndex: 1
+    };
+    
+    outlineInstance.handleHierarchicalDragEnd(mockDragEvent);
+    
+    expect(moveEvent).not.toBeNull();
+    expect(moveEvent.detail.moveType).toBe('reorder');
+    expect(moveEvent.detail.fromList).toBeDefined();
+    expect(moveEvent.detail.toList).toBeDefined();
+  });
+
 });

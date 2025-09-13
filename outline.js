@@ -763,6 +763,11 @@ class Outline {
         sublist = document.createElement("ul");
         parentLi.appendChild(sublist);
         parentLi.classList.add("has-children");
+        
+        // Initialize sortable on new sublist if drag-and-drop is enabled
+        if (this.options.features.dragAndDrop) {
+          this.initSortableOnNewSublist(sublist);
+        }
       }
       sublist.appendChild(li);
     } else {
@@ -802,6 +807,11 @@ class Outline {
       sublist=document.createElement("ul");
       prev.appendChild(sublist);
       prev.classList.add("has-children");
+      
+      // Initialize sortable on new sublist if drag-and-drop is enabled
+      if (this.options.features.dragAndDrop) {
+        this.initSortableOnNewSublist(sublist);
+      }
     }
     sublist.appendChild(li); li.focus();
     this.emit("outline:indent",{id:li.dataset.id,parent:prev.dataset.id});
@@ -3453,21 +3463,48 @@ class Outline {
       // Add drag handles to existing items
       this.addDragHandles();
 
-      // Initialize sortable on the main list
-      this.sortableInstance = Sortable.create(this.el, {
+      // Initialize sortable on all lists (main and nested)
+      this.initSortableOnAllLists();
+
+    } catch (error) {
+      console.error('Failed to initialize drag and drop:', error);
+    }
+  }
+
+  initSortableOnAllLists() {
+    // Store all sortable instances for cleanup
+    this.sortableInstances = this.sortableInstances || [];
+
+    // Find all ul elements (main list and nested sublists)
+    const allLists = [this.el, ...this.el.querySelectorAll('ul')];
+    
+    allLists.forEach(listEl => {
+      // Skip if already initialized
+      if (listEl._sortableInstance) {
+        return;
+      }
+
+      const sortableInstance = Sortable.create(listEl, {
+        group: 'outline-items', // Allow dragging between lists
         handle: '.drag-handle',
         animation: 150,
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         dragClass: 'sortable-drag',
+        fallbackOnBody: true,
+        swapThreshold: 0.65,
         onEnd: (evt) => {
-          this.handleDragEnd(evt);
+          this.handleHierarchicalDragEnd(evt);
+        },
+        onMove: (evt) => {
+          return this.handleDragMove(evt);
         }
       });
 
-    } catch (error) {
-      console.error('Failed to initialize drag and drop:', error);
-    }
+      // Store reference for cleanup
+      listEl._sortableInstance = sortableInstance;
+      this.sortableInstances.push(sortableInstance);
+    });
   }
 
   async loadSortableJS() {
@@ -3513,23 +3550,50 @@ class Outline {
     li.insertBefore(dragHandle, li.firstChild);
   }
 
-  handleDragEnd(evt) {
-    const { oldIndex, newIndex } = evt;
+  handleDragMove(evt) {
+    const { dragged, related, relatedRect, willInsertAfter } = evt;
+    
+    // Allow all moves for now - we'll handle the logic in onEnd
+    return true;
+  }
+
+  handleHierarchicalDragEnd(evt) {
+    const { item, from, to, oldIndex, newIndex } = evt;
     
     // Skip if no actual movement
-    if (oldIndex === newIndex) {
+    if (from === to && oldIndex === newIndex) {
       return;
     }
 
-    // Get the moved item
-    const movedItem = evt.item;
+    // Determine the type of move
+    let moveType = 'reorder';
+    let parentId = null;
     
-    // Emit move event
+    // Check if item moved to a different list (nesting change)
+    if (from !== to) {
+      // Find the parent li of the destination list
+      const parentLi = to.closest('li');
+      if (parentLi) {
+        moveType = 'indent';
+        parentId = parentLi.dataset.id;
+      } else {
+        moveType = 'outdent';
+      }
+    }
+
+    // Update child counts for affected parents
+    this.updateChildCountsAfterMove(from, to);
+
+    // Emit move event with hierarchical information
     const moveEvent = new CustomEvent('outline:move', {
       detail: {
-        item: movedItem,
+        item: item,
         oldIndex: oldIndex,
         newIndex: newIndex,
+        moveType: moveType,
+        parentId: parentId,
+        fromList: from,
+        toList: to,
         direction: newIndex > oldIndex ? 'down' : 'up'
       },
       bubbles: true
@@ -3538,17 +3602,86 @@ class Outline {
     this.el.dispatchEvent(moveEvent);
   }
 
+  updateChildCountsAfterMove(fromList, toList) {
+    // Update child count for the source parent
+    if (fromList && fromList.closest) {
+      const fromParentLi = fromList.closest('li');
+      if (fromParentLi) {
+        this.updateChildCount(fromParentLi);
+        
+        // Remove empty sublists
+        if (fromList.children.length === 0 && fromList !== this.el) {
+          fromParentLi.classList.remove('has-children');
+          fromList.remove();
+        }
+      }
+    }
+
+    // Update child count for the destination parent
+    if (toList && toList.closest) {
+      const toParentLi = toList.closest('li');
+      if (toParentLi) {
+        toParentLi.classList.add('has-children');
+        this.updateChildCount(toParentLi);
+      }
+    }
+  }
+
   // Clean up drag and drop
   destroyDragAndDrop() {
+    // Clean up all sortable instances
+    if (this.sortableInstances) {
+      this.sortableInstances.forEach(instance => {
+        instance.destroy();
+      });
+      this.sortableInstances = [];
+    }
+
+    // Clean up old single instance if it exists
     if (this.sortableInstance) {
       this.sortableInstance.destroy();
       this.sortableInstance = null;
     }
 
+    // Remove sortable instance references from DOM elements
+    [this.el, ...this.el.querySelectorAll('ul')].forEach(listEl => {
+      if (listEl._sortableInstance) {
+        delete listEl._sortableInstance;
+      }
+    });
+
     // Remove drag handles
     this.el.querySelectorAll('.drag-handle').forEach(handle => {
       handle.remove();
     });
+  }
+
+  // Method to reinitialize sortable on new sublists
+  initSortableOnNewSublist(sublist) {
+    if (!this.options.features.dragAndDrop || sublist._sortableInstance) {
+      return;
+    }
+
+    const sortableInstance = Sortable.create(sublist, {
+      group: 'outline-items',
+      handle: '.drag-handle',
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      dragClass: 'sortable-drag',
+      fallbackOnBody: true,
+      swapThreshold: 0.65,
+      onEnd: (evt) => {
+        this.handleHierarchicalDragEnd(evt);
+      },
+      onMove: (evt) => {
+        return this.handleDragMove(evt);
+      }
+    });
+
+    sublist._sortableInstance = sortableInstance;
+    this.sortableInstances = this.sortableInstances || [];
+    this.sortableInstances.push(sortableInstance);
   }
 }
 
@@ -4581,6 +4714,20 @@ class OutlineElement extends HTMLElement {
         .sortable-drag {
           opacity: 0.8;
           transform: rotate(5deg);
+        }
+
+        /* Drop zone indicators */
+        li.drop-target {
+          background: var(--clarity-outline-focus-highlight, rgba(138, 155, 168, 0.15));
+          border: 2px dashed var(--clarity-outline-border-focus, #8a9ba8);
+          border-radius: 4px;
+        }
+
+        ul.drop-zone {
+          background: var(--clarity-outline-focus-highlight, rgba(138, 155, 168, 0.1));
+          border: 1px dashed var(--clarity-outline-border-focus, #8a9ba8);
+          border-radius: 4px;
+          min-height: 2rem;
         }
 
         .drag-handle {

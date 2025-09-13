@@ -358,26 +358,26 @@ describe('Outline Web Component', () => {
       // Initially buttons should be hidden (no data, no popup)
       expect(hoverButtons.style.display).toBe('none');
 
-      // Simulate mouseenter
-      const mouseenterEvent = new Event('mouseenter', { bubbles: true });
-      todo.dispatchEvent(mouseenterEvent);
+      // Simulate mouseover
+      const mouseoverEvent = new Event('mouseover', { bubbles: true });
+      todo.dispatchEvent(mouseoverEvent);
 
-      // Buttons should still be hidden immediately after mouseenter
+      // Buttons should still be hidden immediately after mouseover
       expect(hoverButtons.style.display).toBe('none');
 
-      // Wait for the delay (1000ms) and check if buttons are shown
+      // Wait for the delay (600ms) and check if buttons are shown
       return new Promise(resolve => {
         setTimeout(() => {
           expect(hoverButtons.style.display).toBe('inline-flex');
 
-          // Simulate mouseleave
-          const mouseleaveEvent = new Event('mouseleave', { bubbles: true });
-          todo.dispatchEvent(mouseleaveEvent);
+          // Simulate mouseout
+          const mouseoutEvent = new Event('mouseout', { bubbles: true });
+          todo.dispatchEvent(mouseoutEvent);
 
-          // Buttons should be hidden immediately after mouseleave
+          // Buttons should be hidden immediately after mouseout
           expect(hoverButtons.style.display).toBe('none');
           resolve();
-        }, 1100); // Wait slightly longer than the 1000ms delay
+        }, 700); // Wait slightly longer than the 600ms delay
       });
     });
 
