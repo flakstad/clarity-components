@@ -221,6 +221,65 @@
     
   </div>
 
+  <!-- Drag and Drop Demo -->
+  <div class="demo-section">
+    <h2>Drag and Drop Reordering</h2>
+    <p style="margin: 1rem 0; color: var(--text-primary);">Enable drag-and-drop reordering by setting the <code>dragAndDrop</code> feature to <code>true</code>. The sortable.js library will be loaded dynamically only when this feature is enabled.</p>
+    
+    <clarity-outline
+      id="drag-drop-outline"
+      data-items='[
+        {
+          "id": "dd-1",
+          "text": "First task - drag me around!",
+          "status": "TODO",
+          "priority": true
+        },
+        {
+          "id": "dd-2",
+          "text": "Second task with assignment",
+          "status": "IN PROGRESS",
+          "assign": "alice"
+        },
+        {
+          "id": "dd-3",
+          "text": "Third task with tags",
+          "status": "TODO",
+          "tags": ["urgent", "feature"]
+        },
+        {
+          "id": "dd-4",
+          "text": "Fourth task - completed",
+          "status": "DONE"
+        },
+        {
+          "id": "dd-5",
+          "text": "Fifth task with due date",
+          "status": "TODO",
+          "due": "Jan 15",
+          "blocked": true
+        }
+      ]'
+      data-assignees='["alice", "bob", "charlie", "diana"]'
+      data-tags='["urgent", "bug", "feature", "docs", "review"]'
+      data-status-labels='[
+        {"label": "TODO", "isEndState": false},
+        {"label": "IN PROGRESS", "isEndState": false},
+        {"label": "DONE", "isEndState": true}
+      ]'
+      data-features='{
+        "dragAndDrop": true
+      }'>
+    </clarity-outline>
+    
+    <div class="code-block">
+      &lt;clarity-outline
+        data-features='{"dragAndDrop": true}'
+        data-items='[...]'&gt;
+      &lt;/clarity-outline&gt;
+    </div>
+  </div>
+
   <!-- Rich Text Editor Demo -->
   <div class="demo-section">
     <h2>Inline in Text Document</h2>
@@ -835,6 +894,19 @@
       });
     });
   });
+
+  // Add specific event listener for drag-and-drop demo
+  const dragDropOutline = document.getElementById('drag-drop-outline');
+  if (dragDropOutline) {
+    dragDropOutline.addEventListener('outline:move', e => {
+      console.log('🔄 Item reordered via drag-and-drop:', {
+        item: e.detail.item.querySelector('.outline-text')?.textContent,
+        from: e.detail.oldIndex,
+        to: e.detail.newIndex,
+        direction: e.detail.direction
+      });
+    });
+  }
 
   // Add event listeners for the new comments and worklog features
   const newFeatureOutlines = document.querySelectorAll('clarity-outline');

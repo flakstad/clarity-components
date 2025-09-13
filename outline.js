@@ -14,7 +14,8 @@ class Outline {
       archive: true,
       addButton: true,
       navigation: true,
-      reorder: true
+      reorder: true,
+      dragAndDrop: false
     };
 
     // Merge user features with defaults
@@ -51,6 +52,11 @@ class Outline {
       this.updateChildCount(li);
       this.updateHoverButtonsVisibility(li);
     });
+
+    // Initialize drag-and-drop if enabled
+    if (this.options.features.dragAndDrop) {
+      this.initDragAndDrop();
+    }
   }
 
   getCurrentUser() {
@@ -746,6 +752,11 @@ class Outline {
     // Add hover buttons
     this.addHoverButtons(li);
 
+    // Add drag handle if drag and drop is enabled
+    if (this.options.features.dragAndDrop) {
+      this.addDragHandleToItem(li);
+    }
+
     if (parentLi) {
       let sublist = parentLi.querySelector("ul");
       if (!sublist) {
@@ -1139,6 +1150,11 @@ class Outline {
 
     // Add hover buttons
     this.addHoverButtons(newLi);
+
+    // Add drag handle if drag and drop is enabled
+    if (this.options.features.dragAndDrop) {
+      this.addDragHandleToItem(newLi);
+    }
 
     // Insert after current li
     li.after(newLi);
@@ -3425,6 +3441,115 @@ class Outline {
     
     return new Outline(ul, agendaOptions);
   }
+
+  // Drag and Drop functionality
+  async initDragAndDrop() {
+    try {
+      // Dynamically load sortable.js if not already loaded
+      if (typeof Sortable === 'undefined') {
+        await this.loadSortableJS();
+      }
+
+      // Add drag handles to existing items
+      this.addDragHandles();
+
+      // Initialize sortable on the main list
+      this.sortableInstance = Sortable.create(this.el, {
+        handle: '.drag-handle',
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        onEnd: (evt) => {
+          this.handleDragEnd(evt);
+        }
+      });
+
+    } catch (error) {
+      console.error('Failed to initialize drag and drop:', error);
+    }
+  }
+
+  async loadSortableJS() {
+    return new Promise((resolve, reject) => {
+      // Check if already loaded
+      if (typeof Sortable !== 'undefined') {
+        resolve();
+        return;
+      }
+
+      // Create script element
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js';
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Failed to load SortableJS'));
+      
+      // Add to document head
+      document.head.appendChild(script);
+    });
+  }
+
+  addDragHandles() {
+    this.el.querySelectorAll('li').forEach(li => {
+      this.addDragHandleToItem(li);
+    });
+  }
+
+  addDragHandleToItem(li) {
+    // Skip if drag handle already exists
+    if (li.querySelector('.drag-handle')) {
+      return;
+    }
+
+    // Create drag handle
+    const dragHandle = document.createElement('span');
+    dragHandle.className = 'drag-handle';
+    dragHandle.innerHTML = '⋮⋮'; // Vertical dots
+    dragHandle.title = 'Drag to reorder';
+    
+    // The drag handle styling is handled by CSS
+
+    // Insert drag handle at the beginning of the li
+    li.insertBefore(dragHandle, li.firstChild);
+  }
+
+  handleDragEnd(evt) {
+    const { oldIndex, newIndex } = evt;
+    
+    // Skip if no actual movement
+    if (oldIndex === newIndex) {
+      return;
+    }
+
+    // Get the moved item
+    const movedItem = evt.item;
+    
+    // Emit move event
+    const moveEvent = new CustomEvent('outline:move', {
+      detail: {
+        item: movedItem,
+        oldIndex: oldIndex,
+        newIndex: newIndex,
+        direction: newIndex > oldIndex ? 'down' : 'up'
+      },
+      bubbles: true
+    });
+    
+    this.el.dispatchEvent(moveEvent);
+  }
+
+  // Clean up drag and drop
+  destroyDragAndDrop() {
+    if (this.sortableInstance) {
+      this.sortableInstance.destroy();
+      this.sortableInstance = null;
+    }
+
+    // Remove drag handles
+    this.el.querySelectorAll('.drag-handle').forEach(handle => {
+      handle.remove();
+    });
+  }
 }
 
 // Helper class for creating and managing task item buttons
@@ -3823,8 +3948,16 @@ class TaskItem {
     li.appendChild(document.createTextNode(" "));
     li.appendChild(textSpan);
 
-    // Return a new TaskItem instance
-    return new TaskItem(li, outlineInstance);
+    // Create TaskItem instance
+    const taskItem = new TaskItem(li, outlineInstance);
+
+    // Add drag handle if drag and drop is enabled
+    if (outlineInstance.options.features.dragAndDrop) {
+      outlineInstance.addDragHandleToItem(li);
+    }
+
+    // Return the TaskItem instance
+    return taskItem;
   }
 }
 
@@ -4433,6 +4566,39 @@ class OutlineElement extends HTMLElement {
           &.editing > ul {
             display: none !important;
           }
+        }
+
+        /* Drag and Drop / Sortable styles */
+        .sortable-ghost {
+          opacity: 0.4;
+          background: var(--clarity-outline-hover);
+        }
+
+        .sortable-chosen {
+          background: var(--clarity-outline-focus);
+        }
+
+        .sortable-drag {
+          opacity: 0.8;
+          transform: rotate(5deg);
+        }
+
+        .drag-handle {
+          cursor: grab;
+          color: var(--clarity-outline-text-muted);
+          font-size: 12px;
+          margin-right: 8px;
+          user-select: none;
+          opacity: 0;
+          transition: opacity 0.2s;
+        }
+
+        .drag-handle:active {
+          cursor: grabbing;
+        }
+
+        li:hover .drag-handle {
+          opacity: 1;
         }
 
         /* Label and text inline */

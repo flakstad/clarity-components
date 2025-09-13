@@ -326,6 +326,8 @@ We might need the agenda web component for navigation and shortcuts for queries.
 Or possibly datastar signals in the html is enough to detect this?
 * DONE bug: attempt again to fix issue with hover items showing on parents when hovering child
 CLOSED: [2025-09-13 Sat 08:27]
+* DONE simple drag and drop
+CLOSED: [2025-09-13 Sat 08:55]
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.
@@ -343,7 +345,6 @@ similar.
 Would need to update schedule to support adding repeating settings through popup.
 
 Needs to be tested in a sort of agenda view, with a database query.
-* TODO drag and drop?
 * TODO allow custom key bindings for all keyboard interactions?
 Pass in override key bindings.
 First for movement only, i.e. moving focus, moving items
