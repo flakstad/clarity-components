@@ -2358,11 +2358,11 @@ class Outline {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       selectCallback();
-    } else if (e.key === 'ArrowDown') {
+    } else if (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n') || e.key === 'j') {
       e.preventDefault();
       const nextItem = item.nextElementSibling;
       if (nextItem) nextItem.focus();
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p') || e.key === 'k') {
       e.preventDefault();
       const prevItem = item.previousElementSibling;
       if (prevItem) prevItem.focus();
@@ -2489,11 +2489,11 @@ class Outline {
           e.preventDefault();
           checkbox.checked = !checkbox.checked;
           this.toggleTag(li, tag, checkbox.checked);
-        } else if (e.key === 'ArrowDown') {
+        } else if (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n') || e.key === 'j') {
           e.preventDefault();
           const nextItem = item.nextElementSibling || input;
           nextItem.focus();
-        } else if (e.key === 'ArrowUp') {
+        } else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p') || e.key === 'k') {
           e.preventDefault();
           const prevItem = item.previousElementSibling;
           if (prevItem && prevItem !== input) {
@@ -2520,10 +2520,14 @@ class Outline {
           // Rebuild popup to include new tag
           setTimeout(() => this.showTagsPopup(li, button), 0);
         }
-      } else if (e.key === 'ArrowDown') {
+      } else if (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n') || e.key === 'j') {
         e.preventDefault();
         const firstItem = popup.querySelector('.tag-item');
         if (firstItem) firstItem.focus();
+      } else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p') || e.key === 'k') {
+        e.preventDefault();
+        const lastItem = popup.querySelector('.tag-item:last-child');
+        if (lastItem) lastItem.focus();
       } else if (e.key === 'Escape') {
         this.closeAllPopups(li);
       }
@@ -3124,23 +3128,12 @@ class Outline {
 
       // Handle keyboard
       item.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
+        this.handleDropdownKeydown(e, item, () => {
           const success = this.setTodoStatus(li, option.value);
           if (success) {
             this.closeAllPopups();
           }
-        } else if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          const nextItem = item.nextElementSibling;
-          if (nextItem) nextItem.focus();
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          const prevItem = item.previousElementSibling;
-          if (prevItem) prevItem.focus();
-        } else if (e.key === 'Escape') {
-          this.closeAllPopups(li);
-        }
+        }, li);
       });
 
       popup.appendChild(item);

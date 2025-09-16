@@ -2908,6 +2908,113 @@ describe('Outline Web Component', () => {
       expect(scheduleSpan).toBeDefined();
       expect(scheduleSpan.textContent).toContain('12:00');
     });
+
+    test('should navigate status popup with emacs/vi keys', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+
+      // Open status popup
+      const statusLabel = todo.querySelector('.outline-label');
+      statusLabel.click();
+
+      const popup = getPopup(outlineList);
+      const items = popup.querySelectorAll('.dropdown-item');
+      expect(items.length).toBeGreaterThan(1);
+
+      // Focus first item
+      items[0].focus();
+
+      // Test vi key 'j' (down)
+      items[0].dispatchEvent(createKeyEvent('j'));
+      expect(getActiveElement(outlineList)).toBe(items[1]);
+
+      // Test emacs key Ctrl+N (down)
+      items[1].dispatchEvent(createKeyEvent('n', { ctrlKey: true }));
+      expect(getActiveElement(outlineList)).toBe(items[2]);
+
+      // Test vi key 'k' (up)
+      items[2].dispatchEvent(createKeyEvent('k'));
+      expect(getActiveElement(outlineList)).toBe(items[1]);
+
+      // Test emacs key Ctrl+P (up)
+      items[1].dispatchEvent(createKeyEvent('p', { ctrlKey: true }));
+      expect(getActiveElement(outlineList)).toBe(items[0]);
+    });
+
+    test('should navigate assign popup with emacs/vi keys', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+
+      // Open assign popup
+      const assignButton = todo.querySelector('.assign-button');
+      assignButton.click();
+
+      const popup = getPopup(outlineList);
+      const items = popup.querySelectorAll('.dropdown-item');
+      expect(items.length).toBeGreaterThan(1);
+
+      // Focus first item
+      items[0].focus();
+
+      // Test vi key 'j' (down)
+      items[0].dispatchEvent(createKeyEvent('j'));
+      expect(getActiveElement(outlineList)).toBe(items[1]);
+
+      // Test emacs key Ctrl+N (down)
+      items[1].dispatchEvent(createKeyEvent('n', { ctrlKey: true }));
+      if (items[2]) {
+        expect(getActiveElement(outlineList)).toBe(items[2]);
+      }
+
+      // Test vi key 'k' (up)
+      if (items[2]) {
+        items[2].dispatchEvent(createKeyEvent('k'));
+        expect(getActiveElement(outlineList)).toBe(items[1]);
+      }
+
+      // Test emacs key Ctrl+P (up)
+      items[1].dispatchEvent(createKeyEvent('p', { ctrlKey: true }));
+      expect(getActiveElement(outlineList)).toBe(items[0]);
+    });
+
+    test('should navigate tags popup with emacs/vi keys', async () => {
+      todoList.addItem('Test todo');
+      const todo = getTodoByText(outlineList, 'Test todo');
+
+      // Open tags popup
+      const tagsButton = todo.querySelector('.tags-button');
+      tagsButton.click();
+
+      const popup = getPopup(outlineList);
+      const input = popup.querySelector('.dropdown-input');
+      const tagItems = popup.querySelectorAll('.tag-item');
+      
+      expect(input).toBeDefined();
+      expect(tagItems.length).toBeGreaterThan(0);
+
+      // Focus input first
+      input.focus();
+
+      // Test vi key 'j' (down) from input to first tag
+      input.dispatchEvent(createKeyEvent('j'));
+      expect(getActiveElement(outlineList)).toBe(tagItems[0]);
+
+      // Test emacs key Ctrl+N (down) between tags
+      if (tagItems[1]) {
+        tagItems[0].dispatchEvent(createKeyEvent('n', { ctrlKey: true }));
+        expect(getActiveElement(outlineList)).toBe(tagItems[1]);
+      }
+
+      // Test vi key 'k' (up) back to previous tag
+      if (tagItems[1]) {
+        tagItems[1].dispatchEvent(createKeyEvent('k'));
+        expect(getActiveElement(outlineList)).toBe(tagItems[0]);
+      }
+
+      // Test emacs key Ctrl+P (up) from first tag to input
+      tagItems[0].dispatchEvent(createKeyEvent('p', { ctrlKey: true }));
+      expect(getActiveElement(outlineList)).toBe(input);
+    });
   });
 
   describe('Parent-Child Relationships', () => {
