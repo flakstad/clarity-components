@@ -943,7 +943,8 @@ class Outline {
         // Always position the child-count correctly (whether new or existing)
         this.positionChildCount(li, countSpan);
         
-        countSpan.textContent = `[${doneCount}/${completableChildren.length}]`;
+        // Create progress bar instead of text
+        this.createProgressBar(countSpan, doneCount, completableChildren.length);
         countSpan.style.display = "";
     } else {
         // Remove the count span entirely when no completable children
@@ -962,6 +963,67 @@ class Outline {
 
     // Always insert directly after the text span
     textSpan.after(countSpan);
+  }
+
+  createProgressBar(container, doneCount, totalCount) {
+    Outline.createProgressBar(container, doneCount, totalCount);
+  }
+
+  static createProgressBar(container, doneCount, totalCount) {
+    // Clear existing content
+    container.innerHTML = '';
+    
+    // Create progress bar container
+    const progressContainer = document.createElement('div');
+    progressContainer.className = 'progress-container';
+    
+    // Create progress bar background
+    const progressBar = document.createElement('div');
+    progressBar.className = 'progress-bar';
+    
+    // Create progress fill
+    const progressFill = document.createElement('div');
+    progressFill.className = 'progress-fill';
+    
+    // Calculate progress percentage
+    const progressPercentage = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
+    progressFill.style.width = `${progressPercentage}%`;
+    
+    // Create text overlay with numbers positioned on top of the bar
+    const progressText = document.createElement('div');
+    progressText.className = 'progress-text';
+    progressText.textContent = `${doneCount}/${totalCount}`;
+    
+    // Position text based on progress with half-white/half-black effect
+    if (progressPercentage >= 50) {
+      // If half or more complete, show text on the completed portion (white for contrast)
+      progressText.style.color = '#ffffff';
+      progressText.style.textShadow = '0 0 2px rgba(0,0,0,0.3)';
+    } else {
+      // If less than half complete, show text on the uncompleted portion (darker for better contrast)
+      progressText.style.color = 'var(--clarity-outline-text-primary)';
+    }
+    
+    // Create half-white/half-black effect for text when around 50% complete
+    if (progressPercentage >= 40 && progressPercentage <= 60) {
+      // Create a gradient effect that splits the text
+      const gradientStop = ((progressPercentage - 40) / 20) * 100; // 0-100% based on 40-60% progress
+      progressText.style.background = `linear-gradient(90deg, 
+        #ffffff 0%, 
+        #ffffff ${gradientStop}%, 
+        var(--clarity-outline-text-primary) ${gradientStop}%, 
+        var(--clarity-outline-text-primary) 100%)`;
+      progressText.style.webkitBackgroundClip = 'text';
+      progressText.style.backgroundClip = 'text';
+      progressText.style.webkitTextFillColor = 'transparent';
+      progressText.style.textShadow = 'none';
+    }
+    
+    // Assemble the progress bar with text positioned on top
+    progressBar.appendChild(progressFill);
+    progressBar.appendChild(progressText);
+    progressContainer.appendChild(progressBar);
+    container.appendChild(progressContainer);
   }
 
 
@@ -2705,7 +2767,7 @@ class Outline {
 
     const heading = document.createElement('div');
     heading.className = 'heading';
-    heading.textContent = 'Add to private worklog';
+    heading.textContent = 'Add to my worklog';
     popup.appendChild(heading);
 
     const textarea = document.createElement('textarea');
@@ -4310,7 +4372,7 @@ class OutlineElement extends HTMLElement {
       ).length;
       const countSpan = document.createElement('span');
       countSpan.className = 'child-count';
-      countSpan.textContent = `[${completedCount}/${todo.children.length}]`;
+      Outline.createProgressBar(countSpan, completedCount, todo.children.length);
       li.appendChild(countSpan);
     }
 
@@ -4715,6 +4777,41 @@ class OutlineElement extends HTMLElement {
           color: var(--clarity-outline-text-muted);
           margin-left: 0.5rem;
           user-select: none;
+        }
+
+        .progress-container {
+          display: inline-block;
+          margin-left: 0.15rem;
+          vertical-align: middle;
+        }
+
+        .progress-bar {
+          width: 40px;
+          height: 12px;
+          background-color: var(--clarity-outline-bg-tertiary);
+          border-radius: 1px;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background-color: var(--clarity-outline-color-done);
+          border-radius: 1px;
+          transition: width 0.2s ease;
+        }
+
+        .progress-text {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 0.65em;
+          font-weight: 600;
+          text-align: center;
+          user-select: none;
+          white-space: nowrap;
+          pointer-events: none;
         }
 
         /* Schedule and assign indicators */

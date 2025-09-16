@@ -70,7 +70,7 @@ describe('Parent Completion Prevention', () => {
     
     // Verify counter shows [1/2]
     const counter = parent.querySelector('.child-count');
-    expect(counter.textContent).toBe('[1/2]');
+    expect(counter.textContent).toBe('1/2');
 
     // Try to complete parent with shift+right arrow
     let permissionDeniedEvent = null;
@@ -112,7 +112,7 @@ describe('Parent Completion Prevention', () => {
     
     // Verify counter shows [2/2]
     const counter = parent.querySelector('.child-count');
-    expect(counter.textContent).toBe('[2/2]');
+    expect(counter.textContent).toBe('2/2');
 
     // Now try to complete parent
     let toggleEvent = null;

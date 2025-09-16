@@ -699,7 +699,7 @@ describe('Outline Web Component', () => {
       // Should not count no-label items in child count
       const childCount = parentTodo.querySelector('.child-count');
       if (childCount) {
-        expect(childCount.textContent).toBe('[0/0]');
+        expect(childCount.textContent).toBe('0/0');
       }
     });
 
@@ -749,7 +749,7 @@ describe('Outline Web Component', () => {
       // Should now have child count
       childCount = parentTodo.querySelector('.child-count');
       expect(childCount).toBeDefined();
-      expect(childCount.textContent).toBe('[0/1]');
+      expect(childCount.textContent).toBe('0/1');
     });
 
     test('should update child-count when child is completed', () => {
@@ -760,14 +760,14 @@ describe('Outline Web Component', () => {
       const childTodo = getTodoByText(outlineList, 'Child todo');
 
       let childCount = parentTodo.querySelector('.child-count');
-      expect(childCount.textContent).toBe('[0/1]');
+      expect(childCount.textContent).toBe('0/1');
 
       // Complete child (toggle twice to get to DONE)
       todoList.toggleItem(childTodo);
       todoList.toggleItem(childTodo);
 
       childCount = parentTodo.querySelector('.child-count');
-      expect(childCount.textContent).toBe('[1/1]');
+      expect(childCount.textContent).toBe('1/1');
     });
 
     test('should update child-count when indenting a child that is itself a parent', () => {
@@ -785,7 +785,7 @@ describe('Outline Web Component', () => {
       // Grandparent should have child count
       const grandparentCount = grandparentTodo.querySelector('.child-count');
       expect(grandparentCount).toBeDefined();
-      expect(grandparentCount.textContent).toBe('[0/1]');
+      expect(grandparentCount.textContent).toBe('0/1');
     });
 
     test('should update child-count when further indenting a child', () => {
@@ -801,7 +801,7 @@ describe('Outline Web Component', () => {
       // Parent should have child count
       const parentCount = parentTodo.querySelector('.child-count');
       expect(parentCount).toBeDefined();
-      expect(parentCount.textContent).toBe('[0/1]');
+      expect(parentCount.textContent).toBe('0/1');
     });
 
     test('should update child-count when outdenting a child', () => {
@@ -832,7 +832,7 @@ describe('Outline Web Component', () => {
       // Header should have child count
       const headerCount = headerTodo.querySelector('.child-count');
       expect(headerCount).toBeDefined();
-      expect(headerCount.textContent).toBe('[0/1]');
+      expect(headerCount.textContent).toBe('0/1');
     });
 
     test('should remove child-count when all children are removed', () => {
@@ -865,7 +865,7 @@ describe('Outline Web Component', () => {
       todoList.addItem('Child 2', parentTodo);
 
       const childCount = parentTodo.querySelector('.child-count');
-      expect(childCount.textContent).toBe('[0/2]');
+      expect(childCount.textContent).toBe('0/2');
     });
 
     test('should add counter when indenting item under parent without status label', () => {
@@ -886,7 +886,7 @@ describe('Outline Web Component', () => {
       // Verify it still has a child count for the existing child
       let childCount = parentTodo.querySelector('.child-count');
       expect(childCount).toBeDefined();
-      expect(childCount.textContent).toBe('[0/1]');
+      expect(childCount.textContent).toBe('0/1');
       
       // Now create a new item at root level
       todoList.addItem('New item');
@@ -898,7 +898,7 @@ describe('Outline Web Component', () => {
       // The parent should now have a counter showing 2 children
       childCount = parentTodo.querySelector('.child-count');
       expect(childCount).toBeDefined();
-      expect(childCount.textContent).toBe('[0/2]');
+      expect(childCount.textContent).toBe('0/2');
     });
 
     test('should add counter when indenting under parent that starts without status label', () => {
@@ -920,7 +920,7 @@ describe('Outline Web Component', () => {
       // Verify parent has child count after adding first child
       let childCount = parentTodo.querySelector('.child-count');
       expect(childCount).toBeDefined();
-      expect(childCount.textContent).toBe('[0/1]');
+      expect(childCount.textContent).toBe('0/1');
       
       // Now create a new item at root level  
       todoList.addItem('Second item to indent');
@@ -933,7 +933,7 @@ describe('Outline Web Component', () => {
       // The counter should be updated to show 2 children
       childCount = parentTodo.querySelector('.child-count');
       expect(childCount).toBeDefined();
-      expect(childCount.textContent).toBe('[0/2]');
+      expect(childCount.textContent).toBe('0/2');
     });
 
     test('BUG: counter missing when indenting under no-label parent with only no-label children', () => {
@@ -970,7 +970,7 @@ describe('Outline Web Component', () => {
       // (the header child doesn't count, only the regular todo)
       childCount = parentTodo.querySelector('.child-count');
       expect(childCount).toBeDefined();
-      expect(childCount.textContent).toBe('[0/1]');
+      expect(childCount.textContent).toBe('0/1');
     });
 
     test('EXACT BUG: no counter after indenting under parent that starts with no completable children', () => {
@@ -1009,7 +1009,7 @@ describe('Outline Web Component', () => {
       // Should now have a counter
       counter = parent.querySelector('.child-count');
       expect(counter).toBeDefined();
-      expect(counter.textContent).toBe('[0/1]');
+      expect(counter.textContent).toBe('0/1');
     });
 
     test('DEBUG: Manual test of updateChildCount behavior', () => {
@@ -1048,7 +1048,7 @@ describe('Outline Web Component', () => {
       todoList.updateChildCount(parent);
       counter = parent.querySelector('.child-count');
       expect(counter).toBeDefined();
-      expect(counter.textContent).toBe('[0/1]');
+      expect(counter.textContent).toBe('0/1');
     });
 
     test('BUG REPRODUCTION: parent with no status label, no children, indent item under it', () => {
@@ -1081,7 +1081,7 @@ describe('Outline Web Component', () => {
       // The parent should now have a counter showing [0/1]
       const counter = parent.querySelector('.child-count');
       expect(counter).toBeDefined();
-      expect(counter.textContent).toBe('[0/1]');
+      expect(counter.textContent).toBe('0/1');
     });
 
     test('should add counter when indenting under no-label parent that already has children', () => {
@@ -1098,7 +1098,7 @@ describe('Outline Web Component', () => {
       // Verify parent has a counter
       let counter = parent.querySelector('.child-count');
       expect(counter).toBeDefined();
-      expect(counter.textContent).toBe('[0/1]');
+      expect(counter.textContent).toBe('0/1');
       
       // Now remove the parent's status label
       todoList.setTodoStatus(parent, 'none');
@@ -1106,7 +1106,7 @@ describe('Outline Web Component', () => {
       // Counter should still be there because child is completable
       counter = parent.querySelector('.child-count');
       expect(counter).toBeDefined();
-      expect(counter.textContent).toBe('[0/1]');
+      expect(counter.textContent).toBe('0/1');
       
       // Create another item at root level
       todoList.addItem('Second item');
@@ -1119,7 +1119,7 @@ describe('Outline Web Component', () => {
       // Counter should now show [0/2]
       counter = parent.querySelector('.child-count');
       expect(counter).toBeDefined();
-      expect(counter.textContent).toBe('[0/2]');
+      expect(counter.textContent).toBe('0/2');
     });
 
     test('COMPREHENSIVE: all edge cases for no-label parent counter behavior', () => {
@@ -1147,13 +1147,13 @@ describe('Outline Web Component', () => {
       todoList.addItem('Todo under header', header3);
       let counter = header3.querySelector('.child-count');
       expect(counter).toBeDefined();
-      expect(counter.textContent).toBe('[0/1]');
+      expect(counter.textContent).toBe('0/1');
       
       // Scenario 4: Adding completable child to no-label parent with only no-label children
       todoList.addItem('Regular todo', header2); // Add to header2 which had only no-label children
       counter = header2.querySelector('.child-count');
       expect(counter).toBeDefined();
-      expect(counter.textContent).toBe('[0/1]'); // Only counts completable children
+      expect(counter.textContent).toBe('0/1'); // Only counts completable children
       
       // Scenario 5: Indent operation creating new completable child under no-label parent
       todoList.addItem('Item to indent');
@@ -1162,7 +1162,7 @@ describe('Outline Web Component', () => {
       todoList.indentItem(itemToIndent);
       counter = header1.querySelector('.child-count');
       expect(counter).toBeDefined();
-      expect(counter.textContent).toBe('[0/1]');
+      expect(counter.textContent).toBe('0/1');
     });
 
 
@@ -1236,7 +1236,7 @@ describe('Outline Web Component', () => {
         
         // THE FIX: A should get counter [0/1] automatically now
         expect(counterA).not.toBeNull();
-        expect(counterA.textContent).toBe('[0/1]');
+        expect(counterA.textContent).toBe('0/1');
         
       } else if (itemC.parentNode.closest('li') === itemB) {
         console.log('✅ GOOD: C went under B as user expected');
@@ -1250,7 +1250,7 @@ describe('Outline Web Component', () => {
         }
         
         expect(counterB).not.toBeNull();
-        expect(counterB.textContent).toBe('[0/1]');
+        expect(counterB.textContent).toBe('0/1');
       } else {
         console.log('❌ UNEXPECTED: C went somewhere else entirely');
         throw new Error('Unexpected hierarchy result');
@@ -1290,7 +1290,7 @@ describe('Outline Web Component', () => {
       }
       
       expect(counterB).not.toBeNull();
-      expect(counterB.textContent).toBe('[0/1]');
+      expect(counterB.textContent).toBe('0/1');
       
       // Now add D as second child of B using addItem directly
       console.log('=== Adding D as second child of B using addItem ===');
@@ -1310,10 +1310,10 @@ describe('Outline Web Component', () => {
         console.log('B counter after manual fix:', manualCounterB ? manualCounterB.textContent : 'null');
         
         expect(manualCounterB).not.toBeNull();
-        expect(manualCounterB.textContent).toBe('[0/2]');
+        expect(manualCounterB.textContent).toBe('0/2');
       } else {
         console.log('Counter value:', finalCounterB.textContent);
-        expect(finalCounterB.textContent).toBe('[0/2]');
+        expect(finalCounterB.textContent).toBe('0/2');
       }
     });
 
@@ -1353,7 +1353,7 @@ describe('Outline Web Component', () => {
       const initialCounterB = itemB.querySelector('.child-count');
       console.log('Initial B counter:', initialCounterB ? initialCounterB.textContent : 'null');
       expect(initialCounterB).not.toBeNull();
-      expect(initialCounterB.textContent).toBe('[0/1]');
+      expect(initialCounterB.textContent).toBe('0/1');
       
       console.log('✅ Setup complete: A -> B [0/1] -> C');
       
@@ -1390,7 +1390,7 @@ describe('Outline Web Component', () => {
         
         if (manualCounterB) {
           console.log('✅ Manual fix works - indentItem is not updating B correctly');
-          expect(manualCounterB.textContent).toBe('[0/2]');
+          expect(manualCounterB.textContent).toBe('0/2');
         } else {
           console.log('❌ Even manual updateChildCount fails');
           throw new Error('updateChildCount function is broken for this scenario');
@@ -1436,7 +1436,7 @@ describe('Outline Web Component', () => {
         counterB = itemB.querySelector('.child-count');
       }
       expect(counterB).not.toBeNull();
-      expect(counterB.textContent).toBe('[0/1]');
+      expect(counterB.textContent).toBe('0/1');
       
       // Add second child D (TODO)
       console.log('=== Adding second child D ===');
@@ -1471,7 +1471,7 @@ describe('Outline Web Component', () => {
         }
       } else {
         console.log('✅ Counter exists:', finalCounterB.textContent);
-        expect(finalCounterB.textContent).toBe('[0/2]');
+        expect(finalCounterB.textContent).toBe('0/2');
       }
       
       // Add third child E (TODO) to really stress test
@@ -1483,13 +1483,13 @@ describe('Outline Web Component', () => {
       console.log('After adding E:', thirdCounterB ? thirdCounterB.textContent : 'null');
       
       if (thirdCounterB) {
-        expect(thirdCounterB.textContent).toBe('[0/3]');
+        expect(thirdCounterB.textContent).toBe('0/3');
       } else {
         console.log('❌ Counter disappeared after third child too');
         todoList.updateChildCount(itemB);
         const fixedCounter = itemB.querySelector('.child-count');
         expect(fixedCounter).not.toBeNull();
-        expect(fixedCounter.textContent).toBe('[0/3]');
+        expect(fixedCounter.textContent).toBe('0/3');
       }
       
       // NOW TEST THE USER'S SPECIFIC SCENARIO
@@ -1562,7 +1562,7 @@ describe('Outline Web Component', () => {
           }
         } else {
           console.log('✅ B counter exists:', finalCounterB.textContent);
-          expect(finalCounterB.textContent).toBe('[0/3]');
+          expect(finalCounterB.textContent).toBe('0/3');
         }
         
         if (finalCounterC) {
@@ -1607,7 +1607,7 @@ describe('Outline Web Component', () => {
         counterB = itemB.querySelector('.child-count');
       }
       expect(counterB).not.toBeNull();
-      expect(counterB.textContent).toBe('[0/2]');
+      expect(counterB.textContent).toBe('0/2');
       
       // Step 1: Indent D under C
       console.log('=== Indenting D under C ===');
@@ -1656,11 +1656,11 @@ describe('Outline Web Component', () => {
         
         if (fixedCounterB) {
           console.log('✅ Manual fix works - outdentItem has a bug');
-          expect(fixedCounterB.textContent).toBe('[0/2]');
+          expect(fixedCounterB.textContent).toBe('0/2');
         }
       } else {
         console.log('✅ B counter maintained:', finalCounterB.textContent);
-        expect(finalCounterB.textContent).toBe('[0/2]');
+        expect(finalCounterB.textContent).toBe('0/2');
       }
       
       // C should not have a counter anymore
@@ -1699,19 +1699,19 @@ describe('Outline Web Component', () => {
       let mainCounter = mainHeader.querySelector('.child-count');
       expect(mainCounter).toBeDefined();
       if (mainCounter && mainCounter.textContent) {
-        expect(mainCounter.textContent).toBe('[0/1]'); // Only counts direct TODO, not nested ones
+        expect(mainCounter.textContent).toBe('0/1'); // Only counts direct TODO, not nested ones
       }
       
       let subCounter = subHeader.querySelector('.child-count');
       expect(subCounter).toBeDefined();
       if (subCounter && subCounter.textContent) {
-        expect(subCounter.textContent).toBe('[0/1]'); // Only counts its direct TODO
+        expect(subCounter.textContent).toBe('0/1'); // Only counts its direct TODO
       }
       
       let subSubCounter = subSubHeader.querySelector('.child-count');
       expect(subSubCounter).toBeDefined();
       if (subSubCounter && subSubCounter.textContent) {
-        expect(subSubCounter.textContent).toBe('[0/1]'); // Only counts its direct TODO
+        expect(subSubCounter.textContent).toBe('0/1'); // Only counts its direct TODO
       }
     });
 
@@ -1736,7 +1736,7 @@ describe('Outline Web Component', () => {
       // Check that the header now has a counter (indentItem should trigger updateChildCount)
       let headerCounter = header.querySelector('.child-count');
       expect(headerCounter).toBeDefined();
-      expect(headerCounter.textContent).toBe('[0/1]');
+      expect(headerCounter.textContent).toBe('0/1');
     });
 
     test('should handle nested child counts correctly', () => {
@@ -1752,8 +1752,8 @@ describe('Outline Web Component', () => {
       const grandparentCount = grandparentTodo.querySelector('.child-count');
       const parentCount = parentTodo.querySelector('.child-count');
 
-      expect(grandparentCount.textContent).toBe('[0/1]');
-      expect(parentCount.textContent).toBe('[0/1]');
+      expect(grandparentCount.textContent).toBe('0/1');
+      expect(parentCount.textContent).toBe('0/1');
     });
 
     test('should update child-count when moving items between parents', () => {
@@ -1777,7 +1777,7 @@ describe('Outline Web Component', () => {
 
       // Parent1 should have child count again
       const parent1Count2 = parent1.querySelector('.child-count');
-      expect(parent1Count2.textContent).toBe('[0/1]');
+      expect(parent1Count2.textContent).toBe('0/1');
     });
 
     test('should initialize child counts for existing HTML structure', () => {
