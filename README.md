@@ -102,7 +102,7 @@ See `agenda-demo.html` for comprehensive examples and usage patterns.
 - **Shift + ↑/↓**: Toggle priority
 - **T**: Show tags popup
 - **P**: Toggle priority
-- **B**: Toggle blocked status
+- **H**: Toggle on hold status
 - **D**: Set due date (with optional time)
 - **S**: Set schedule date (with optional time)
 - **C**: Add comment (public discussion)
@@ -138,7 +138,7 @@ const outline = new Outline(document.querySelector('.outline-list'), {
   ],
   features: {
     priority: true,
-    blocked: true,
+    onHold: true,
     due: true,
     schedule: true,
     assign: true,
@@ -169,7 +169,7 @@ Enable or disable specific features:
 ```javascript
 features: {
   priority: true,      // Show priority toggle
-  blocked: true,       // Show blocked status
+  onHold: true,         // Show on hold status
   due: true,           // Show due date picker
   schedule: true,      // Show schedule date picker
   assign: true,        // Show assignee dropdown
@@ -272,7 +272,7 @@ The component emits various events for integration:
 - `outline:expand` - Item expanded
 - `outline:toggle` - Status changed
 - `outline:priority` - Priority toggled
-- `outline:blocked` - Blocked status toggled
+- `outline:on-hold` - On hold status toggled
 - `outline:due` - Due date set/cleared (includes timestamp in ISO format)
 - `outline:schedule` - Schedule date set/cleared (includes timestamp in ISO format)
 - `outline:assign` - Assignee set/cleared

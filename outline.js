@@ -397,8 +397,8 @@ class Outline {
         return;
       }
 
-      // Toggle blocked with 'b' key (only if enabled)
-      if(e.key==="b" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.blocked) {
+      // Toggle blocked with 'h' key (only if enabled)
+      if(e.key==="h" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.blocked) {
         e.preventDefault();
         if(!this.isItemEditable(li)) {
           this.showPermissionDeniedFeedback(li);
@@ -1654,11 +1654,11 @@ class Outline {
     if (blockedBtn) {
       const isBlocked = li.classList.contains("blocked");
       if (isBlocked) {
-        blockedBtn.textContent = "blocked";
+        blockedBtn.textContent = "on hold";
         blockedBtn.classList.add("has-data");
         hasAnyData = true;
       } else {
-        blockedBtn.innerHTML = "blo<u>c</u>ked";
+        blockedBtn.innerHTML = "on <u>h</u>old";
         blockedBtn.classList.remove("has-data");
       }
     }
@@ -3427,10 +3427,10 @@ class Outline {
     // Restore focus to the todo item
     li.focus();
 
-    this.emit("outline:blocked", {
+    this.emit("outline:on-hold", {
       id: li.dataset.id,
       text: textSpan.textContent,
-      blocked: !isBlocked
+      onHold: !isBlocked
     });
   }
 
@@ -4537,7 +4537,7 @@ class OutlineElement extends HTMLElement {
           --clarity-outline-color-todo: #d16d7a;
           --clarity-outline-color-done: #6c757d;
           --clarity-outline-color-priority: #5f9fb0;
-          --clarity-outline-color-blocked: #f39c12;
+          --clarity-outline-color-on-hold: #f39c12;
 
           /* Active theme variables - default to dark theme */
           --clarity-outline-bg-primary: var(--clarity-outline-dark-bg-primary);
@@ -4938,7 +4938,7 @@ class OutlineElement extends HTMLElement {
         }
 
         .hover-button.blocked-button.has-data {
-          color: var(--clarity-outline-color-blocked);
+          color: var(--clarity-outline-color-on-hold);
           font-weight: bold;
         }
 
@@ -4948,8 +4948,8 @@ class OutlineElement extends HTMLElement {
           margin-left: 0.3rem;
         }
 
-                  .blocked-indicator {
-          color: var(--color-blocked);
+                  .on-hold-indicator {
+          color: var(--color-on-hold);
           margin-left: 0.3rem;
         }
 
@@ -5273,7 +5273,7 @@ class OutlineElement extends HTMLElement {
       'outline:add', 'outline:toggle', 'outline:move', 'outline:indent', 'outline:outdent',
       'outline:collapse', 'outline:expand', 'outline:edit:start', 'outline:edit:save',
       'outline:edit:cancel', 'outline:due', 'outline:assign', 'outline:tags',
-              'outline:priority', 'outline:blocked', 'outline:open', 'outline:select',
+              'outline:priority', 'outline:on-hold', 'outline:open', 'outline:select',
       'outline:comment', 'outline:worklog', 'outline:archive', 'outline:permission-denied'
     ];
 
