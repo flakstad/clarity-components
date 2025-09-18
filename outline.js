@@ -3544,6 +3544,7 @@ class Outline {
         dragClass: 'sortable-drag',
         fallbackOnBody: true,
         swapThreshold: 0.65,
+        filter: '.read-only', // Exclude items with read-only class
         onEnd: (evt) => {
           this.handleHierarchicalDragEnd(evt);
         },
@@ -3696,6 +3697,7 @@ class Outline {
       dragClass: 'sortable-drag',
       fallbackOnBody: true,
       swapThreshold: 0.65,
+      filter: '.read-only', // Exclude items with read-only class
       onEnd: (evt) => {
         this.handleHierarchicalDragEnd(evt);
       },
@@ -4261,6 +4263,11 @@ class OutlineElement extends HTMLElement {
     
     // Set editable attribute (default to true if not specified)
     li.dataset.editable = todo.editable !== false ? 'true' : 'false';
+    
+    // Add read-only class for non-editable items
+    if (todo.editable === false) {
+      li.classList.add('read-only');
+    }
 
     // Add classes
     if (todo.classes) {

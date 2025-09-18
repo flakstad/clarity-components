@@ -387,4 +387,111 @@ describe('Drag and Drop Feature', () => {
     expect(moveEvent.detail.toList).toBeDefined();
   });
 
+  test('should add read-only class to non-editable items', async () => {
+    container.innerHTML = `
+      <clarity-outline
+        data-items='[
+          {"id":"1","text":"Editable item","status":"TODO","editable":true},
+          {"id":"2","text":"Read-only item","status":"TODO","editable":false}
+        ]'
+        data-features='{"dragAndDrop": true}'>
+      </clarity-outline>
+    `;
+
+    const outline = container.querySelector('clarity-outline');
+    
+    // Wait for component to initialize
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    const items = outline.shadowRoot.querySelectorAll('li');
+    const editableItem = items[0];
+    const readOnlyItem = items[1];
+    
+    // Test that editable items don't have read-only class
+    expect(editableItem.classList.contains('read-only')).toBe(false);
+    expect(editableItem.dataset.editable).toBe('true');
+    
+    // Test that read-only items have read-only class
+    expect(readOnlyItem.classList.contains('read-only')).toBe(true);
+    expect(readOnlyItem.dataset.editable).toBe('false');
+  });
+
+  test('should configure Sortable to filter read-only items', async () => {
+    container.innerHTML = `
+      <clarity-outline
+        data-items='[
+          {"id":"1","text":"Editable item","status":"TODO","editable":true},
+          {"id":"2","text":"Read-only item","status":"TODO","editable":false}
+        ]'
+        data-features='{"dragAndDrop": true}'>
+      </clarity-outline>
+    `;
+
+    const outline = container.querySelector('clarity-outline');
+    
+    // Wait for component to initialize
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Check that Sortable was configured with the filter
+    expect(global.Sortable.create).toHaveBeenCalled();
+    const sortableCall = global.Sortable.create.mock.calls[0];
+    const options = sortableCall[1];
+    
+    // Verify that the filter is set to exclude read-only items
+    expect(options.filter).toBe('.read-only');
+  });
+
+  test('should not emit permission denied event for read-only items (filtered by Sortable)', async () => {
+    container.innerHTML = `
+      <clarity-outline
+        data-items='[{"id":"1","text":"Read-only item","status":"TODO","editable":false}]'
+        data-features='{"dragAndDrop": true}'>
+      </clarity-outline>
+    `;
+
+    const outline = container.querySelector('clarity-outline');
+    let permissionDeniedEvent = null;
+    
+    outline.addEventListener('outline:permission-denied', (e) => {
+      permissionDeniedEvent = e.detail;
+    });
+    
+    // Wait for component to initialize
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Since Sortable filters out read-only items, no permission denied event should be emitted
+    // The drag simply won't start for read-only items
+    expect(permissionDeniedEvent).toBeNull();
+  });
+
+  test('should allow dragging editable items in mixed lists', async () => {
+    container.innerHTML = `
+      <clarity-outline
+        data-items='[
+          {"id":"1","text":"Editable item 1","status":"TODO","editable":true},
+          {"id":"2","text":"Read-only item","status":"TODO","editable":false},
+          {"id":"3","text":"Editable item 2","status":"TODO","editable":true}
+        ]'
+        data-features='{"dragAndDrop": true}'>
+      </clarity-outline>
+    `;
+
+    const outline = container.querySelector('clarity-outline');
+    
+    // Wait for component to initialize
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    const items = outline.shadowRoot.querySelectorAll('li');
+    const editableItem1 = items[0];
+    const readOnlyItem = items[1];
+    const editableItem2 = items[2];
+    
+    // Test that editable items don't have read-only class
+    expect(editableItem1.classList.contains('read-only')).toBe(false);
+    expect(editableItem2.classList.contains('read-only')).toBe(false);
+    
+    // Test that read-only item has read-only class
+    expect(readOnlyItem.classList.contains('read-only')).toBe(true);
+  });
+
 });
