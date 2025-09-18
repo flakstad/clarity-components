@@ -63,7 +63,7 @@ describe('Feature Options', () => {
     
     const buttonTypes = Array.from(buttons).map(btn => btn.getAttribute('data-type'));
     expect(buttonTypes).toContain('priority');
-    expect(buttonTypes).toContain('blocked');
+    expect(buttonTypes).toContain('on-hold');
     expect(buttonTypes).toContain('schedule');
     expect(buttonTypes).toContain('assign');
     expect(buttonTypes).toContain('tags');
@@ -75,7 +75,7 @@ describe('Feature Options', () => {
     container.innerHTML = `
       <clarity-outline 
         data-items='[{"id":"1","text":"Test item","status":"TODO"}]'
-        data-features='{"priority": false, "blocked": false, "due": false, "schedule": false, "assign": false, "tags": false, "archive": false}'
+        data-features='{"priority": false, "onHold": false, "due": false, "schedule": false, "assign": false, "tags": false, "archive": false}'
         options='{"assignees": ["alice"], "tags": ["urgent"]}'>
       </clarity-outline>
     `;
@@ -172,9 +172,9 @@ describe('Feature Options', () => {
     expect(prioritySpy).toHaveBeenCalled();
 
     // Blocked should not work (disabled)
-    const blockedSpy = jest.spyOn(outlineList.todoListInstance, 'toggleBlocked');
+    const onHoldSpy = jest.spyOn(outlineList.todoListInstance, 'toggleOnHold');
     li.dispatchEvent(blockedEvent);
-    expect(blockedSpy).not.toHaveBeenCalled();
+    expect(onHoldSpy).not.toHaveBeenCalled();
 
     // Due date should work (enabled)
     const dueSpy = jest.spyOn(outlineList.todoListInstance, 'showDuePopup');
@@ -247,7 +247,7 @@ describe('Feature Options', () => {
     const buttonTypes = Array.from(buttons).map(btn => btn.getAttribute('data-type'));
     
     expect(buttonTypes).toContain('priority');
-    expect(buttonTypes).toContain('blocked');
+    expect(buttonTypes).toContain('on-hold');
     expect(buttonTypes).toContain('schedule');
     expect(buttonTypes).toContain('assign');
     expect(buttonTypes).toContain('tags');

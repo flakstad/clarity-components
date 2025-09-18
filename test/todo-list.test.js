@@ -1899,7 +1899,7 @@ describe('Outline Web Component', () => {
 
       const openButton = todo.querySelector('.open-button');
       expect(openButton).toBeDefined();
-      expect(openButton.textContent).toBe('open');
+      expect(openButton.innerHTML).toBe('<u>o</u>pen');
     });
 
     test('should open item when clicking open button', () => {

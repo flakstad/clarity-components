@@ -346,6 +346,7 @@ If provided should be rendered in some subtle, but informative way.
 Workspace and project names can be long.
 * TODO double check that I'm happy with outline item data format
 ..will at some point forever by locked to this structure
+* TODO read only task can be drag and dropped - must prevent
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.

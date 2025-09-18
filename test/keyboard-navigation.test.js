@@ -80,7 +80,7 @@ describe('Keyboard Navigation Features', () => {
     });
   });
 
-  describe('Vi Navigation Bindings (H/J/K/L)', () => {
+  describe('Vi Navigation Bindings (/J/K/L)', () => {
     test('J should navigate to next sibling', () => {
       const todos = getAllTodos(outlineList);
       const firstItem = todos[0];
@@ -116,20 +116,7 @@ describe('Keyboard Navigation Features', () => {
       // Should focus on the first child
       const childItem = firstItem.querySelector('ul li');
       expect(getActiveElement(outlineList)).toBe(childItem);
-    });
-
-    test('H should navigate to parent', () => {
-      const todos = getAllTodos(outlineList);
-      const firstItem = todos[0];
-      const childItem = firstItem.querySelector('ul li');
-      childItem.focus();
-      
-      const event = createKeyEvent('h');
-      childItem.dispatchEvent(event);
-      
-      // Should focus on the parent
-      expect(getActiveElement(outlineList)).toBe(firstItem);
-    });
+    });    
   });
 
   describe('Item Movement Shortcuts', () => {

@@ -4,7 +4,7 @@ class Outline {
     // Set up default features
     const defaultFeatures = {
       priority: true,
-      blocked: true,
+      onHold: true,
       due: true,
       schedule: true,
       assign: true,
@@ -397,14 +397,14 @@ class Outline {
         return;
       }
 
-      // Toggle blocked with 'h' key (only if enabled)
-      if(e.key==="h" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.blocked) {
+      // Toggle onHold with 'h' key (only if enabled)
+      if(e.key==="h" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.onHold) {
         e.preventDefault();
         if(!this.isItemEditable(li)) {
           this.showPermissionDeniedFeedback(li);
           return;
         }
-        this.toggleBlocked(li);
+        this.toggleOnHold(li);
         return;
       }
 
@@ -1621,7 +1621,7 @@ class Outline {
 
   updateHoverButtons(li) {
     const priorityBtn = li.querySelector(".priority-button");
-    const blockedBtn = li.querySelector(".blocked-button");
+    const onHoldBtn = li.querySelector(".on-hold-button");
     const dueBtn = li.querySelector(".due-button");
     const scheduleBtn = li.querySelector(".schedule-button");
     const assignBtn = li.querySelector(".assign-button");
@@ -1650,16 +1650,16 @@ class Outline {
       }
     }
 
-    // Update blocked button (if enabled)
-    if (blockedBtn) {
-      const isBlocked = li.classList.contains("blocked");
-      if (isBlocked) {
-        blockedBtn.textContent = "on hold";
-        blockedBtn.classList.add("has-data");
+    // Update onHold button (if enabled)
+    if (onHoldBtn) {
+      const isOnHold = li.classList.contains("on-hold");
+      if (isOnHold) {
+        onHoldBtn.textContent = "on hold";
+        onHoldBtn.classList.add("has-data");
         hasAnyData = true;
       } else {
-        blockedBtn.innerHTML = "on <u>h</u>old";
-        blockedBtn.classList.remove("has-data");
+        onHoldBtn.innerHTML = "on <u>h</u>old";
+        onHoldBtn.classList.remove("has-data");
       }
     }
 
@@ -1772,13 +1772,14 @@ class Outline {
       edit: 1,
       remove: 2,
       priority: 3,
-      blocked: 4,
+      'on-hold': 4,
       schedule: 5,
       due: 6,      
       assign: 7,
       tags: 8,
       comments: 9,
-      worklog: 10
+      worklog: 10,
+      archive: 11
     };
 
     const decorated = buttons.map((btn, index) => {
@@ -3386,39 +3387,39 @@ class Outline {
     });
   }
 
-  toggleBlocked(li) {
+  toggleOnHold(li) {
     const textSpan = li.querySelector(".outline-text");
     if (!textSpan) return;
 
-    // Check if already blocked
-    const isBlocked = li.classList.contains("blocked");
+    // Check if already on hold
+    const isOnHold = li.classList.contains("on-hold");
 
-    if (isBlocked) {
-      // Remove blocked
-      li.classList.remove("blocked");
-      const blockedSpan = li.querySelector(".outline-blocked");
-      if (blockedSpan) {
-        blockedSpan.remove();
+    if (isOnHold) {
+      // Remove on hold
+      li.classList.remove("on-hold");
+      const onHoldSpan = li.querySelector(".outline-on-hold");
+      if (onHoldSpan) {
+        onHoldSpan.remove();
       }
     } else {
-      // Add blocked
-      li.classList.add("blocked");
+      // Add on hold
+      li.classList.add("on-hold");
 
-      // Create hidden blocked span (like other metadata)
-      let blockedSpan = li.querySelector(".outline-blocked");
-      if (!blockedSpan) {
-        blockedSpan = document.createElement("span");
-        blockedSpan.className = "outline-blocked";
-        blockedSpan.style.display = "none"; // Hide the span, show in button
+      // Create hidden on hold span (like other metadata)
+      let onHoldSpan = li.querySelector(".outline-on-hold");
+      if (!onHoldSpan) {
+        onHoldSpan = document.createElement("span");
+        onHoldSpan.className = "outline-on-hold";
+        onHoldSpan.style.display = "none"; // Hide the span, show in button
         // Insert after buttons container if it exists, otherwise after text
         const buttonsContainer = li.querySelector(".outline-hover-buttons");
         if (buttonsContainer) {
-          buttonsContainer.after(blockedSpan);
+          buttonsContainer.after(onHoldSpan);
         } else {
-          textSpan.after(blockedSpan);
+          textSpan.after(onHoldSpan);
         }
       }
-      blockedSpan.textContent = " blocked";
+      onHoldSpan.textContent = " on hold";
     }
 
     // Update the hover button to show the data
@@ -3430,7 +3431,7 @@ class Outline {
     this.emit("outline:on-hold", {
       id: li.dataset.id,
       text: textSpan.textContent,
-      onHold: !isBlocked
+      onHold: !isOnHold
     });
   }
 
@@ -3448,7 +3449,7 @@ class Outline {
       features: {
         // Keep task-specific features
         priority: true,
-        blocked: true,
+        onHold: true,
         due: true,
         schedule: true,
         assign: true,
@@ -3479,7 +3480,7 @@ class Outline {
       features: {
         // Keep task-specific features
         priority: true,
-        blocked: true,
+        onHold: true,
         due: true,
         schedule: true,
         assign: true,
@@ -3727,7 +3728,7 @@ class TaskItemButtons {
 
     // Create all buttons based on enabled features
     this.createPriorityButton(buttonsContainer);
-    this.createBlockedButton(buttonsContainer);
+    this.createOnHoldButton(buttonsContainer);
     this.createDueButton(buttonsContainer);
     this.createScheduleButton(buttonsContainer);
     this.createAssignButton(buttonsContainer);
@@ -3762,22 +3763,22 @@ class TaskItemButtons {
     container.appendChild(priorityBtn);
   }
 
-  createBlockedButton(container) {
-    if (!this.features.blocked) return;
+  createOnHoldButton(container) {
+    if (!this.features.onHold) return;
 
-    const blockedBtn = document.createElement("button");
-    blockedBtn.className = "hover-button blocked-button";
-    blockedBtn.setAttribute("data-type", "blocked");
-    blockedBtn.tabIndex = -1;
-    blockedBtn.addEventListener("click", (e) => {
+    const onHoldBtn = document.createElement("button");
+    onHoldBtn.className = "hover-button on-hold-button";
+    onHoldBtn.setAttribute("data-type", "on-hold");
+    onHoldBtn.tabIndex = -1;
+    onHoldBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (!this.outline.isItemEditable(this.li)) {
         this.outline.showPermissionDeniedFeedback(this.li);
         return;
       }
-      this.outline.toggleBlocked(this.li);
+      this.outline.toggleOnHold(this.li);
     });
-    container.appendChild(blockedBtn);
+    container.appendChild(onHoldBtn);
   }
 
   createDueButton(container) {
@@ -3935,15 +3936,15 @@ class TaskItemButtons {
     const desiredOrder = [
       '.open-button',
       '.edit-button',
-      '.archive-button',
+      '.priority-button',
+      '.on-hold-button',
       '.schedule-button',
       '.due-button',
-      '.priority-button',
-      '.blocked-button',
       '.assign-button',
       '.tags-button',
       '.comments-button',
-      '.worklog-button'
+      '.worklog-button',
+      '.archive-button'
     ];
     
     desiredOrder.forEach(selector => {
@@ -4240,69 +4241,11 @@ class OutlineElement extends HTMLElement {
       }
     }
 
-    // Fallback: parse from existing children (backward compatibility)
-    return this.parseTodosFromChildren();
+    // No fallback - only JSON data is supported
+    return [];
   }
 
-  parseTodosFromChildren() {
-    const todos = [];
 
-    // Convert existing li elements to todo objects
-    this.querySelectorAll('li').forEach(li => {
-      const todo = this.liToTodoObject(li);
-      todos.push(todo);
-    });
-
-    return todos;
-  }
-
-  liToTodoObject(li) {
-    const todo = {
-      id: li.dataset.id || crypto.randomUUID(),
-      text: li.querySelector('.outline-text')?.textContent || '',
-      status: li.querySelector('.outline-label')?.textContent || 'TODO',
-      classes: Array.from(li.classList).join(' '),
-      editable: li.dataset.editable !== 'false' // Default to true if not specified
-    };
-
-    // Parse metadata
-    const schedule = li.querySelector('.outline-schedule');
-    if (schedule) {
-      todo.schedule = schedule.textContent.trim();
-    }
-
-    const assign = li.querySelector('.outline-assign');
-    if (assign) {
-      todo.assign = assign.textContent.trim();
-    }
-
-    const tags = li.querySelector('.outline-tags');
-    if (tags) {
-      todo.tags = tags.textContent.trim().split(/\s+/).filter(tag => tag.length > 0);
-    }
-
-    const priority = li.querySelector('.outline-priority');
-    if (priority) {
-      todo.priority = true;
-    }
-
-          const blocked = li.querySelector('.outline-blocked');
-      if (blocked) {
-        todo.blocked = true;
-      }
-
-
-    // Handle nested todos
-    const sublist = li.querySelector('ul');
-    if (sublist) {
-      todo.children = [];
-      sublist.querySelectorAll('li').forEach(childLi => {
-        todo.children.push(this.liToTodoObject(childLi));
-      });
-    }
-
-    return todo;
-  }
 
   renderTodos(listEl, todos, options) {
     todos.forEach(todo => {
@@ -4340,8 +4283,8 @@ class OutlineElement extends HTMLElement {
     if (todo.priority) {
       li.classList.add('priority');
     }
-    if (todo.blocked) {
-      li.classList.add('blocked');
+    if (todo.onHold) {
+      li.classList.add('on-hold');
     }
     if (todo.children && todo.children.length > 0) {
       li.classList.add('has-children');
@@ -4393,6 +4336,14 @@ class OutlineElement extends HTMLElement {
       li.appendChild(assignSpan);
     }
 
+    if (todo.due) {
+      const dueSpan = document.createElement('span');
+      dueSpan.className = 'outline-due';
+      dueSpan.style.display = 'none';
+      dueSpan.textContent = ` ${todo.due}`;
+      li.appendChild(dueSpan);
+    }
+
     if (todo.tags && todo.tags.length > 0) {
       const tagsSpan = document.createElement('span');
       tagsSpan.className = 'outline-tags';
@@ -4409,12 +4360,12 @@ class OutlineElement extends HTMLElement {
       li.appendChild(prioritySpan);
     }
 
-    if (todo.blocked) {
-      const blockedSpan = document.createElement('span');
-      blockedSpan.className = 'outline-blocked';
-      blockedSpan.style.display = 'none';
-      blockedSpan.textContent = ' blocked';
-      li.appendChild(blockedSpan);
+    if (todo.onHold) {
+      const onHoldSpan = document.createElement('span');
+      onHoldSpan.className = 'outline-on-hold';
+      onHoldSpan.style.display = 'none';
+      onHoldSpan.textContent = ' on hold';
+      li.appendChild(onHoldSpan);
     }
 
     // Handle nested todos
@@ -4458,10 +4409,64 @@ class OutlineElement extends HTMLElement {
     const todos = [];
 
     listEl.querySelectorAll('li').forEach(li => {
-      todos.push(this.liToTodoObject(li));
+      const todo = this.liToTodoObject(li);
+      todos.push(todo);
     });
 
     return todos;
+  }
+
+  // Helper method to convert li element to todo object
+  liToTodoObject(li) {
+    const todo = {
+      id: li.dataset.id || crypto.randomUUID(),
+      text: li.querySelector('.outline-text')?.textContent || '',
+      status: li.querySelector('.outline-label')?.textContent || 'TODO',
+      classes: Array.from(li.classList).join(' '),
+      editable: li.dataset.editable !== 'false' // Default to true if not specified
+    };
+
+    // Parse metadata
+    const schedule = li.querySelector('.outline-schedule');
+    if (schedule) {
+      todo.schedule = schedule.textContent.trim();
+    }
+
+    const assign = li.querySelector('.outline-assign');
+    if (assign) {
+      todo.assign = assign.textContent.trim();
+    }
+
+    const tags = li.querySelector('.outline-tags');
+    if (tags) {
+      todo.tags = tags.textContent.trim().split(/\s+/).filter(tag => tag.length > 0);
+    }
+
+    const priority = li.querySelector('.outline-priority');
+    if (priority) {
+      todo.priority = true;
+    }
+
+    const onHold = li.querySelector('.outline-on-hold');
+    if (onHold) {
+      todo.onHold = true;
+    }
+
+    const due = li.querySelector('.outline-due');
+    if (due) {
+      todo.due = due.textContent.trim();
+    }
+
+    // Handle nested todos
+    const sublist = li.querySelector('ul');
+    if (sublist) {
+      todo.children = [];
+      sublist.querySelectorAll('li').forEach(childLi => {
+        todo.children.push(this.liToTodoObject(childLi));
+      });
+    }
+
+    return todo;
   }
 
   // Method to handle attribute changes (for Datastar integration)
@@ -4783,6 +4788,7 @@ class OutlineElement extends HTMLElement {
           display: inline-block;
           margin-left: 0.15rem;
           vertical-align: middle;
+          position: relative;
         }
 
         .progress-bar {
@@ -4937,12 +4943,12 @@ class OutlineElement extends HTMLElement {
           font-weight: bold;
         }
 
-        .hover-button.blocked-button.has-data {
+        .hover-button.on-hold-button.has-data {
           color: var(--clarity-outline-color-on-hold);
           font-weight: bold;
         }
 
-        /* Priority and blocked indicators */
+        /* Priority and on-hold indicators */
         .priority-indicator {
           color: var(--color-priority);
           margin-left: 0.3rem;
