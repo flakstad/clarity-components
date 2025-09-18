@@ -340,24 +340,20 @@ CLOSED: [2025-09-16 Tue 16:06]
 ..although takes a bit more space..
 * DONE "blocked" -> "on hold", key and underline "h"
 CLOSED: [2025-09-18 Thu 08:36]
-* TODO Update blog with new script
+* CANCELLED outline can take optional info about org/workspace and project
+CLOSED: [2025-09-18 Thu 10:52]
+If provided should be rendered in some subtle, but informative way.
+Workspace and project names can be long.
+* TODO double check that I'm happy with outline item data format
+..will at some point forever by locked to this structure
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.
-* TODO double check that I'm happy with outline item data format
-..will at some point forever by locked to this structure
-* TODO outline can take optional info about org/workspace and project
-If provided should be rendered in some subtle, but informative way.
-Workspace and project names can be long.
-* TODO supporting repeating tasks, schedules that reoccur
-Would need slightly different visuals when you complete a task - it will go back
-to being in "TODO" state, but you will have completed it as well. Org simply
-logs this in text that you completed it, and resets the item. Could do something
-similar.
-
-Would need to update schedule to support adding repeating settings through popup.
-
-Needs to be tested in a sort of agenda view, with a database query.
 * TODO allow custom key bindings for all keyboard interactions?
 Pass in override key bindings.
 First for movement only, i.e. moving focus, moving items
+* TODO supporting repeating tasks, schedules/due dates that reoccur
+<2025-09-18 Thu 09:59> Did an attempt at this, but gets complicated and would
+need serious thought about how the UX should work. The org-mode way with "++1d"
+etc works, but is a bit complicated to understand. And the task just going back
+to TODO when you set it to DONE is also a behavior you have to get used to.
