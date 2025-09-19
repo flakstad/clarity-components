@@ -349,6 +349,12 @@ CLOSED: [2025-09-18 Thu 13:20]
 ..will at some point forever by locked to this structure
 * DONE read only task can be drag and dropped - must prevent
 CLOSED: [2025-09-18 Thu 13:41]
+* DONE initial creation of capture component
+CLOSED: [2025-09-19 Fri 10:48]
+* TODO action to "move" on item - just emits event
+Intent is "refile subtree" functionality, moving task item from one outline to another.
+
+"move" action item, underline "m", shortcut "m".
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.

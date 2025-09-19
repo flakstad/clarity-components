@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Capture Component Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2d2d2d;
+      --bg-tertiary: #333333;
+      --text-primary: #f8f8f2;
+      --text-secondary: #ddd;
+      --text-muted: #888;
+      --border: #555;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8f9fa;
+        --bg-tertiary: #e9ecef;
+        --text-primary: #212529;
+        --text-secondary: #6c757d;
+        --text-muted: #adb5bd;
+        --border: #dee2e6;
+      }
+    }
+
+    .instructions {
+      text-align: center;
+      margin-bottom: 2rem;
+      max-width: 800px;
+    }
+
+    .shortcut-hint {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 4px;
+      font-family: monospace;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: auto;
+    }
+
+    /* Toast notification styles */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10001;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .toast.success {
+      border-left: 4px solid #28a745;
+    }
+
+    .toast.error {
+      border-left: 4px solid #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="instructions">
+    <h1>Capture Component Navigation Test</h1>
+    <div class="shortcut-hint">
+      <strong>Press 'c' to open capture modal</strong><br><br>
+      <strong>Navigation Keys:</strong><br>
+      • <code>j</code> / <code>Ctrl+N</code> / <code>↓</code> - Move down<br>
+      • <code>k</code> / <code>Ctrl+P</code> / <code>↑</code> - Move up<br>
+      • <code>l</code> / <code>Ctrl+F</code> / <code>Enter</code> / <code>→</code> - Select/Forward<br>
+      • <code>h</code> / <code>Ctrl+B</code> / <code>Escape</code> / <code>←</code> - Back<br>
+      • <code>Ctrl+Enter</code> - Submit form<br>
+      • Template shortcuts still work (1, 2, w, p, etc.)
+    </div>
+  </div>
+
+  <!-- Modal overlay -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div class="modal-content">
+      <clarity-capture id="test-capture" 
+        data-templates='[
+          {
+            "id": "quick-note",
+            "name": "Quick Note",
+            "shortcut": "1",
+            "description": "Capture a quick thought or idea"
+          },
+          {
+            "id": "todo",
+            "name": "Todo Item",
+            "shortcut": "2",
+            "description": "Add a new task to your todo list"
+          },
+          {
+            "id": "work",
+            "name": "Work",
+            "shortcut": "w",
+            "description": "Work-related captures",
+            "children": [
+              {
+                "id": "work-todo",
+                "name": "Work Todo",
+                "shortcut": "t",
+                "description": "Work task or project item"
+              },
+              {
+                "id": "work-note",
+                "name": "Work Note",
+                "shortcut": "n",
+                "description": "Work meeting notes or ideas"
+              }
+            ]
+          },
+          {
+            "id": "personal",
+            "name": "Personal",
+            "shortcut": "p",
+            "description": "Personal captures",
+            "children": [
+              {
+                "id": "personal-todo",
+                "name": "Personal Todo",
+                "shortcut": "t",
+                "description": "Personal task or errand"
+              },
+              {
+                "id": "personal-journal",
+                "name": "Journal Entry",
+                "shortcut": "j",
+                "description": "Personal reflection or journal entry"
+              }
+            ]
+          }
+        ]'>
+      </clarity-capture>
+    </div>
+  </div>
+
+  <!-- Load the capture component -->
+  <script src="capture.js"></script>
+
+  <script>
+    const modal = document.getElementById('modal-overlay');
+    const capture = document.getElementById('test-capture');
+
+    // Global shortcut handler
+    document.addEventListener('keydown', (e) => {
+      // Just "c" key to open modal (only when modal is closed)
+      if (e.key === 'c' && !modal.classList.contains('active')) {
+        // Don't trigger if user is typing in an input field
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+          return;
+        }
+        e.preventDefault();
+        openModal();
+      }
+    });
+
+    // Modal overlay click to close
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    function openModal() {
+      modal.classList.add('active');
+      // Focus the capture component when modal opens
+      setTimeout(() => {
+        capture.focus();
+      }, 10);
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+    }
+
+    // Handle capture events
+    capture.addEventListener('capture:submit', (e) => {
+      console.log('Capture submitted:', e.detail);
+      closeModal();
+      showToast('Capture saved successfully!', 'success');
+    });
+
+    capture.addEventListener('capture:abort', (e) => {
+      console.log('Capture aborted:', e.detail);
+      closeModal();
+    });
+
+    capture.addEventListener('capture:refile', (e) => {
+      console.log('Capture refile:', e.detail);
+      closeModal();
+      showToast('Capture refiled!', 'success');
+    });
+
+    function showToast(message, type = 'success') {
+      // Remove any existing toasts
+      const existingToasts = document.querySelectorAll('.toast');
+      existingToasts.forEach(toast => toast.remove());
+
+      // Create new toast
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      // Show toast
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 10);
+
+      // Hide toast after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
