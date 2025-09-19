@@ -1,48 +1,60 @@
-# Clarity Outline
+# Clarity Components
 
-A flexible, feature-rich outline component with keyboard navigation, metadata support, and web component integration.
+A collection of flexible, feature-rich components for task management and organization, including outline and capture components with keyboard navigation and web component integration.
 
-## Agenda Component
+## Outline Component
 
-This repository also includes **Clarity Agenda**, an org-agenda inspired component for viewing scheduled and due tasks across different time periods. Perfect for project planning and task management.
+Hierarchical task management with full keyboard navigation, metadata support, and customizable workflows.
 
-### Agenda Features
+### Key Features
+- Unlimited nesting depth with expand/collapse
+- Full keyboard navigation (emacs, vi, and arrow key styles)
+- Rich metadata: priority, due dates, assignees, tags, comments, worklog
+- Customizable status workflows
+- Web component integration
 
-- **Multiple Views**: Week, Day, 2-Week, and Month views
-- **Time-based Organization**: Tasks organized by schedule and due dates  
-- **Task Integration**: Uses the same task data structure as the outline component
-- **Responsive Design**: Works on desktop and mobile devices
-- **Theme Support**: Inherits theme from outline component or standalone
-- **Navigation**: Easy navigation between time periods
-- **Now Marker**: Shows current time in day view
+## Capture Component
 
-### Quick Start - Agenda
+Org-mode inspired quick capture interface for rapid task entry with template support.
 
+### Key Features
+- Template-based capture workflows
+- Keyboard-driven interface
+- Hierarchical template organization
+- Quick task creation and categorization
+
+## Quick Start
+
+### Outline Component
 ```html
-<clarity-agenda 
-  data-view="week"
-  data-tasks='[
+<clarity-outline 
+  data-assignees='["alice", "bob", "charlie"]'
+  data-tags='["urgent", "bug", "feature"]'
+  data-items='[
     {
       "id": "1",
-      "text": "Team meeting",
-      "status": "TODO", 
-      "schedule": "Jan 8 09:00",
-      "assign": "team"
+      "text": "Sample task",
+      "status": "TODO",
+      "priority": false
     }
   ]'>
-</clarity-agenda>
+</clarity-outline>
 ```
 
-See `agenda-demo.html` for comprehensive examples and usage patterns.
+### Capture Component
+```html
+<clarity-capture 
+  data-templates='[
+    {
+      "id": "todo",
+      "name": "Todo Item",
+      "shortcut": "t",
+      "description": "Add a new task to your todo list"
+    }
+  ]'>
+</clarity-capture>
+```
 
-## Features
-
-- **Hierarchical Structure**: Create nested outlines with unlimited depth
-- **Keyboard Navigation**: Full emacs and vi-style keyboard shortcuts
-- **Metadata Support**: Priority, due dates, assignees, tags, comments, worklog, and more
-- **Status Management**: Customizable status labels with completion tracking
-- **Web Component**: Easy integration with any framework
-- **Accessibility**: Full keyboard navigation and screen reader support
 
 ## Keyboard Navigation
 
@@ -112,19 +124,7 @@ See `agenda-demo.html` for comprehensive examples and usage patterns.
 - **Space**: Change status
 - **O**: Open solo view
 
-## Quick Start
-
-### HTML Usage
-
-```html
-<outline-list 
-  data-assignees='["Alice", "Bob", "Charlie"]'
-  data-tags='["urgent", "bug", "feature"]'
-  data-status-labels='[{"label": "TODO", "isEndState": false}, {"label": "DONE", "isEndState": true}]'>
-</outline-list>
-```
-
-### JavaScript Usage
+## JavaScript API
 
 ```javascript
 import { Outline } from './outline.js';

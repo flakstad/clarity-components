@@ -356,16 +356,19 @@ CLOSED: [2025-09-19 Fri 12:53]
 Intent is "refile subtree" functionality, moving task item from one outline to another.
 
 "move" action item, underline "m", shortcut "m".
-* TODO rename repo to "clarity-components"
-- [X] rename repo
-- [ ] update readme
-- [ ] update local project
-* TODO emit full json in events, option?
+* CANCELLED emit full json in events, option?
+CLOSED: [2025-09-19 Fri 14:25]
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.
-* TODO allow custom key bindings for all keyboard interactions?
+* CANCELLED allow custom key bindings for all keyboard interactions?
+CLOSED: [2025-09-19 Fri 14:25]
 Pass in override key bindings.
 First for movement only, i.e. moving focus, moving items
+* DONE rename repo to "clarity-components"
+CLOSED: [2025-09-19 Fri 14:45]
+- [X] rename repo
+- [X] update readme
+- [X] update local project
 * TODO supporting repeating tasks, schedules/due dates that reoccur
 <2025-09-18 Thu 09:59> Did an attempt at this, but gets complicated and would
 need serious thought about how the UX should work. The org-mode way with "++1d"
