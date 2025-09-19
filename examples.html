@@ -897,6 +897,13 @@
       console.log('Item archived:', e.detail);
     });
 
+    // Listen for move/refile events
+    outline.addEventListener('outline:move-refile', e => {
+      console.log('Item move requested:', e.detail);
+      console.log('- Item data:', e.detail.item);
+      console.log('- DOM element:', e.detail.element);
+    });
+
     // Listen for permission denied events
     outline.addEventListener('outline:permission-denied', e => {
       console.log('Permission denied for item:', e.detail.id, 'action:', e.detail.action);

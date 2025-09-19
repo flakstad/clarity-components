@@ -386,6 +386,17 @@ class Outline {
         return;
       }
 
+      // Move item with 'm' key
+      if(e.key==="m" && !e.altKey && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        if(!this.isItemEditable(li)) {
+          this.showPermissionDeniedFeedback(li);
+          return;
+        }
+        this.moveItem(li);
+        return;
+      }
+
       // Toggle priority with 'p' key (only if enabled)
       if(e.key==="p" && !e.altKey && !e.ctrlKey && !e.metaKey && this.options.features.priority) {
         e.preventDefault();
@@ -1729,6 +1740,13 @@ class Outline {
     }
 
 
+    // Update move button (always enabled) - event-only, no has-data class
+    const moveBtn = li.querySelector(".move-button");
+    if (moveBtn) {
+      moveBtn.innerHTML = "<u>m</u>ove";
+      moveBtn.classList.remove("has-data");
+    }
+
     // Update archive button (if enabled)
     if (archiveBtn) {
       const hasChildren = !!li.querySelector("ul > li");
@@ -1779,7 +1797,8 @@ class Outline {
       tags: 8,
       comments: 9,
       worklog: 10,
-      archive: 11
+      move: 11,
+      archive: 12
     };
 
     const decorated = buttons.map((btn, index) => {
@@ -2918,6 +2937,7 @@ class Outline {
     });
   }
 
+
   showArchivePopup(li, button) {
     this.closeAllPopups();
     li.classList.add('popup-active');
@@ -3006,6 +3026,111 @@ class Outline {
       document.addEventListener('click', handleOutsideClick);
       popup._outsideClickHandler = handleOutsideClick;
     }, 0);
+  }
+
+  moveItem(li) {
+    const id = li.dataset.id;
+    const textSpan = li.querySelector('.outline-text');
+    const text = textSpan ? textSpan.textContent : '';
+    
+    // Collect all metadata for the move event
+    const itemData = {
+      id: id,
+      text: text,
+      status: li.querySelector('.outline-label')?.textContent || 'TODO',
+      priority: li.classList.contains('priority'),
+      onHold: li.classList.contains('on-hold'),
+      completed: li.classList.contains('completed'),
+      noLabel: li.classList.contains('no-label'),
+      editable: li.dataset.editable !== 'false'
+    };
+
+    // Collect metadata spans
+    const scheduleSpan = li.querySelector('.outline-schedule');
+    if (scheduleSpan && scheduleSpan.textContent.trim()) {
+      itemData.schedule = scheduleSpan.textContent.trim();
+    }
+
+    const dueSpan = li.querySelector('.outline-due');
+    if (dueSpan && dueSpan.textContent.trim()) {
+      itemData.due = dueSpan.textContent.trim();
+    }
+
+    const assignSpan = li.querySelector('.outline-assign');
+    if (assignSpan && assignSpan.textContent.trim()) {
+      itemData.assign = assignSpan.textContent.trim();
+    }
+
+    const tagsSpan = li.querySelector('.outline-tags');
+    if (tagsSpan && tagsSpan.textContent.trim()) {
+      itemData.tags = tagsSpan.textContent.trim().split(/\s+/).filter(tag => tag.length > 0);
+    }
+
+    // Collect children recursively
+    const sublist = li.querySelector('ul');
+    if (sublist) {
+      itemData.children = [];
+      const childLis = sublist.querySelectorAll(':scope > li');
+      childLis.forEach(childLi => {
+        itemData.children.push(this.collectItemData(childLi));
+      });
+    }
+
+    // Emit move event - external handler will decide what to do with the item
+    this.emit('outline:move-refile', {
+      item: itemData,
+      element: li // Include the actual DOM element in case external handler needs it
+    });
+
+    // Focus remains on the item - external handler can remove it if needed
+    li.focus();
+  }
+
+  collectItemData(li) {
+    const textSpan = li.querySelector('.outline-text');
+    const itemData = {
+      id: li.dataset.id,
+      text: textSpan ? textSpan.textContent : '',
+      status: li.querySelector('.outline-label')?.textContent || 'TODO',
+      priority: li.classList.contains('priority'),
+      onHold: li.classList.contains('on-hold'),
+      completed: li.classList.contains('completed'),
+      noLabel: li.classList.contains('no-label'),
+      editable: li.dataset.editable !== 'false'
+    };
+
+    // Collect metadata spans
+    const scheduleSpan = li.querySelector('.outline-schedule');
+    if (scheduleSpan && scheduleSpan.textContent.trim()) {
+      itemData.schedule = scheduleSpan.textContent.trim();
+    }
+
+    const dueSpan = li.querySelector('.outline-due');
+    if (dueSpan && dueSpan.textContent.trim()) {
+      itemData.due = dueSpan.textContent.trim();
+    }
+
+    const assignSpan = li.querySelector('.outline-assign');
+    if (assignSpan && assignSpan.textContent.trim()) {
+      itemData.assign = assignSpan.textContent.trim();
+    }
+
+    const tagsSpan = li.querySelector('.outline-tags');
+    if (tagsSpan && tagsSpan.textContent.trim()) {
+      itemData.tags = tagsSpan.textContent.trim().split(/\s+/).filter(tag => tag.length > 0);
+    }
+
+    // Collect children recursively
+    const sublist = li.querySelector('ul');
+    if (sublist) {
+      itemData.children = [];
+      const childLis = sublist.querySelectorAll(':scope > li');
+      childLis.forEach(childLi => {
+        itemData.children.push(this.collectItemData(childLi));
+      });
+    }
+
+    return itemData;
   }
 
   archiveItem(li) {
@@ -3737,6 +3862,7 @@ class TaskItemButtons {
     this.createTagsButton(buttonsContainer);
     this.createCommentsButton(buttonsContainer);
     this.createWorklogButton(buttonsContainer);
+    this.createMoveButton(buttonsContainer); // Always enabled
     this.createArchiveButton(buttonsContainer);
     this.createEditButton(buttonsContainer); // Always enabled
     this.createOpenButton(buttonsContainer); // Always enabled
@@ -3885,6 +4011,23 @@ class TaskItemButtons {
     container.appendChild(worklogBtn);
   }
 
+  createMoveButton(container) {
+    const moveBtn = document.createElement("button");
+    moveBtn.className = "hover-button move-button";
+    moveBtn.setAttribute("data-type", "move");
+    moveBtn.tabIndex = -1;
+    moveBtn.innerHTML = "<u>m</u>ove";
+    moveBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!this.outline.isItemEditable(this.li)) {
+        this.outline.showPermissionDeniedFeedback(this.li);
+        return;
+      }
+      this.outline.moveItem(this.li);
+    });
+    container.appendChild(moveBtn);
+  }
+
   createArchiveButton(container) {
     if (!this.features.archive) return;
 
@@ -3946,6 +4089,7 @@ class TaskItemButtons {
       '.tags-button',
       '.comments-button',
       '.worklog-button',
+      '.move-button',
       '.archive-button'
     ];
     
@@ -5072,6 +5216,7 @@ class OutlineElement extends HTMLElement {
           box-shadow: 0 0 0 2px var(--clarity-outline-focus-shadow);
         }
 
+
         .date-popup button {
           background: none;
           border: none;
@@ -5287,7 +5432,7 @@ class OutlineElement extends HTMLElement {
       'outline:collapse', 'outline:expand', 'outline:edit:start', 'outline:edit:save',
       'outline:edit:cancel', 'outline:due', 'outline:assign', 'outline:tags',
               'outline:priority', 'outline:on-hold', 'outline:open', 'outline:select',
-      'outline:comment', 'outline:worklog', 'outline:archive', 'outline:permission-denied'
+      'outline:comment', 'outline:worklog', 'outline:move-refile', 'outline:archive', 'outline:permission-denied'
     ];
 
     // Get the list element where events are dispatched

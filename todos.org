@@ -351,10 +351,15 @@ CLOSED: [2025-09-18 Thu 13:20]
 CLOSED: [2025-09-18 Thu 13:41]
 * DONE initial creation of capture component
 CLOSED: [2025-09-19 Fri 10:48]
-* TODO action to "move" on item - just emits event
+* DONE action to "move" on item - just emits event
+CLOSED: [2025-09-19 Fri 12:53]
 Intent is "refile subtree" functionality, moving task item from one outline to another.
 
 "move" action item, underline "m", shortcut "m".
+* TODO rename repo to "clarity-components"
+- [X] rename repo
+- [ ] update readme
+- [ ] update local project
 * TODO emit full json in events, option?
 Do I need this, or can I emit and store just the minimum amount of data?
 Easy to add as an option, turned off by default, where on every event we also emit the whole outline as JSON.
