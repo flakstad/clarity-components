@@ -61,7 +61,7 @@ Org-mode inspired quick capture interface for rapid task entry with template sup
 ### Navigation Shortcuts
 
 #### Arrow Keys
-- **↑/↓**: Navigate between sibling items
+- **↑/↓**: Navigate between items
 - **→**: Navigate into first child (expands if collapsed)
 - **←**: Navigate to parent item
 
@@ -108,7 +108,8 @@ Org-mode inspired quick capture interface for rapid task entry with template sup
 - **E**: Edit item text
 - **Enter**: Open item in solo view
 - **Alt + Enter**: Add new sibling todo
-- **Alt + T**: Toggle collapsed/expanded state (toggle hierarchy)
+- **Z**: Toggle collapse/expand of the focused item
+- **Shift + Z**: Toggle global visibility (Collapse All ↔ Expand All)
 - **Shift + →**: Cycle status forward
 - **Shift + ←**: Cycle status backward
 - **Shift + ↑/↓**: Toggle priority
