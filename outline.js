@@ -2035,6 +2035,7 @@ class Outline {
 
     // Status submenu opener
     addItem('Change status…', () => {
+      if (!this.isItemEditable(li)) { this.showPermissionDeniedFeedback(li); return; }
       const labelEl = li.querySelector('.outline-label') || li;
       this.showStatusPopup(li, labelEl);
     });
@@ -3637,6 +3638,12 @@ class Outline {
   setTodoStatus(li, status) {
     const label = li.querySelector(".outline-label");
     if (!label) return false;
+
+    // Editing permission check for status changes
+    if (!this.isItemEditable(li)) {
+      this.showPermissionDeniedFeedback(li);
+      return false;
+    }
 
     // Check if we can complete this parent
     if (!this.canCompleteParent(li, status)) {

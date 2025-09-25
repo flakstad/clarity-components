@@ -380,3 +380,5 @@ CLOSED: [2025-09-25 Thu 12:54]
 need serious thought about how the UX should work. The org-mode way with "++1d"
 etc works, but is a bit complicated to understand. And the task just going back
 to TODO when you set it to DONE is also a behavior you have to get used to.
+* TODO try removing the action hover items
+- make it an optional config to show these (always show if data is set for the action, e.g. priority is set, but don't show the action buttons to set priority if not set)
