@@ -66,16 +66,6 @@ class Outline {
       if (sublist) {
         sublist.style.display = "none";
         li.classList.add("collapsed");
-        
-        // Add chevron if it doesn't exist
-        if (!li.querySelector(".outline-chevron")) {
-          const chevron = this.createChevron(li);
-          if (chevron) {
-            // Insert chevron after child count, before action buttons
-            this.insertChevronAtCorrectPosition(li, chevron);
-            this.updateChevronState(li);
-          }
-        }
       }
     });
 
@@ -834,14 +824,6 @@ class Outline {
         parentLi.appendChild(sublist);
         parentLi.classList.add("has-children");
 
-        // Add chevron when item becomes a parent
-        if (!parentLi.querySelector(".outline-chevron")) {
-          const chevron = this.createChevron(parentLi);
-          if (chevron) {
-            this.insertChevronAtCorrectPosition(parentLi, chevron);
-            this.updateChevronState(parentLi);
-          }
-        }
 
         // Initialize sortable on new sublist if drag-and-drop is enabled
         if (this.options.features.dragAndDrop) {
@@ -887,14 +869,6 @@ class Outline {
       prev.appendChild(sublist);
       prev.classList.add("has-children");
 
-      // Add chevron when item becomes a parent
-      if (!prev.querySelector(".outline-chevron")) {
-        const chevron = this.createChevron(prev);
-        if (chevron) {
-          this.insertChevronAtCorrectPosition(prev, chevron);
-          this.updateChevronState(prev);
-        }
-      }
 
       // Initialize sortable on new sublist if drag-and-drop is enabled
       if (this.options.features.dragAndDrop) {
@@ -960,11 +934,6 @@ class Outline {
       parentLi.classList.remove("has-children");
       sublist.remove();
       
-      // Remove chevron when item is no longer a parent
-      const chevron = parentLi.querySelector(".outline-chevron");
-      if (chevron) {
-        chevron.remove();
-      }
     }
 
     // Update counts for any new parents of the moved item
@@ -1054,18 +1023,14 @@ class Outline {
 
     const sublist = li.querySelector("ul");
     let countSpan = li.querySelector(".child-count");
+    let chevron = li.querySelector(".outline-chevron");
 
     if (!sublist || sublist.children.length === 0) {
-        // Remove count if no children
+        // Remove count and chevron if no children
         if (countSpan) countSpan.remove();
+        if (chevron) chevron.remove();
         // Remove has-children class if no children
         li.classList.remove("has-children");
-        
-        // Remove chevron when item is no longer a parent
-        const chevron = li.querySelector(".outline-chevron");
-        if (chevron) {
-          chevron.remove();
-        }
         return;
     }
 
@@ -1074,6 +1039,17 @@ class Outline {
     // Only count items with labels as "completable" - exclude header-like (no-label) children
     const completableChildren = directChildren.filter(c => !c.classList.contains("no-label"));
     const doneCount = completableChildren.filter(c => c.classList.contains("completed")).length;
+
+    // Add has-children class for items with children
+    li.classList.add("has-children");
+
+    // Always show chevron when item has children (regardless of completable children count)
+    if (!chevron) {
+        chevron = this.createChevron(li);
+        if (chevron) {
+            // Position chevron - we'll position it after we handle the count span
+        }
+    }
 
     // Show count only if there are completable children
     if (completableChildren.length > 0) {
@@ -1092,11 +1068,31 @@ class Outline {
         
         // Make child count clickable
         this.makeChildCountClickable(li);
+
+        // Position chevron after count span
+        if (chevron && chevron.parentNode !== li) {
+            countSpan.after(chevron);
+        }
     } else {
-        // Remove the count span entirely when no completable children
+        // Remove the count span when no completable children, but keep chevron
         if (countSpan) {
             countSpan.remove();
         }
+        
+        // Position chevron after text span when no count span
+        if (chevron && chevron.parentNode !== li) {
+            const textSpan = li.querySelector(".outline-text");
+            if (textSpan) {
+                textSpan.after(chevron);
+            } else {
+                li.appendChild(chevron);
+            }
+        }
+    }
+
+    // Update chevron state based on collapsed status
+    if (chevron) {
+        this.updateChevronState(li);
     }
   }
 
@@ -1441,29 +1437,6 @@ class Outline {
     }
   }
 
-  insertChevronAtCorrectPosition(li, chevron) {
-    // Insert right after the progress indicator (child count), before action buttons
-    const childCount = li.querySelector(".child-count");
-    
-    if (childCount) {
-      // Insert immediately after child count
-      childCount.after(chevron);
-    } else {
-      // If no child count, insert after text span (fallback, though this shouldn't happen for items with children)
-      const textSpan = li.querySelector(".outline-text");
-      if (textSpan) {
-        textSpan.after(chevron);
-      } else {
-        // Final fallback: insert at end before nested children
-        const sublist = li.querySelector("ul");
-        if (sublist) {
-          li.insertBefore(chevron, sublist);
-        } else {
-          li.appendChild(chevron);
-        }
-      }
-    }
-  }
 
   makeChildCountClickable(li) {
     const childCount = li.querySelector(".child-count");
@@ -3538,11 +3511,6 @@ class Outline {
           parentLi.classList.remove('has-children');
           sublist.remove();
           
-          // Remove chevron when item is no longer a parent
-          const chevron = parentLi.querySelector('.outline-chevron');
-          if (chevron) {
-            chevron.remove();
-          }
         }
       }
     }
@@ -4166,11 +4134,6 @@ class Outline {
           fromParentLi.classList.remove('has-children');
           fromList.remove();
           
-          // Remove chevron when item is no longer a parent
-          const chevron = fromParentLi.querySelector('.outline-chevron');
-          if (chevron) {
-            chevron.remove();
-          }
         }
       }
     }
@@ -4880,27 +4843,6 @@ class OutlineElement extends HTMLElement {
       li.appendChild(countSpan);
     }
 
-    // Add chevron for items with children (after child count)
-    if (todo.children && todo.children.length > 0) {
-      const chevron = document.createElement('span');
-      chevron.className = 'outline-chevron collapsed'; // Start collapsed
-      chevron.textContent = '▾'; // Down arrow
-      
-      // Add click handler
-      chevron.addEventListener('click', (e) => {
-        e.stopPropagation();
-        // Use a timeout to ensure the outline instance is available
-        setTimeout(() => {
-          // Find the outline instance from the DOM
-          const outlineEl = li.closest('.outline-list');
-          if (outlineEl && outlineEl._outlineInstance) {
-            outlineEl._outlineInstance.cycleCollapsedState(li);
-          }
-        }, 0);
-      });
-      
-      li.appendChild(chevron);
-    }
 
     // Add metadata spans (hidden)
     if (todo.schedule) {
