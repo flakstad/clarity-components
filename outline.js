@@ -239,23 +239,23 @@ class Outline {
       });
     });
 
-    // Add double-click for edit mode
+    // Add double-click for edit mode - only on text spans
     this.el.addEventListener("dblclick", e => {
+      // Only trigger edit mode if double-clicking specifically on the text span
+      if (!e.target.classList.contains("outline-text")) {
+        return;
+      }
+
       const li = e.target.closest("li");
       if (!li) return;
 
-      // Check if click is on a button (metadata buttons should handle their own clicks)
-      if (e.target.tagName === "BUTTON") {
-        return; // Let button handle its own click
-      }
-
-      // Check if click is on edit input (don't enter edit mode when already editing)
+      // Check if already in edit mode
       if (e.target.classList.contains("outline-edit-input")) {
         return; // Let edit input handle its own clicks
       }
 
-      // Double click: enter edit mode
-      console.log("Todo item double-clicked - entering edit mode", li.dataset.id);
+      // Double click on text: enter edit mode
+      console.log("Todo text double-clicked - entering edit mode", li.dataset.id);
       if(!this.isItemEditable(li)) {
         this.showPermissionDeniedFeedback(li);
         return;
