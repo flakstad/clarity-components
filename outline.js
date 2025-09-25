@@ -5252,6 +5252,7 @@ class OutlineElement extends HTMLElement {
             width: 1em;
             text-align: center;
             transition: transform 0.15s ease;
+            padding: 0.2em 0.4em;
           }
 
           .outline-chevron:hover {
