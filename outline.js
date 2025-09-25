@@ -534,8 +534,8 @@ class Outline {
         return;
       }
 
-      // Cycle collapsed/expanded with Alt+T (toggle hierarchy)
-      if(e.code==="KeyT" && e.altKey && !e.ctrlKey && !e.metaKey) {
+      // Cycle collapsed/expanded with Tab
+      if(e.key === "Tab" && !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
         e.preventDefault();
         this.cycleCollapsedState(li);
         return;
@@ -576,6 +576,19 @@ class Outline {
           (e.key === 'j' && !e.altKey && !e.ctrlKey && !e.metaKey))) {
         console.log(`Focus: Moving down with ${e.key} (${e.ctrlKey ? 'Ctrl+' : ''}${e.key})`);
         e.preventDefault();
+        
+        // Check if current item has expanded children
+        const sublist = li.querySelector("ul");
+        if (sublist && sublist.children.length > 0 && !li.classList.contains("collapsed")) {
+          // Item has expanded children, navigate into first child
+          const firstChild = sublist.querySelector("li");
+          if (firstChild) {
+            firstChild.focus();
+            return;
+          }
+        }
+        
+        // No expanded children, navigate to next sibling or up the hierarchy
         if(idx < siblings.length - 1) {
           siblings[idx+1].focus();
         } else {
@@ -593,12 +606,29 @@ class Outline {
           (e.key === 'k' && !e.altKey && !e.ctrlKey && !e.metaKey))) {
         console.log(`Focus: Moving up with ${e.key} (${e.ctrlKey ? 'Ctrl+' : ''}${e.key})`);
         e.preventDefault();
-        if(idx > 0) {
-          siblings[idx-1].focus();
+
+        // Previous visible item logic: previous sibling's deepest visible descendant, else parent
+        if (idx > 0) {
+          let target = siblings[idx - 1];
+
+          // Dive into deepest last descendant while expanded
+          while (true) {
+            const tSub = target.querySelector('ul');
+            if (tSub && tSub.children.length > 0 && !target.classList.contains('collapsed')) {
+              const childLis = Array.from(tSub.children).filter(c => c.tagName === 'LI');
+              if (childLis.length > 0) {
+                target = childLis[childLis.length - 1];
+                continue;
+              }
+            }
+            break;
+          }
+
+          target.focus();
         } else {
-          // first child, move focus to parent li if exists
-          const parentLi = li.parentNode.closest("li");
-          if(parentLi) parentLi.focus();
+          // First child: previous visible item is the parent
+          const parentLi = li.parentNode.closest('li');
+          if (parentLi) parentLi.focus();
         }
         return;
       }
@@ -613,7 +643,7 @@ class Outline {
         e.preventDefault();
         const sublist = li.querySelector("ul");
         if (sublist && sublist.children.length > 0) {
-          // If collapsed, expand first-level children only
+          // If collapsed, expand and navigate to first child
           if (li.classList.contains("collapsed")) {
             this.expandItem(li); // only expands direct children
           }

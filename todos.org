@@ -369,6 +369,10 @@ CLOSED: [2025-09-19 Fri 14:45]
 - [X] rename repo
 - [X] update readme
 - [X] update local project
+* DONE collapse/expand with tab
+CLOSED: [2025-09-25 Thu 07:01]
+* DONE nav up down including children if expanded
+CLOSED: [2025-09-25 Thu 07:01]
 * TODO supporting repeating tasks, schedules/due dates that reoccur
 <2025-09-18 Thu 09:59> Did an attempt at this, but gets complicated and would
 need serious thought about how the UX should work. The org-mode way with "++1d"
