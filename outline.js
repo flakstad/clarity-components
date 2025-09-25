@@ -165,6 +165,14 @@ class Outline {
   }
 
   bindEvents() {
+    // Context menu (right-click) to show full actions menu
+    this.el.addEventListener("contextmenu", e => {
+      const li = e.target.closest("li");
+      if (!li) return;
+      e.preventDefault();
+      this.showContextMenu(li, e.clientX, e.clientY);
+    });
+
     // Add global document event listener for Escape key to close popups
     document.addEventListener("keydown", e => {
       if (e.key === 'Escape') {
@@ -1956,6 +1964,188 @@ class Outline {
     popup.style.left = `${positionedLeft}px`;
     popup.style.top = `${top}px`;
 
+  }
+
+  // Position a popup relative to a point (e.g., mouse position inside the list container)
+  positionPopupAtPoint(popup, clientX, clientY) {
+    // Ensure container has relative positioning for absolute popup positioning
+    this.el.style.position = 'relative';
+    this.el.appendChild(popup);
+
+    const containerRect = this.el.getBoundingClientRect();
+
+    // Calculate left relative to container and orient towards center
+    const rawLeft = clientX - containerRect.left;
+    const positionedLeft = this.calculateCenterOrientedPosition(popup, rawLeft, containerRect.width);
+    popup.style.left = `${Math.max(0, positionedLeft)}px`;
+
+    // Calculate top, clamped to container height
+    let top = clientY - containerRect.top + 5;
+    // Clamp if popup would overflow bottom
+    const popupHeight = popup.offsetHeight || 200; // fallback estimate
+    const maxTop = Math.max(0, containerRect.height - popupHeight - 10);
+    popup.style.top = `${Math.min(top, maxTop)}px`;
+  }
+
+  showContextMenu(li, clientX, clientY) {
+    this.closeAllPopups();
+
+    // Keep metadata visible while menu is open
+    li.classList.add('popup-active');
+    this.updateHoverButtonsVisibility(li);
+
+    const popup = document.createElement('div');
+    popup.className = 'outline-popup dropdown-popup';
+
+    const addItem = (label, onSelect, opts = {}) => {
+      const { disabled = false, selected = false } = opts;
+      if (disabled) return; // skip entirely if disabled
+      const item = document.createElement('div');
+      item.className = 'dropdown-item';
+      if (selected) item.classList.add('selected');
+      item.textContent = label;
+      item.setAttribute('tabindex', '0');
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.closeAllPopups(li);
+        onSelect();
+      });
+      item.addEventListener('keydown', (e) => {
+        this.handleDropdownKeydown(e, item, () => { this.closeAllPopups(li); onSelect(); }, li);
+      });
+      popup.appendChild(item);
+    };
+
+    // Determine current status for highlighting
+    const currentLabel = li.querySelector('.outline-label');
+    let currentStatus = 'none';
+    if (currentLabel && currentLabel.style.display !== 'none') {
+      const currentText = currentLabel.textContent.trim();
+      const statusIndex = this.options.statusLabels.findIndex(s => s.label === currentText);
+      if (statusIndex >= 0) currentStatus = `status-${statusIndex}`;
+    }
+
+    // Core actions
+    addItem('Open', () => { this.openItem(li); this.closeAllPopups(); });
+
+    addItem('Edit', () => {
+      if (!this.isItemEditable(li)) { this.showPermissionDeniedFeedback(li); return; }
+      this.enterEditMode(li);
+    });
+
+    // Status submenu opener
+    addItem('Change status…', () => {
+      const labelEl = li.querySelector('.outline-label') || li;
+      this.showStatusPopup(li, labelEl);
+    });
+
+    // Feature-gated actions (mirror hover actions)
+    if (this.options.features.priority) {
+      addItem(li.classList.contains('priority') ? 'Remove priority' : 'Mark as priority', () => {
+        if (!this.isItemEditable(li)) { this.showPermissionDeniedFeedback(li); return; }
+        this.togglePriority(li);
+      });
+    }
+
+    if (this.options.features.onHold) {
+      addItem(li.classList.contains('on-hold') ? 'Remove on hold' : 'Mark as on hold', () => {
+        if (!this.isItemEditable(li)) { this.showPermissionDeniedFeedback(li); return; }
+        this.toggleOnHold(li);
+      });
+    }
+
+    if (this.options.features.schedule) {
+      addItem('Schedule…', () => {
+        if (!this.isItemEditable(li)) { this.showPermissionDeniedFeedback(li); return; }
+        const btn = li.querySelector('.schedule-button') || li;
+        this.showSchedulePopup(li, btn);
+      });
+    }
+
+    if (this.options.features.due) {
+      addItem('Due date…', () => {
+        if (!this.isItemEditable(li)) { this.showPermissionDeniedFeedback(li); return; }
+        const btn = li.querySelector('.due-button') || li;
+        this.showDuePopup(li, btn);
+      });
+    }
+
+    if (this.options.features.assign) {
+      addItem('Assign…', () => {
+        if (!this.isItemEditable(li)) { this.showPermissionDeniedFeedback(li); return; }
+        const btn = li.querySelector('.assign-button') || li;
+        this.showAssignPopup(li, btn);
+      });
+    }
+
+    if (this.options.features.tags) {
+      addItem('Tags…', () => {
+        if (!this.isItemEditable(li)) { this.showPermissionDeniedFeedback(li); return; }
+        const btn = li.querySelector('.tags-button') || li;
+        this.showTagsPopup(li, btn);
+      });
+    }
+
+    if (this.options.features.comments) {
+      addItem('Add comment…', () => {
+        const btn = li.querySelector('.comments-button') || li;
+        this.showCommentsPopup(li, btn);
+      });
+    }
+
+    if (this.options.features.worklog) {
+      addItem('Add to worklog…', () => {
+        const btn = li.querySelector('.worklog-button') || li;
+        this.showWorklogPopup(li, btn);
+      });
+    }
+
+    // Always available
+    addItem('Move…', () => {
+      if (!this.isItemEditable(li)) { this.showPermissionDeniedFeedback(li); return; }
+      this.moveItem(li);
+    });
+
+    if (this.options.features.archive) {
+      addItem('Archive…', () => {
+        if (!this.isItemEditable(li)) { this.showPermissionDeniedFeedback(li); return; }
+        const btn = li.querySelector('.archive-button') || li;
+        this.showArchivePopup(li, btn);
+      });
+    }
+
+    // Position and focus
+    this.positionPopupAtPoint(popup, clientX, clientY);
+    setTimeout(() => {
+      const firstItem = popup.querySelector('.dropdown-item');
+      if (firstItem) firstItem.focus();
+    }, 0);
+
+    // Outside click handling
+    setTimeout(() => {
+      const handleOutsideClick = (e) => {
+        const isInsidePopup = popup.contains(e.target);
+        const isInOutlineList = e.target.closest('outline-list');
+        const isPopupElement = e.target.closest('.outline-popup');
+
+        // For shadow DOM
+        let isInsideShadowPopup = false;
+        if (e.composedPath) {
+          const path = e.composedPath();
+          isInsideShadowPopup = path.some(element =>
+            element && element.nodeType === Node.ELEMENT_NODE &&
+            (element.classList?.contains('outline-popup') || popup.contains(element))
+          );
+        }
+
+        if (isInsidePopup || isInOutlineList || isPopupElement || isInsideShadowPopup) return;
+        this.closeAllPopups(li);
+        document.removeEventListener('click', handleOutsideClick);
+      };
+
+      document.addEventListener('click', handleOutsideClick);
+      popup._outsideClickHandler = handleOutsideClick;
+    }, 0);
   }
 
   /**
