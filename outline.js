@@ -40,6 +40,9 @@ class Outline {
   }
 
   init() {
+    // Store reference to this outline instance on the DOM element
+    this.el._outlineInstance = this;
+    
     // Initialize all existing li elements as TaskItems
     this.el.querySelectorAll("li").forEach(li => {
       const taskItem = TaskItem.fromElement(li, this);
@@ -53,6 +56,27 @@ class Outline {
     this.el.querySelectorAll("li").forEach(li => {
       this.updateChildCount(li);
       this.updateHoverButtonsVisibility(li);
+      // Make existing child counts clickable
+      this.makeChildCountClickable(li);
+    });
+
+    // Start collapsed by default - collapse all existing items with children
+    this.el.querySelectorAll("li.has-children").forEach(li => {
+      const sublist = li.querySelector("ul");
+      if (sublist) {
+        sublist.style.display = "none";
+        li.classList.add("collapsed");
+        
+        // Add chevron if it doesn't exist
+        if (!li.querySelector(".outline-chevron")) {
+          const chevron = this.createChevron(li);
+          if (chevron) {
+            // Insert chevron after child count, before action buttons
+            this.insertChevronAtCorrectPosition(li, chevron);
+            this.updateChevronState(li);
+          }
+        }
+      }
     });
 
     // Initialize drag-and-drop if enabled
@@ -691,14 +715,7 @@ class Outline {
 
     });
 
-    this.el.addEventListener("click", e=>{
-      const li=e.target.closest("li.has-children");
-      if(li && e.target === li.querySelector("::before")){ // pseudo-element won't trigger directly
-        const sublist=li.querySelector("ul");
-        if(sublist.style.display==="none") this.expandItem(li);
-        else this.collapseItem(li);
-      }
-    });
+    // Chevron click handling is now done via individual chevron elements
   }
 
   getItems() { return Array.from(this.el.querySelectorAll("li")); }
@@ -817,6 +834,15 @@ class Outline {
         parentLi.appendChild(sublist);
         parentLi.classList.add("has-children");
 
+        // Add chevron when item becomes a parent
+        if (!parentLi.querySelector(".outline-chevron")) {
+          const chevron = this.createChevron(parentLi);
+          if (chevron) {
+            this.insertChevronAtCorrectPosition(parentLi, chevron);
+            this.updateChevronState(parentLi);
+          }
+        }
+
         // Initialize sortable on new sublist if drag-and-drop is enabled
         if (this.options.features.dragAndDrop) {
           this.initSortableOnNewSublist(sublist);
@@ -860,6 +886,15 @@ class Outline {
       sublist=document.createElement("ul");
       prev.appendChild(sublist);
       prev.classList.add("has-children");
+
+      // Add chevron when item becomes a parent
+      if (!prev.querySelector(".outline-chevron")) {
+        const chevron = this.createChevron(prev);
+        if (chevron) {
+          this.insertChevronAtCorrectPosition(prev, chevron);
+          this.updateChevronState(prev);
+        }
+      }
 
       // Initialize sortable on new sublist if drag-and-drop is enabled
       if (this.options.features.dragAndDrop) {
@@ -924,6 +959,12 @@ class Outline {
     if (sublist && sublist.children.length === 0) {
       parentLi.classList.remove("has-children");
       sublist.remove();
+      
+      // Remove chevron when item is no longer a parent
+      const chevron = parentLi.querySelector(".outline-chevron");
+      if (chevron) {
+        chevron.remove();
+      }
     }
 
     // Update counts for any new parents of the moved item
@@ -958,6 +999,7 @@ class Outline {
         sublist.style.display="none";
         li.classList.add("collapsed");
     }
+    this.updateChevronState(li);
     this.emit("outline:collapse",{id:li.dataset.id});
   }
 
@@ -967,6 +1009,7 @@ class Outline {
         sublist.style.display="block";
         li.classList.remove("collapsed");
     }
+    this.updateChevronState(li);
     this.emit("outline:expand",{id:li.dataset.id});
   }
 
@@ -978,6 +1021,7 @@ class Outline {
       if (sublist) {
         sublist.style.display = 'none';
         li.classList.add('collapsed');
+        this.updateChevronState(li);
       }
     });
   }
@@ -989,6 +1033,7 @@ class Outline {
       if (sublist) {
         sublist.style.display = 'block';
         li.classList.remove('collapsed');
+        this.updateChevronState(li);
       }
     });
   }
@@ -1015,6 +1060,12 @@ class Outline {
         if (countSpan) countSpan.remove();
         // Remove has-children class if no children
         li.classList.remove("has-children");
+        
+        // Remove chevron when item is no longer a parent
+        const chevron = li.querySelector(".outline-chevron");
+        if (chevron) {
+          chevron.remove();
+        }
         return;
     }
 
@@ -1038,6 +1089,9 @@ class Outline {
         // Create progress bar instead of text
         this.createProgressBar(countSpan, doneCount, completableChildren.length);
         countSpan.style.display = "";
+        
+        // Make child count clickable
+        this.makeChildCountClickable(li);
     } else {
         // Remove the count span entirely when no completable children
         if (countSpan) {
@@ -1354,6 +1408,73 @@ class Outline {
       // Currently expanded (or normal), collapse it
       this.collapseItem(li);
     }
+  }
+
+  createChevron(li) {
+    // Only create chevron if item has children
+    const sublist = li.querySelector("ul");
+    if (!sublist || sublist.children.length === 0) {
+      return null;
+    }
+
+    const chevron = document.createElement("span");
+    chevron.className = "outline-chevron";
+    chevron.textContent = "▾"; // Down arrow (expanded state)
+    
+    // Add click handler
+    chevron.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.cycleCollapsedState(li);
+    });
+
+    return chevron;
+  }
+
+  updateChevronState(li) {
+    const chevron = li.querySelector(".outline-chevron");
+    if (!chevron) return;
+
+    if (li.classList.contains("collapsed")) {
+      chevron.classList.add("collapsed");
+    } else {
+      chevron.classList.remove("collapsed");
+    }
+  }
+
+  insertChevronAtCorrectPosition(li, chevron) {
+    // Insert right after the progress indicator (child count), before action buttons
+    const childCount = li.querySelector(".child-count");
+    
+    if (childCount) {
+      // Insert immediately after child count
+      childCount.after(chevron);
+    } else {
+      // If no child count, insert after text span (fallback, though this shouldn't happen for items with children)
+      const textSpan = li.querySelector(".outline-text");
+      if (textSpan) {
+        textSpan.after(chevron);
+      } else {
+        // Final fallback: insert at end before nested children
+        const sublist = li.querySelector("ul");
+        if (sublist) {
+          li.insertBefore(chevron, sublist);
+        } else {
+          li.appendChild(chevron);
+        }
+      }
+    }
+  }
+
+  makeChildCountClickable(li) {
+    const childCount = li.querySelector(".child-count");
+    if (!childCount || childCount.dataset.clickHandlerAdded) return;
+
+    childCount.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.cycleCollapsedState(li);
+    });
+    
+    childCount.dataset.clickHandlerAdded = "true";
   }
 
   navigateToNextItem(li) {
@@ -3416,6 +3537,12 @@ class Outline {
         if (sublist && sublist.children.length === 0) {
           parentLi.classList.remove('has-children');
           sublist.remove();
+          
+          // Remove chevron when item is no longer a parent
+          const chevron = parentLi.querySelector('.outline-chevron');
+          if (chevron) {
+            chevron.remove();
+          }
         }
       }
     }
@@ -4038,6 +4165,12 @@ class Outline {
         if (fromList.children.length === 0 && fromList !== this.el) {
           fromParentLi.classList.remove('has-children');
           fromList.remove();
+          
+          // Remove chevron when item is no longer a parent
+          const chevron = fromParentLi.querySelector('.outline-chevron');
+          if (chevron) {
+            chevron.remove();
+          }
         }
       }
     }
@@ -4416,17 +4549,19 @@ class TaskItem {
   }
 
   insertButtonsContainer(buttonsContainer) {
-    // Insert after the child-count if it exists, otherwise after the text span
+    // Insert after chevron if it exists, then child-count, then text span
+    const chevron = this.li.querySelector(".outline-chevron");
     const childCount = this.li.querySelector(".child-count");
-    if (childCount) {
+    const textSpan = this.li.querySelector(".outline-text");
+    
+    if (chevron) {
+      chevron.after(buttonsContainer);
+    } else if (childCount) {
       childCount.after(buttonsContainer);
+    } else if (textSpan) {
+      textSpan.after(buttonsContainer);
     } else {
-      const textSpan = this.li.querySelector(".outline-text");
-      if (textSpan) {
-        textSpan.after(buttonsContainer);
-      } else {
-        this.li.appendChild(buttonsContainer);
-      }
+      this.li.appendChild(buttonsContainer);
     }
   }
 
@@ -4562,6 +4697,11 @@ class OutlineElement extends HTMLElement {
 
     // Initialize the Outline
     this.todoList = new Outline(listEl, options);
+
+    // Make child counts clickable for items created from JSON data
+    listEl.querySelectorAll("li").forEach(li => {
+      this.todoList.makeChildCountClickable(li);
+    });
 
     // Forward events from shadow DOM to light DOM
     this.forwardEvents();
@@ -4740,6 +4880,28 @@ class OutlineElement extends HTMLElement {
       li.appendChild(countSpan);
     }
 
+    // Add chevron for items with children (after child count)
+    if (todo.children && todo.children.length > 0) {
+      const chevron = document.createElement('span');
+      chevron.className = 'outline-chevron collapsed'; // Start collapsed
+      chevron.textContent = '▾'; // Down arrow
+      
+      // Add click handler
+      chevron.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Use a timeout to ensure the outline instance is available
+        setTimeout(() => {
+          // Find the outline instance from the DOM
+          const outlineEl = li.closest('.outline-list');
+          if (outlineEl && outlineEl._outlineInstance) {
+            outlineEl._outlineInstance.cycleCollapsedState(li);
+          }
+        }, 0);
+      });
+      
+      li.appendChild(chevron);
+    }
+
     // Add metadata spans (hidden)
     if (todo.schedule) {
       const scheduleSpan = document.createElement('span');
@@ -4796,6 +4958,9 @@ class OutlineElement extends HTMLElement {
         const childLi = this.createTodoElement(childTodo, options);
         sublist.appendChild(childLi);
       });
+      // Start collapsed by default - only show top level items initially
+      sublist.style.display = 'none';
+      li.classList.add('collapsed');
       li.appendChild(sublist);
     }
 
@@ -5133,8 +5298,26 @@ class OutlineElement extends HTMLElement {
             }
           }
 
-          &.collapsed::after {
-            content: " ▾";
+          /* Chevron styling - positioned after progress indicator */
+          .outline-chevron {
+            cursor: pointer;
+            user-select: none;
+            margin-left: 0.3rem;
+            margin-right: 0.3rem;
+            color: var(--clarity-outline-text-primary);
+            font-size: 0.8em;
+            display: inline-block;
+            width: 1em;
+            text-align: center;
+            transition: transform 0.15s ease;
+          }
+
+          .outline-chevron:hover {
+            color: var(--clarity-outline-text-secondary);
+          }
+
+          .outline-chevron.collapsed {
+            transform: rotate(-90deg);
           }
 
           &.editing {
@@ -5203,6 +5386,12 @@ class OutlineElement extends HTMLElement {
           color: var(--clarity-outline-text-muted);
           margin-left: 0.5rem;
           user-select: none;
+          cursor: pointer;
+          transition: color 0.15s ease;
+        }
+
+        .child-count:hover {
+          color: var(--clarity-outline-text-secondary);
         }
 
         .progress-container {

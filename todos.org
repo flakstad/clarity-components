@@ -375,6 +375,8 @@ CLOSED: [2025-09-25 Thu 07:01]
 CLOSED: [2025-09-25 Thu 07:01]
 * DONE right click item shows full menu of options
 CLOSED: [2025-09-25 Thu 12:54]
+* DONE outline should start collapsed
+CLOSED: [2025-09-25 Thu 18:37]
 * TODO supporting repeating tasks, schedules/due dates that reoccur
 <2025-09-18 Thu 09:59> Did an attempt at this, but gets complicated and would
 need serious thought about how the UX should work. The org-mode way with "++1d"
@@ -382,3 +384,5 @@ etc works, but is a bit complicated to understand. And the task just going back
 to TODO when you set it to DONE is also a behavior you have to get used to.
 * TODO try removing the action hover items
 - make it an optional config to show these (always show if data is set for the action, e.g. priority is set, but don't show the action buttons to set priority if not set)
+
+<2025-09-25 Thu 16:11> Did a stunt at this. Branc: hide-hover-actions. It's a cleaner look, but it got a bit complex with rules on when to show or not.
